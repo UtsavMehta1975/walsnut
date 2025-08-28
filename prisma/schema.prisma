@@ -1,0 +1,196 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("MYSQL_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  hashedPassword String
+  name           String?
+  address        String?
+  role           UserRole  @default(CUSTOMER)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  orders         Order[]
+  wishlistItems  WatchWishlist[]
+  reviews        Review[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id                 String   @id @default(cuid())
+  brand              String
+  model              String
+  referenceNumber    String?
+  description        String   @db.Text
+  price              Decimal  @db.Decimal(10, 2)
+  previousPrice      Decimal? @db.Decimal(10, 2)
+  condition          Condition
+  year               Int?
+  gender             Gender
+  movement           Movement
+  caseMaterial       String
+  bandMaterial       String
+  waterResistance    String?
+  diameter           String?
+  authenticityStatus AuthenticityStatus @default(PENDING)
+  sku                String   @unique
+  stockQuantity      Int      @default(0)
+  isFeatured         Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Relations
+  categoryId         String?
+  category           Category? @relation(fields: [categoryId], references: [id])
+  images             ProductImage[]
+  orderItems         OrderItem[]
+  wishlistItems      WatchWishlist[]
+  reviews            Review[]
+
+  @@map("products")
+}
+
+model ProductImage {
+  id                 String @id @default(cuid())
+  productId          String
+  cloudinaryPublicId String
+  imageUrl           String
+  altText            String?
+  isPrimary          Boolean @default(false)
+  sortOrder          Int     @default(0)
+  createdAt          DateTime @default(now())
+
+  // Relations
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  userId          String
+  totalAmount     Decimal       @db.Decimal(10, 2)
+  status          OrderStatus   @default(PENDING)
+  shippingAddress String
+  trackingNumber  String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  user      User        @relation(fields: [userId], references: [id])
+  orderItems OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id                      String  @id @default(cuid())
+  orderId                 String
+  productId               String
+  quantity                Int
+  priceAtTimeOfPurchase   Decimal @db.Decimal(10, 2)
+  createdAt               DateTime @default(now())
+
+  // Relations
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model WatchWishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("watch_wishlists")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  rating    Int
+  comment   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("reviews")
+}
+
+// Enums
+enum UserRole {
+  ADMIN
+  CUSTOMER
+}
+
+enum Condition {
+  NEW
+  PRE_OWNED
+  VINTAGE
+}
+
+enum Gender {
+  MENS
+  WOMENS
+  UNISEX
+}
+
+enum Movement {
+  AUTOMATIC
+  MANUAL
+  QUARTZ
+}
+
+enum AuthenticityStatus {
+  PENDING
+  VERIFIED
+  CERTIFIED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
