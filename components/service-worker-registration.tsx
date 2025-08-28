@@ -4,8 +4,8 @@ import { useEffect } from 'react'
 
 export function ServiceWorkerRegistration() {
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      // Register service worker
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+      // Register service worker only in production
       navigator.serviceWorker
         .register('/sw.js')
         .then((registration) => {
@@ -18,8 +18,6 @@ export function ServiceWorkerRegistration() {
       // Handle updates
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         console.log('New service worker activated')
-        // Optionally reload the page to use the new service worker
-        // window.location.reload()
       })
     }
   }, [])
