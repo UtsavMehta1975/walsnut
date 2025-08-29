@@ -10,7 +10,7 @@ export default function ContactPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl lato-black text-gray-900 mb-4">
               Contact Us
             </h1>
             <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
@@ -24,7 +24,7 @@ export default function ContactPage() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Contact Form */}
           <div>
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-6">
+            <h2 className="text-2xl md:text-3xl lato-black text-gray-900 mb-6">
               Send us a Message
             </h2>
             <form className="space-y-6">
@@ -123,7 +123,7 @@ export default function ContactPage() {
 
           {/* Contact Information */}
           <div>
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-6">
+            <h2 className="text-2xl md:text-3xl lato-black text-gray-900 mb-6">
               Get in Touch
             </h2>
             
@@ -208,7 +208,7 @@ export default function ContactPage() {
 
         {/* FAQ Section */}
         <div className="mt-16">
-          <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-8 text-center">
+          <h2 className="text-2xl md:text-3xl lato-black text-gray-900 mb-8 text-center">
             Frequently Asked Questions
           </h2>
           <div className="grid md:grid-cols-2 gap-8">

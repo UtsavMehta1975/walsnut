@@ -60,7 +60,7 @@ export function FeaturedProducts() {
     <section className="py-12 md:py-20 cream-gradient">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 md:mb-12">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-gradient-walnut mb-3 md:mb-4">
+                      <h2 className="text-2xl md:text-3xl lg:text-4xl lato-black text-gradient-walnut mb-3 md:mb-4">
             Naturally Crafted Excellence
           </h2>
           <p className="text-base md:text-lg text-earth-700 max-w-2xl mx-auto px-4">

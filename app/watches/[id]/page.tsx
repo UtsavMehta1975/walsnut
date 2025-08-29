@@ -296,7 +296,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           <div className="space-y-6">
             {/* Brand and Model */}
             <div>
-              <h1 className="text-3xl font-serif font-bold text-gray-900 mb-2">
+              <h1 className="text-3xl lato-black text-gray-900 mb-2">
                 {product.brand} {product.model}
               </h1>
               {product.referenceNumber && (
@@ -402,7 +402,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
         {/* Specifications */}
         <div className="mt-16">
-          <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">Specifications</h2>
+          <h2 className="text-2xl lato-black text-gray-900 mb-6">Specifications</h2>
           <Card>
             <CardContent className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -450,7 +450,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
         {/* Related Products */}
         {relatedProducts.length > 0 && (
           <div className="mt-16">
-            <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">Related Products</h2>
+            <h2 className="text-2xl lato-black text-gray-900 mb-6">Related Products</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {relatedProducts.map((relatedProduct) => (
                 <Link key={relatedProduct.id} href={`/watches/${relatedProduct.id}`}>

@@ -21,7 +21,7 @@ export default function TermsOfServicePage() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl md:text-3xl font-serif font-bold text-gradient-walnut">
+              <h1 className="text-2xl md:text-3xl lato-black text-gradient-walnut">
                 Terms of Service
               </h1>
               <p className="text-earth-600 mt-2">

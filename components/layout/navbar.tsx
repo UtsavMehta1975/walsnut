@@ -42,7 +42,7 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo - Empty for now */}
           <Link href="/" className="flex items-center space-x-2">
-            <span className="text-xl font-serif font-semibold text-gradient-walnut">
+                            <span className="text-xl lato-bold text-gradient-walnut">
               Walnut
             </span>
           </Link>

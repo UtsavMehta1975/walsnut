@@ -10,7 +10,7 @@ export default function FAQPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <h1 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl md:text-4xl lato-black text-gray-900 mb-4">
               Frequently Asked Questions
             </h1>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
@@ -25,7 +25,7 @@ export default function FAQPage() {
         <div className="space-y-8">
           {/* Product Questions */}
           <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">Product Questions</h2>
+            <h2 className="text-2xl lato-black text-gray-900 mb-6">Product Questions</h2>
             
             <div className="space-y-6">
               <div>
@@ -65,7 +65,7 @@ export default function FAQPage() {
 
           {/* Ordering & Shipping */}
           <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">Ordering & Shipping</h2>
+            <h2 className="text-2xl lato-black text-gray-900 mb-6">Ordering & Shipping</h2>
             
             <div className="space-y-6">
               <div>
@@ -94,8 +94,8 @@ export default function FAQPage() {
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Can I track my order?</h3>
                 <p className="text-gray-600">
-                  Yes, you'll receive a tracking number via email once your order ships. You can track your 
-                  package through our website or the courier's tracking system.
+                  Yes, you&apos;ll receive a tracking number via email once your order ships. You can track your 
+                  package through our website or the courier&apos;s tracking system.
                 </p>
               </div>
             </div>
@@ -103,7 +103,7 @@ export default function FAQPage() {
 
           {/* Returns & Warranty */}
           <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">Returns & Warranty</h2>
+            <h2 className="text-2xl lato-black text-gray-900 mb-6">Returns & Warranty</h2>
             
             <div className="space-y-6">
               <div>
@@ -133,7 +133,7 @@ export default function FAQPage() {
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">What if my watch arrives damaged?</h3>
                 <p className="text-gray-600">
-                  If your watch arrives damaged, please contact us immediately with photos. We'll arrange 
+                  If your watch arrives damaged, please contact us immediately with photos. We&apos;ll arrange 
                   a replacement or refund at no additional cost.
                 </p>
               </div>
@@ -142,7 +142,7 @@ export default function FAQPage() {
 
           {/* Account & Payment */}
           <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">Account & Payment</h2>
+            <h2 className="text-2xl lato-black text-gray-900 mb-6">Account & Payment</h2>
             
             <div className="space-y-6">
               <div>

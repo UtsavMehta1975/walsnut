@@ -11,11 +11,11 @@ export default function SupportPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <h1 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl md:text-4xl lato-black text-gray-900 mb-4">
               Customer Support
             </h1>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              We're here to help with any questions or concerns about your Walnut timepiece
+              We&apos;re here to help with any questions or concerns about your Walnut timepiece
             </p>
           </div>
         </div>
@@ -73,7 +73,7 @@ export default function SupportPage() {
 
         {/* Business Hours */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-12">
-          <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">Business Hours</h2>
+          <h2 className="text-2xl lato-black text-gray-900 mb-6">Business Hours</h2>
           
           <div className="grid md:grid-cols-2 gap-8">
             <div>
@@ -101,7 +101,7 @@ export default function SupportPage() {
 
         {/* Service Centers */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-12">
-          <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">Service Centers</h2>
+          <h2 className="text-2xl lato-black text-gray-900 mb-6">Service Centers</h2>
           
           <div className="grid md:grid-cols-2 gap-8">
             <div>
@@ -144,7 +144,7 @@ export default function SupportPage() {
 
         {/* Common Issues */}
         <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">Common Issues & Solutions</h2>
+          <h2 className="text-2xl lato-black text-gray-900 mb-6">Common Issues & Solutions</h2>
           
           <div className="space-y-6">
             <div>

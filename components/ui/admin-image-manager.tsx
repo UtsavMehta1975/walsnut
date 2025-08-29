@@ -295,14 +295,14 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
                 <GripVertical className="h-4 w-4 text-gray-400 cursor-move" />
                 
                 {/* Image preview */}
-                <div className="flex-shrink-0">
-                  <img
+                <div className="flex-shrink-0 relative w-16 h-16">
+                  <OptimizedImage
                     src={image.imageUrl}
                     alt={image.altText}
-                    className="w-16 h-16 object-cover rounded border"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://via.placeholder.com/64x64?text=Error'
-                    }}
+                    width={64}
+                    height={64}
+                    fill
+                    className="object-cover rounded border"
                   />
                 </div>
 

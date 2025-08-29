@@ -11,7 +11,7 @@ export default function ShippingPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <h1 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl md:text-4xl lato-black text-gray-900 mb-4">
               Shipping & Returns
             </h1>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
@@ -25,7 +25,7 @@ export default function ShippingPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Shipping Information */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-          <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">Shipping Information</h2>
+          <h2 className="text-2xl lato-black text-gray-900 mb-6">Shipping Information</h2>
           
           <div className="grid md:grid-cols-2 gap-8">
             <div>
@@ -74,7 +74,7 @@ export default function ShippingPage() {
 
         {/* Returns Information */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-          <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">Returns & Exchanges</h2>
+          <h2 className="text-2xl lato-black text-gray-900 mb-6">Returns & Exchanges</h2>
           
           <div className="grid md:grid-cols-2 gap-8">
             <div>
@@ -83,7 +83,7 @@ export default function ShippingPage() {
                 Return Policy
               </h3>
               <p className="text-gray-600 mb-4">
-                We want you to be completely satisfied with your purchase. If you're not happy 
+                We want you to be completely satisfied with your purchase. If you&apos;re not happy 
                 with your watch, we offer a 30-day return window.
               </p>
               <div className="space-y-3">
@@ -118,7 +118,7 @@ export default function ShippingPage() {
                   <div className="bg-walnut-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-semibold mr-3">2</div>
                   <div>
                     <h4 className="font-semibold text-gray-900">Get Return Label</h4>
-                    <p className="text-sm text-gray-600">We'll provide a prepaid return shipping label</p>
+                    <p className="text-sm text-gray-600">We&apos;ll provide a prepaid return shipping label</p>
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -142,7 +142,7 @@ export default function ShippingPage() {
 
         {/* FAQ Section */}
         <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
+          <h2 className="text-2xl lato-black text-gray-900 mb-6">Frequently Asked Questions</h2>
           
           <div className="space-y-6">
             <div>
@@ -163,7 +163,7 @@ export default function ShippingPage() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">What if my watch arrives damaged?</h3>
               <p className="text-gray-600">
-                If your watch arrives damaged, please contact us immediately with photos. We'll arrange a replacement 
+                If your watch arrives damaged, please contact us immediately with photos. We&apos;ll arrange a replacement 
                 or refund at no additional cost.
               </p>
             </div>

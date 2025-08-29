@@ -52,7 +52,7 @@ export default function SignInPage() {
         <div className="w-full max-w-md">
           <Card className="shadow-lg">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-serif">Welcome Back</CardTitle>
+                              <CardTitle className="text-2xl lato-bold">Welcome Back</CardTitle>
               <CardDescription>
                 Sign in to your Walnut account
               </CardDescription>

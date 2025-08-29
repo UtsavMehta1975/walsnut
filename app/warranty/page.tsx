@@ -10,7 +10,7 @@ export default function WarrantyPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <h1 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl md:text-4xl lato-black text-gray-900 mb-4">
               Warranty & Service
             </h1>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
@@ -24,11 +24,11 @@ export default function WarrantyPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Warranty Coverage */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-          <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">Warranty Coverage</h2>
+          <h2 className="text-2xl lato-black text-gray-900 mb-6">Warranty Coverage</h2>
           
           <div className="grid md:grid-cols-2 gap-8">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">What's Covered</h3>
+                              <h3 className="text-lg font-semibold text-gray-900 mb-4">What&apos;s Covered</h3>
               <div className="space-y-3">
                 <div className="flex items-start">
                   <span className="text-green-600 mr-2">✓</span>
@@ -74,7 +74,7 @@ export default function WarrantyPage() {
 
         {/* Service Information */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-          <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">Service & Repairs</h2>
+          <h2 className="text-2xl lato-black text-gray-900 mb-6">Service & Repairs</h2>
           
           <div className="grid md:grid-cols-2 gap-8">
             <div>
@@ -123,7 +123,7 @@ export default function WarrantyPage() {
 
         {/* Care Instructions */}
         <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">Care Instructions</h2>
+          <h2 className="text-2xl lato-black text-gray-900 mb-6">Care Instructions</h2>
           
           <div className="grid md:grid-cols-3 gap-6">
             <div className="text-center">
@@ -132,7 +132,7 @@ export default function WarrantyPage() {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Water Resistance</h3>
               <p className="text-gray-600 text-sm">
-                Avoid exposing your watch to water unless it's specifically designed for water resistance.
+                Avoid exposing your watch to water unless it&apos;s specifically designed for water resistance.
               </p>
             </div>
             

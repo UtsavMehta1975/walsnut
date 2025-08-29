@@ -2,7 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+/* Lato Font Import */
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
+/* Lato Font Classes */
+.lato-thin {
+  font-family: "Lato", sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.lato-light {
+  font-family: "Lato", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.lato-regular {
+  font-family: "Lato", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.lato-bold {
+  font-family: "Lato", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.lato-black {
+  font-family: "Lato", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.lato-thin-italic {
+  font-family: "Lato", sans-serif;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.lato-light-italic {
+  font-family: "Lato", sans-serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.lato-regular-italic {
+  font-family: "Lato", sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.lato-bold-italic {
+  font-family: "Lato", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.lato-black-italic {
+  font-family: "Lato", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+}
 
 @layer base {
   :root {
@@ -67,6 +129,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: "Lato", sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
@@ -147,7 +210,8 @@
   .btn-walnut {
     @apply bg-gradient-to-r from-walnut-600 to-walnut-700;
     @apply hover:from-walnut-700 hover:to-walnut-800;
-    @apply text-white font-medium;
+    @apply text-white;
+    @apply font-bold;
     @apply transition-all duration-300 ease-out;
     @apply shadow-md hover:shadow-lg;
   }
@@ -157,6 +221,7 @@
     @apply hover:border-walnut-400;
     @apply text-walnut-700 hover:text-walnut-800;
     @apply bg-white hover:bg-walnut-50;
+    @apply font-bold;
     @apply transition-all duration-300 ease-out;
   }
   
@@ -251,7 +316,7 @@
   .btn-walnut,
   .btn-walnut-outline {
     @apply min-h-[44px] px-4 py-3;
-    @apply text-base font-medium;
+    @apply text-base font-bold;
   }
   
   /* Better mobile spacing */
@@ -334,13 +399,13 @@ html {
 /* Better mobile typography */
 .mobile-heading {
   @apply text-xl sm:text-2xl md:text-3xl;
-  @apply font-bold;
+  @apply font-black;
   @apply leading-tight;
 }
 
 .mobile-subheading {
   @apply text-lg sm:text-xl md:text-2xl;
-  @apply font-semibold;
+  @apply font-bold;
   @apply leading-relaxed;
 }
 

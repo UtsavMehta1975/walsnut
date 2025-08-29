@@ -9,7 +9,7 @@ export function Footer() {
           {/* Company Info */}
           <div className="md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <span className="text-xl font-serif font-semibold text-gradient-walnut">Walnut</span>
+              <span className="text-xl lato-bold text-gradient-walnut">Walnut</span>
             </div>
             <p className="text-gray-100 mb-6 max-w-md">
               Where timeless design is naturally crafted. Precision-crafted homage timepieces 

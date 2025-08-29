@@ -107,7 +107,7 @@ export default function AccountPage() {
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-2xl md:text-3xl font-serif font-bold text-gray-900">
+          <h1 className="text-2xl md:text-3xl lato-black text-gray-900">
             My Account
           </h1>
           <p className="text-gray-600">

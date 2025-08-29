@@ -11,6 +11,7 @@ import { ArrowLeft, CreditCard, Truck, Shield } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { formatPrice } from '@/lib/utils'
+import Image from 'next/image'
 
 interface CheckoutItem {
   productId: string
@@ -96,7 +97,7 @@ export default function CheckoutPage() {
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="text-2xl md:text-3xl font-serif font-bold text-gray-900">
+              <h1 className="text-2xl md:text-3xl lato-black text-gray-900">
                 Checkout
               </h1>
               <p className="text-gray-600">
@@ -118,11 +119,14 @@ export default function CheckoutPage() {
               </CardHeader>
               <CardContent>
                 <div className="flex items-center space-x-4">
-                  <img
-                    src={product.imageUrl}
-                    alt={`${product.brand} ${product.model}`}
-                    className="w-20 h-20 object-cover rounded"
-                  />
+                  <div className="relative w-20 h-20">
+                    <Image
+                      src={product.imageUrl}
+                      alt={`${product.brand} ${product.model}`}
+                      fill
+                      className="object-cover rounded"
+                    />
+                  </div>
                   <div className="flex-1">
                     <h3 className="font-semibold">{product.brand} {product.model}</h3>
                     <p className="text-sm text-gray-600">Quantity: {product.quantity}</p>

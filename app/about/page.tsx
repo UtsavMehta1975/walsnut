@@ -1,5 +1,6 @@
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
+import Image from 'next/image'
 
 export default function AboutPage() {
   return (
@@ -10,7 +11,7 @@ export default function AboutPage() {
       <div className="bg-gradient-to-br from-gold-50 to-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-gray-900 mb-6">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl lato-black text-gray-900 mb-6">
               About Walnut
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
@@ -25,7 +26,7 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-6">
+              <h2 className="text-3xl md:text-4xl lato-black text-gray-900 mb-6">
                 Our Mission
               </h2>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed">
@@ -36,11 +37,12 @@ export default function AboutPage() {
               </p>
             </div>
             <div className="relative">
-              <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
-                <img
+              <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden relative">
+                <Image
                   src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&h=800&fit=crop"
                   alt="Luxury watch collection"
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                 />
               </div>
             </div>
@@ -52,7 +54,7 @@ export default function AboutPage() {
       <div className="py-16 md:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-6">
+            <h2 className="text-3xl md:text-4xl lato-black text-gray-900 mb-6">
               Our Values
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -105,16 +107,17 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="relative">
-              <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
-                <img
+              <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden relative">
+                <Image
                   src="https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=800&h=800&fit=crop"
                   alt="Watchmaking craftsmanship"
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                 />
               </div>
             </div>
             <div>
-              <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-6">
+              <h2 className="text-3xl md:text-4xl lato-black text-gray-900 mb-6">
                 Our Story
               </h2>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed">
@@ -135,7 +138,7 @@ export default function AboutPage() {
       <div className="py-16 md:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-6">
+            <h2 className="text-3xl md:text-4xl lato-black text-gray-900 mb-6">
               Meet Our Team
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -145,11 +148,12 @@ export default function AboutPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="w-32 h-32 bg-gray-200 rounded-full mx-auto mb-6 overflow-hidden">
-                <img
+              <div className="w-32 h-32 bg-gray-200 rounded-full mx-auto mb-6 overflow-hidden relative">
+                <Image
                   src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face"
                   alt="Team member"
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                 />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Arjun Patel</h3>
@@ -160,11 +164,12 @@ export default function AboutPage() {
             </div>
 
             <div className="text-center">
-              <div className="w-32 h-32 bg-gray-200 rounded-full mx-auto mb-6 overflow-hidden">
-                <img
+              <div className="w-32 h-32 bg-gray-200 rounded-full mx-auto mb-6 overflow-hidden relative">
+                <Image
                   src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face"
                   alt="Team member"
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                 />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Priya Sharma</h3>
@@ -175,11 +180,12 @@ export default function AboutPage() {
             </div>
 
             <div className="text-center">
-              <div className="w-32 h-32 bg-gray-200 rounded-full mx-auto mb-6 overflow-hidden">
-                <img
+              <div className="w-32 h-32 bg-gray-200 rounded-full mx-auto mb-6 overflow-hidden relative">
+                <Image
                   src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face"
                   alt="Team member"
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                 />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Rajesh Kumar</h3>
@@ -196,7 +202,7 @@ export default function AboutPage() {
       <div className="py-16 md:py-24 bg-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-6">
+            <h2 className="text-2xl md:text-3xl lato-black text-gray-900 mb-6">
               Legal & Ethical Compliance
             </h2>
             <div className="max-w-4xl mx-auto">

@@ -102,7 +102,7 @@ export default function WishlistPage() {
         <div className="flex items-center justify-center px-4 py-8 flex-1">
           <div className="text-center">
             <Heart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-serif font-bold text-gray-900 mb-2">
+            <h2 className="text-2xl lato-black text-gray-900 mb-2">
               Your wishlist is empty
             </h2>
             <p className="text-gray-600 mb-6">
@@ -139,7 +139,7 @@ export default function WishlistPage() {
           <div className="flex items-center space-x-4">
             <Heart className="h-8 w-8 text-gold-600" />
             <div>
-              <h1 className="text-2xl md:text-3xl font-serif font-bold text-gray-900">
+              <h1 className="text-2xl md:text-3xl lato-black text-gray-900">
                 My Wishlist
               </h1>
               <p className="text-gray-600">

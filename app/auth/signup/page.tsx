@@ -72,7 +72,7 @@ export default function SignUpPage() {
         <div className="w-full max-w-md">
           <Card className="shadow-lg">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-serif">Create Account</CardTitle>
+                              <CardTitle className="text-2xl lato-bold">Create Account</CardTitle>
               <CardDescription>
                 Join Walnut and discover luxury timepieces
               </CardDescription>

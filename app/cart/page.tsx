@@ -48,7 +48,7 @@ export default function CartPage() {
         <div className="flex items-center justify-center px-4 py-8 flex-1">
           <div className="text-center">
             <ShoppingBag className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-serif font-bold text-gray-900 mb-2">
+            <h2 className="text-2xl lato-black text-gray-900 mb-2">
               Your cart is empty
             </h2>
             <p className="text-gray-600 mb-6">
@@ -80,7 +80,7 @@ export default function CartPage() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl md:text-3xl font-serif font-bold text-gray-900">
+              <h1 className="text-2xl md:text-3xl lato-black text-gray-900">
                 Shopping Cart
               </h1>
               <p className="text-gray-600">

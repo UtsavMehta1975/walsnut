@@ -59,7 +59,7 @@ export default function BrandsPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl lato-black text-gray-900 mb-4">
               Walnut Collections
             </h1>
             <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
@@ -84,7 +84,7 @@ export default function BrandsPage() {
                   />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors duration-300" />
                   <div className="absolute bottom-4 left-4 right-4">
-                    <h3 className="text-xl font-serif font-bold text-white mb-1">
+                    <h3 className="text-xl lato-black text-white mb-1">
                       {collection.name}
                     </h3>
                     <p className="text-sm text-white/90">
@@ -109,7 +109,7 @@ export default function BrandsPage() {
 
         {/* Call to Action */}
         <div className="text-center mt-16">
-          <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl md:text-3xl lato-black text-gray-900 mb-4">
             Can&apos;t find what you&apos;re looking for?
           </h2>
           <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
