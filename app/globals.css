@@ -285,27 +285,91 @@
   .mobile-margin {
     @apply mb-6 sm:mb-8 md:mb-12;
   }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  /* Loading animation */
+  .shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  /* Fade in animation */
+  .fade-in {
+    animation: fadeIn 0.6s ease-out;
+  }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
+@layer utilities {
+  /* Mobile-specific optimizations */
+  @media (max-width: 768px) {
+    /* Improved touch targets */
+    .btn-highlight,
+    .btn-highlight-outline {
+      @apply min-h-[44px] px-4 py-3;
+      @apply text-base font-semibold;
+    }
+    
+    /* Better mobile spacing */
+    .mobile-padding {
+      @apply px-4 py-6;
+    }
+    
+    /* Mobile-friendly cards */
+    .card-highlight {
+      @apply rounded-lg;
+      @apply shadow-sm;
+    }
+    
+    /* Mobile navigation improvements */
+    .nav-highlight {
+      @apply px-4;
+    }
+    
+    /* Mobile form improvements */
+    .input-highlight {
+      @apply min-h-[44px] px-3 py-2;
+      @apply text-base;
+    }
+    
+    /* Mobile text sizing */
+    .mobile-text-lg {
+      @apply text-lg leading-relaxed;
+    }
+    
+    .mobile-text-base {
+      @apply text-base leading-relaxed;
+    }
+    
+    /* Mobile grid adjustments */
+    .mobile-grid-1 {
+      @apply grid-cols-1 gap-4;
+    }
+    
+    .mobile-grid-2 {
+      @apply grid-cols-2 gap-3;
+    }
+  }
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Loading animation */
+/* Keyframe animations */
 @keyframes shimmer {
   0% {
     background-position: -200px 0;
@@ -315,13 +379,6 @@
   }
 }
 
-.shimmer {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200px 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-/* Fade in animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -330,60 +387,6 @@
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-.fade-in {
-  animation: fadeIn 0.6s ease-out;
-}
-
-/* Mobile-specific optimizations */
-@media (max-width: 768px) {
-  /* Improved touch targets */
-  .btn-highlight,
-  .btn-highlight-outline {
-    @apply min-h-[44px] px-4 py-3;
-    @apply text-base font-semibold;
-  }
-  
-  /* Better mobile spacing */
-  .mobile-padding {
-    @apply px-4 py-6;
-  }
-  
-  /* Mobile-friendly cards */
-  .card-highlight {
-    @apply rounded-lg;
-    @apply shadow-sm;
-  }
-  
-  /* Mobile navigation improvements */
-  .nav-highlight {
-    @apply px-4;
-  }
-  
-  /* Mobile form improvements */
-  .input-highlight {
-    @apply min-h-[44px] px-3 py-2;
-    @apply text-base;
-  }
-  
-  /* Mobile text sizing */
-  .mobile-text-lg {
-    @apply text-lg leading-relaxed;
-  }
-  
-  .mobile-text-base {
-    @apply text-base leading-relaxed;
-  }
-  
-  /* Mobile grid adjustments */
-  .mobile-grid-1 {
-    @apply grid-cols-1 gap-4;
-  }
-  
-  .mobile-grid-2 {
-    @apply grid-cols-2 gap-3;
   }
 }
 
