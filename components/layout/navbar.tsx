@@ -33,14 +33,17 @@ export function Navbar() {
     <nav className="nav-walnut sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-xl lato-bold text-gradient-walnut">
-              Walnut
-            </span>
-          </Link>
+          {/* Mobile Menu Button - Left Side */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden text-earth-600 hover:text-walnut-600"
+          >
+            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation - Center */}
           <div className="hidden md:flex items-center space-x-8">
             <Link href="/watches" className="text-earth-600 hover:text-walnut-600 transition-colors duration-300">
               Watches
@@ -56,7 +59,14 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop Actions */}
+          {/* Logo - Right Side */}
+          <Link href="/" className="flex items-center space-x-2">
+            <span className="text-xl lato-bold text-gradient-walnut">
+              Walnut
+            </span>
+          </Link>
+
+          {/* Desktop Actions - Right Side */}
           <div className="hidden md:flex items-center space-x-4">
             {/* Search */}
             <Button
@@ -135,16 +145,33 @@ export function Navbar() {
                 </Link>
               </div>
             )}
+          </div>
 
-            {/* Mobile menu button */}
+          {/* Mobile Actions - Right Side (Cart, Search) */}
+          <div className="md:hidden flex items-center space-x-2">
+            {/* Search */}
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden text-earth-600 hover:text-walnut-600"
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              className="text-earth-600 hover:text-walnut-600"
             >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              <Search className="h-5 w-5" />
             </Button>
+
+            {/* Cart */}
+            <Link href="/cart">
+              <Button variant="ghost" size="icon" className="relative text-earth-600 hover:text-walnut-600">
+                <ShoppingCart className="h-5 w-5" />
+                <ClientOnly>
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-walnut-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {cartItemCount}
+                    </span>
+                  )}
+                </ClientOnly>
+              </Button>
+            </Link>
           </div>
         </div>
 
