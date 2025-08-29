@@ -6,7 +6,7 @@ import { ShoppingCart, Heart, User, Menu, X, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useCartStore } from '@/store/cart'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
 import { ClientOnly } from '@/components/ui/client-only'
 
@@ -15,8 +15,27 @@ export function Navbar() {
   const { getItemCount } = useCartStore()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
 
   const cartItemCount = getItemCount()
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false)
+      }
+    }
+
+    if (isUserMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isUserMenuOpen])
 
   const handleSignOut = () => {
     // Clear cart state
@@ -103,33 +122,40 @@ export function Navbar() {
             {isLoading ? (
               <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
             ) : isAuthenticated ? (
-              <div className="relative">
-                <Button variant="ghost" size="icon" className="text-earth-600 hover:text-walnut-600">
+              <div className="relative" ref={userMenuRef}>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="text-earth-600 hover:text-walnut-600"
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                >
                   <User className="h-5 w-5" />
                 </Button>
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                  <div className="px-4 py-2 text-sm text-gray-700 border-b">
-                    <p className="font-medium">{user?.name}</p>
-                    <p className="text-gray-500">{user?.email}</p>
-                  </div>
-                  <Link href="/account" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    My Account
-                  </Link>
-                  <Link href="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    My Orders
-                  </Link>
-                  {user?.role === 'admin' && (
-                    <Link href="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      Admin Panel
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                    <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                      <p className="font-medium">{user?.name}</p>
+                      <p className="text-gray-500">{user?.email}</p>
+                    </div>
+                    <Link href="/account" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      My Account
                     </Link>
-                  )}
-                  <button
-                    onClick={handleSignOut}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Sign Out
-                  </button>
-                </div>
+                    <Link href="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      My Orders
+                    </Link>
+                    {user?.role === 'ADMIN' && (
+                      <Link href="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Admin Panel
+                      </Link>
+                    )}
+                    <button
+                      onClick={handleSignOut}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex items-center space-x-2">
@@ -220,7 +246,7 @@ export function Navbar() {
                     <Link href="/orders" className="block text-earth-600 hover:text-walnut-600">
                       My Orders
                     </Link>
-                    {user?.role === 'admin' && (
+                    {user?.role === 'ADMIN' && (
                       <Link href="/admin" className="block text-earth-600 hover:text-walnut-600">
                         Admin Panel
                       </Link>

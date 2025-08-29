@@ -86,7 +86,7 @@ export default function AdminPage() {
       return
     }
     
-    if (user?.role !== 'admin') {
+    if (user?.role !== 'ADMIN') {
       window.location.href = '/'
       toast.error('Access denied. Admin privileges required.')
       return

@@ -28,13 +28,13 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    // Create user
+    // Create admin user
     const user = await db.user.create({
       data: {
         name,
         email: email.toLowerCase(),
         hashedPassword,
-        role: 'CUSTOMER', // Default role
+        role: 'ADMIN',
       }
     })
 
@@ -48,12 +48,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(userData, { status: 201 })
   } catch (error) {
-    console.error('Signup error:', error)
+    console.error('Admin creation error:', error)
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }
     )
   }
 }
-
-
