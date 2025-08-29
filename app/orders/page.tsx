@@ -111,7 +111,7 @@ export default function OrdersPage() {
     )
   }
 
-  if (status === 'unauthenticated') {
+  if (!isAuthenticated && !isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
@@ -182,7 +182,7 @@ export default function OrdersPage() {
         )}
 
         {/* Loading State */}
-        {isLoading && (
+        {isLoadingOrders && (
           <div className="space-y-6">
             {[...Array(3)].map((_, i) => (
               <Card key={i}>
@@ -207,7 +207,7 @@ export default function OrdersPage() {
         )}
 
         {/* Orders List */}
-        {!isLoading && !error && (
+        {!isLoadingOrders && !error && (
           <>
             {orders.length === 0 ? (
               <Card>
