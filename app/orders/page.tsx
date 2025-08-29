@@ -154,7 +154,7 @@ export default function OrdersPage() {
               variant={selectedStatus === '' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setSelectedStatus('')}
-              className={selectedStatus === '' ? 'btn-walnut' : ''}
+                             className={selectedStatus === '' ? 'btn-highlight' : ''}
             >
               All Orders
             </Button>
@@ -164,7 +164,7 @@ export default function OrdersPage() {
                 variant={selectedStatus === status ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSelectedStatus(status)}
-                className={selectedStatus === status ? 'btn-walnut' : ''}
+                                 className={selectedStatus === status ? 'btn-highlight' : ''}
               >
                 {config.label}
               </Button>
@@ -224,7 +224,7 @@ export default function OrdersPage() {
                         : "You haven't placed any orders yet"
                       }
                     </p>
-                    <Button className="btn-walnut" onClick={() => window.location.href = '/watches'}>
+                                         <Button className="btn-highlight" onClick={() => window.location.href = '/watches'}>
                       Start Shopping
                     </Button>
                   </div>
@@ -233,7 +233,7 @@ export default function OrdersPage() {
             ) : (
               <div className="space-y-6">
                 {orders.map((order) => (
-                  <Card key={order.id} className="card-walnut">
+                                     <Card key={order.id} className="card-highlight">
                     <CardHeader>
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                         <div>
@@ -323,7 +323,7 @@ export default function OrdersPage() {
                         key={page}
                         variant={currentPage === page ? 'default' : 'outline'}
                         onClick={() => setCurrentPage(page)}
-                        className={currentPage === page ? 'btn-walnut' : ''}
+                                                 className={currentPage === page ? 'btn-highlight' : ''}
                       >
                         {page}
                       </Button>
