@@ -25,10 +25,12 @@ interface OrdersResponse {
 
 const statusConfig = {
   PENDING: { label: 'Pending', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
+  CONFIRMED: { label: 'Confirmed', color: 'bg-blue-100 text-blue-800', icon: Package },
   PROCESSING: { label: 'Processing', color: 'bg-blue-100 text-blue-800', icon: Package },
   SHIPPED: { label: 'Shipped', color: 'bg-purple-100 text-purple-800', icon: Truck },
   DELIVERED: { label: 'Delivered', color: 'bg-green-100 text-green-800', icon: CheckCircle },
-  CANCELLED: { label: 'Cancelled', color: 'bg-red-100 text-red-800', icon: AlertCircle }
+  CANCELLED: { label: 'Cancelled', color: 'bg-red-100 text-red-800', icon: AlertCircle },
+  REFUNDED: { label: 'Refunded', color: 'bg-gray-100 text-gray-800', icon: AlertCircle }
 }
 
 export default function OrdersPage() {
@@ -79,8 +81,9 @@ export default function OrdersPage() {
     }
   }, [isAuthenticated, isLoading, fetchOrders])
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
+  const formatDate = (dateString: string | Date) => {
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString
+    return date.toLocaleDateString('en-IN', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -122,7 +125,7 @@ export default function OrdersPage() {
                 <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">Sign In Required</h2>
                 <p className="text-gray-600 mb-4">Please sign in to view your orders</p>
-                <Button className="btn-walnut" onClick={() => window.location.href = '/auth/signin'}>
+                <Button className="btn-highlight" onClick={() => window.location.href = '/auth/signin'}>
                   Sign In
                 </Button>
               </div>
@@ -252,7 +255,7 @@ export default function OrdersPage() {
                             </div>
                             <div className="flex items-center space-x-1">
                               <CreditCard className="h-4 w-4" />
-                              <span>{formatPrice(order.totalAmount)}</span>
+                                                             <span>{formatPrice(Number(order.totalAmount))}</span>
                             </div>
                           </div>
                         </div>

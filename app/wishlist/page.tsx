@@ -106,7 +106,7 @@ export default function WishlistPage() {
               Your wishlist is empty
             </h2>
             <p className="text-gray-600 mb-6">
-              {session ? 'Start adding watches to your wishlist' : 'Sign in to save your favorite watches'}
+              {isAuthenticated ? 'Start adding watches to your wishlist' : 'Sign in to save your favorite watches'}
             </p>
             <div className="space-x-4">
               <Link href="/watches">
@@ -114,7 +114,7 @@ export default function WishlistPage() {
                   Browse Watches
                 </Button>
               </Link>
-              {!session && (
+              {!isAuthenticated && (
                 <Link href="/auth/signin">
                   <Button variant="outline" size="lg">
                     Sign In

@@ -81,7 +81,8 @@ export function useOptimizedFetch<T>(
       cacheRef.current.set(url, { data: result, timestamp: now })
       
       // Clean up old cache entries
-      for (const [key, value] of cacheRef.current.entries()) {
+      const entries = Array.from(cacheRef.current.entries())
+      for (const [key, value] of entries) {
         if (now - value.timestamp > cacheTime) {
           cacheRef.current.delete(key)
         }

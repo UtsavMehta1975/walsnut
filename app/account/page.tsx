@@ -161,10 +161,10 @@ export default function AccountPage() {
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">
-                      {session.user?.name || 'User'}
+                      {user?.name || 'User'}
                     </p>
                     <p className="text-sm text-gray-600">
-                      {session.user?.role === 'ADMIN' ? 'Administrator' : 'Customer'}
+                      {user?.role === 'ADMIN' ? 'Administrator' : 'Customer'}
                     </p>
                   </div>
                 </div>

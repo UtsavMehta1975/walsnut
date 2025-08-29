@@ -49,7 +49,7 @@ export function Navbar() {
   }
 
   return (
-    <nav className="nav-walnut sticky top-0 z-50">
+    <nav className="nav-highlight sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Mobile Menu Button - Left Side */}
@@ -64,23 +64,23 @@ export function Navbar() {
 
           {/* Desktop Navigation - Center */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/watches" className="text-earth-600 hover:text-walnut-600 transition-colors duration-300">
+            <Link href="/watches" className="text-black hover:text-gray-600 transition-colors duration-300">
               Watches
             </Link>
-            <Link href="/brands" className="text-earth-600 hover:text-walnut-600 transition-colors duration-300">
+            <Link href="/brands" className="text-black hover:text-gray-600 transition-colors duration-300">
               Collections
             </Link>
-            <Link href="/about" className="text-earth-600 hover:text-walnut-600 transition-colors duration-300">
+            <Link href="/about" className="text-black hover:text-gray-600 transition-colors duration-300">
               About
             </Link>
-            <Link href="/contact" className="text-earth-600 hover:text-walnut-600 transition-colors duration-300">
+            <Link href="/contact" className="text-black hover:text-gray-600 transition-colors duration-300">
               Contact
             </Link>
           </div>
 
           {/* Logo - Right Side */}
           <Link href="/" className="flex items-center space-x-2">
-            <span className="text-xl lato-bold text-gradient-walnut">
+            <span className="text-xl inter-bold text-black">
               Walnut
             </span>
           </Link>
@@ -92,18 +92,18 @@ export function Navbar() {
               variant="ghost"
               size="icon"
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="text-earth-600 hover:text-walnut-600"
+              className="text-black hover:text-gray-600"
             >
               <Search className="h-5 w-5" />
             </Button>
 
             {/* Cart */}
             <Link href="/cart">
-              <Button variant="ghost" size="icon" className="relative text-earth-600 hover:text-walnut-600">
+              <Button variant="ghost" size="icon" className="relative text-black hover:text-gray-600">
                 <ShoppingCart className="h-5 w-5" />
                 <ClientOnly>
                   {cartItemCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-walnut-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-highlight text-black text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {cartItemCount}
                     </span>
                   )}
@@ -113,7 +113,7 @@ export function Navbar() {
 
             {/* Wishlist */}
             <Link href="/wishlist">
-              <Button variant="ghost" size="icon" className="text-earth-600 hover:text-walnut-600">
+              <Button variant="ghost" size="icon" className="text-black hover:text-gray-600">
                 <Heart className="h-5 w-5" />
               </Button>
             </Link>
@@ -126,7 +126,7 @@ export function Navbar() {
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="text-earth-600 hover:text-walnut-600"
+                  className="text-black hover:text-gray-600"
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                 >
                   <User className="h-5 w-5" />
@@ -160,12 +160,12 @@ export function Navbar() {
             ) : (
               <div className="flex items-center space-x-2">
                 <Link href="/auth/signin">
-                  <Button variant="ghost" className="text-earth-600 hover:text-walnut-600">
+                  <Button variant="ghost" className="text-black hover:text-gray-600">
                     Sign In
                   </Button>
                 </Link>
                 <Link href="/auth/signup">
-                  <Button className="btn-walnut">
+                  <Button className="btn-highlight">
                     Sign Up
                   </Button>
                 </Link>
@@ -180,18 +180,18 @@ export function Navbar() {
               variant="ghost"
               size="icon"
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="text-earth-600 hover:text-walnut-600"
+              className="text-black hover:text-gray-600"
             >
               <Search className="h-5 w-5" />
             </Button>
 
             {/* Cart */}
             <Link href="/cart">
-              <Button variant="ghost" size="icon" className="relative text-earth-600 hover:text-walnut-600">
+              <Button variant="ghost" size="icon" className="relative text-black hover:text-gray-600">
                 <ShoppingCart className="h-5 w-5" />
                 <ClientOnly>
                   {cartItemCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-walnut-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-highlight text-black text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {cartItemCount}
                     </span>
                   )}
@@ -209,7 +209,7 @@ export function Navbar() {
                 placeholder="Search watches..."
                 className="flex-1"
               />
-              <Button className="btn-walnut">
+              <Button className="btn-highlight">
                 <Search className="h-4 w-4" />
               </Button>
             </div>
@@ -220,16 +220,16 @@ export function Navbar() {
         {isMenuOpen && (
           <div className="md:hidden border-t border-gray-200 py-4">
             <div className="flex flex-col space-y-4">
-              <Link href="/watches" className="text-earth-600 hover:text-walnut-600">
+              <Link href="/watches" className="text-black hover:text-gray-600">
                 Watches
               </Link>
-              <Link href="/brands" className="text-earth-600 hover:text-walnut-600">
+              <Link href="/brands" className="text-black hover:text-gray-600">
                 Collections
               </Link>
-              <Link href="/about" className="text-earth-600 hover:text-walnut-600">
+              <Link href="/about" className="text-black hover:text-gray-600">
                 About
               </Link>
-              <Link href="/contact" className="text-earth-600 hover:text-walnut-600">
+              <Link href="/contact" className="text-black hover:text-gray-600">
                 Contact
               </Link>
               
@@ -240,30 +240,30 @@ export function Navbar() {
                       <p className="font-medium">{user?.name}</p>
                       <p>{user?.email}</p>
                     </div>
-                    <Link href="/account" className="block text-earth-600 hover:text-walnut-600">
+                    <Link href="/account" className="block text-black hover:text-gray-600">
                       My Account
                     </Link>
-                    <Link href="/orders" className="block text-earth-600 hover:text-walnut-600">
+                    <Link href="/orders" className="block text-black hover:text-gray-600">
                       My Orders
                     </Link>
                     {user?.role === 'ADMIN' && (
-                      <Link href="/admin" className="block text-earth-600 hover:text-walnut-600">
+                      <Link href="/admin" className="block text-black hover:text-gray-600">
                         Admin Panel
                       </Link>
                     )}
                     <button
                       onClick={handleSignOut}
-                      className="block text-left text-earth-600 hover:text-walnut-600"
+                      className="block text-left text-black hover:text-gray-600"
                     >
                       Sign Out
                     </button>
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <Link href="/auth/signin" className="block text-earth-600 hover:text-walnut-600">
+                    <Link href="/auth/signin" className="block text-black hover:text-gray-600">
                       Sign In
                     </Link>
-                    <Link href="/auth/signup" className="block text-earth-600 hover:text-walnut-600">
+                    <Link href="/auth/signup" className="block text-black hover:text-gray-600">
                       Sign Up
                     </Link>
                   </div>

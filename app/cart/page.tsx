@@ -197,7 +197,7 @@ export default function CartPage() {
                   </div>
                 </div>
                 
-                {!session && (
+                {!isAuthenticated && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                     <p className="text-sm text-blue-800 mb-2">
                       Sign in to complete your purchase and track your orders

@@ -2,92 +2,80 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Lato Font Import */
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+/* Inter Font Import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
-/* Lato Font Classes */
-.lato-thin {
-  font-family: "Lato", sans-serif;
+/* Inter Font Classes */
+.inter-thin {
+  font-family: "Inter", sans-serif;
   font-weight: 100;
   font-style: normal;
 }
 
-.lato-light {
-  font-family: "Lato", sans-serif;
-  font-weight: 300;
+.inter-light {
+  font-family: "Inter", sans-serif;
+  font-weight: 200;
   font-style: normal;
 }
 
-.lato-regular {
-  font-family: "Lato", sans-serif;
+.inter-regular {
+  font-family: "Inter", sans-serif;
   font-weight: 400;
   font-style: normal;
 }
 
-.lato-bold {
-  font-family: "Lato", sans-serif;
+.inter-medium {
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.inter-semibold {
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.inter-bold {
+  font-family: "Inter", sans-serif;
   font-weight: 700;
   font-style: normal;
 }
 
-.lato-black {
-  font-family: "Lato", sans-serif;
-  font-weight: 900;
+.inter-extrabold {
+  font-family: "Inter", sans-serif;
+  font-weight: 800;
   font-style: normal;
 }
 
-.lato-thin-italic {
-  font-family: "Lato", sans-serif;
-  font-weight: 100;
-  font-style: italic;
-}
-
-.lato-light-italic {
-  font-family: "Lato", sans-serif;
-  font-weight: 300;
-  font-style: italic;
-}
-
-.lato-regular-italic {
-  font-family: "Lato", sans-serif;
-  font-weight: 400;
-  font-style: italic;
-}
-
-.lato-bold-italic {
-  font-family: "Lato", sans-serif;
-  font-weight: 700;
-  font-style: italic;
-}
-
-.lato-black-italic {
-  font-family: "Lato", sans-serif;
+.inter-black {
+  font-family: "Inter", sans-serif;
   font-weight: 900;
-  font-style: italic;
+  font-style: normal;
 }
 
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --foreground: 0 0% 0%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 0 0% 0%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
+    --popover-foreground: 0 0% 0%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
+    --secondary-foreground: 0 0% 0%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
+    --accent: 60 100% 87%;
+    --accent-foreground: 0 0% 0%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --radius: 0.5rem;
+    --ring: 0 0% 0%;
+    --radius: 0.75rem;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -129,133 +117,116 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: "Lato", sans-serif;
+    font-family: "Inter", sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
 @layer components {
-  /* Walnut-inspired gradients */
-  .walnut-gradient {
-    background: linear-gradient(135deg, #fdfbf7 0%, #faf6ed 25%, #f4ecdb 50%, #ecddc1 75%, #e1c99a 100%);
+  /* Minimalist gradients */
+  .highlight-gradient {
+    background: linear-gradient(135deg, #FFF9C4 0%, #FFF176 50%, #FFEE58 100%);
   }
   
-  .walnut-gradient-dark {
-    background: linear-gradient(135deg, #422e1c 0%, #7a5735 25%, #966b3d 50%, #b88547 75%, #c69d5a 100%);
+  .highlight-gradient-subtle {
+    background: linear-gradient(135deg, #FFFEF7 0%, #FFFDF0 50%, #FFFBE0 100%);
   }
   
-  .earth-gradient {
-    background: linear-gradient(135deg, #fafaf9 0%, #f5f5f4 25%, #e7e5e4 50%, #d6d3d1 75%, #a8a29e 100%);
+  /* Minimalist borders */
+  .highlight-border {
+    border: 1px solid #FFF9C4;
   }
   
-  .cream-gradient {
-    background: linear-gradient(135deg, #fefefe 0%, #fefdfb 25%, #fcfaf6 50%, #f8f4ed 75%, #f2e9d9 100%);
+  .highlight-border-strong {
+    border: 2px solid #FFF176;
   }
   
-  /* Sophisticated borders */
-  .walnut-border {
-    border: 1px solid rgba(212, 178, 114, 0.15);
+  /* Minimalist shadows */
+  .highlight-shadow {
+    box-shadow: 0 4px 6px -1px rgba(255, 249, 196, 0.1), 0 2px 4px -1px rgba(255, 249, 196, 0.06);
   }
   
-  .walnut-border-strong {
-    border: 1px solid rgba(212, 178, 114, 0.3);
+  .highlight-shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(255, 249, 196, 0.1), 0 4px 6px -2px rgba(255, 249, 196, 0.05);
   }
   
-  /* Elegant shadows */
-  .walnut-shadow {
-    box-shadow: 0 4px 6px -1px rgba(212, 178, 114, 0.1), 0 2px 4px -1px rgba(212, 178, 114, 0.06);
-  }
-  
-  .walnut-shadow-lg {
-    box-shadow: 0 10px 15px -3px rgba(212, 178, 114, 0.1), 0 4px 6px -2px rgba(212, 178, 114, 0.05);
-  }
-  
-  .walnut-shadow-xl {
-    box-shadow: 0 20px 25px -5px rgba(212, 178, 114, 0.1), 0 10px 10px -5px rgba(212, 178, 114, 0.04);
+  .highlight-shadow-xl {
+    box-shadow: 0 20px 25px -5px rgba(255, 249, 196, 0.1), 0 10px 10px -5px rgba(255, 249, 196, 0.04);
   }
   
   /* Product cards with minimalist design */
   .product-card {
-    @apply transition-all duration-500 ease-out;
-    @apply hover:scale-[1.02] hover:walnut-shadow-lg;
-    @apply bg-gradient-to-br from-cream-50 to-cream-100;
-    @apply border border-walnut-200/50;
+    @apply transition-all duration-300 ease-in-out;
+    @apply hover:scale-[1.02] hover:highlight-shadow-lg;
+    @apply bg-white;
+    @apply border-0;
   }
   
   .product-card:hover {
-    @apply border-walnut-300/70;
+    @apply highlight-shadow-lg;
   }
   
-  /* Hero section with natural gradient */
+  /* Hero section with clean background */
   .hero-section {
-    background: linear-gradient(135deg, #fdfbf7 0%, #faf6ed 25%, #f4ecdb 50%, #ecddc1 75%, #e1c99a 100%);
+    background: #FFFFFF;
   }
   
   /* Text gradients */
-  .text-gradient-walnut {
-    background: linear-gradient(135deg, #966b3d 0%, #b88547 50%, #c69d5a 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  
-  .text-gradient-earth {
-    background: linear-gradient(135deg, #57534e 0%, #78716c 50%, #a8a29e 100%);
+  .text-gradient-highlight {
+    background: linear-gradient(135deg, #FFF176 0%, #FFEE58 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   
   /* Button styles */
-  .btn-walnut {
-    @apply bg-gradient-to-r from-walnut-600 to-walnut-700;
-    @apply hover:from-walnut-700 hover:to-walnut-800;
-    @apply text-white;
-    @apply font-bold;
-    @apply transition-all duration-300 ease-out;
-    @apply shadow-md hover:shadow-lg;
+  .btn-highlight {
+    @apply bg-highlight;
+    @apply hover:bg-highlight-400;
+    @apply text-black font-semibold;
+    @apply transition-all duration-300;
+    @apply rounded-xl;
   }
   
-  .btn-walnut-outline {
-    @apply border-2 border-walnut-300;
-    @apply hover:border-walnut-400;
-    @apply text-walnut-700 hover:text-walnut-800;
-    @apply bg-white hover:bg-walnut-50;
-    @apply font-bold;
-    @apply transition-all duration-300 ease-out;
+  .btn-highlight-outline {
+    @apply border-2 border-highlight;
+    @apply hover:border-highlight-400;
+    @apply text-black hover:text-black;
+    @apply bg-white hover:bg-highlight-50;
+    @apply font-semibold transition-all duration-300;
+    @apply rounded-xl;
   }
   
   /* Card styles */
-  .card-walnut {
-    @apply bg-gradient-to-br from-cream-50 to-cream-100;
-    @apply border border-walnut-200/50;
-    @apply walnut-shadow;
-    @apply transition-all duration-300 ease-out;
+  .card-highlight {
+    @apply bg-white;
+    @apply border-0;
+    @apply highlight-shadow;
+    @apply rounded-xl;
   }
   
-  .card-walnut:hover {
-    @apply walnut-shadow-lg;
-    @apply border-walnut-300/70;
+  .card-highlight:hover {
+    @apply highlight-shadow-lg;
   }
   
   /* Navigation styles */
-  .nav-walnut {
+  .nav-highlight {
     @apply bg-white/95 backdrop-blur-sm;
-    @apply border-b border-walnut-200/50;
-    @apply shadow-sm;
+    @apply border-b border-gray-200;
   }
   
   /* Form styles */
-  .input-walnut {
-    @apply border border-walnut-200;
-    @apply focus:border-walnut-400 focus:ring-walnut-400/20;
+  .input-highlight {
+    @apply border border-gray-200;
+    @apply focus:border-highlight focus:ring-highlight/20;
     @apply bg-white;
     @apply transition-all duration-200 ease-out;
+    @apply rounded-xl;
   }
   
   /* Loading states */
-  .loading-walnut {
-    @apply bg-gradient-to-r from-walnut-100 to-walnut-200;
+  .loading-highlight {
+    @apply bg-gradient-to-r from-highlight-50 to-highlight-100;
     @apply animate-pulse;
   }
 }
@@ -313,10 +284,10 @@
 /* Mobile-specific optimizations */
 @media (max-width: 768px) {
   /* Improved touch targets */
-  .btn-walnut,
-  .btn-walnut-outline {
+  .btn-highlight,
+  .btn-highlight-outline {
     @apply min-h-[44px] px-4 py-3;
-    @apply text-base font-bold;
+    @apply text-base font-semibold;
   }
   
   /* Better mobile spacing */
@@ -325,18 +296,18 @@
   }
   
   /* Mobile-friendly cards */
-  .card-walnut {
+  .card-highlight {
     @apply rounded-lg;
     @apply shadow-sm;
   }
   
   /* Mobile navigation improvements */
-  .nav-walnut {
+  .nav-highlight {
     @apply px-4;
   }
   
   /* Mobile form improvements */
-  .input-walnut {
+  .input-highlight {
     @apply min-h-[44px] px-3 py-2;
     @apply text-base;
   }
@@ -366,10 +337,10 @@ html {
 }
 
 /* Better focus states for accessibility */
-.btn-walnut:focus,
-.btn-walnut-outline:focus,
-.input-walnut:focus {
-  @apply outline-none ring-2 ring-walnut-400 ring-offset-2;
+.btn-highlight:focus,
+.btn-highlight-outline:focus,
+.input-highlight:focus {
+  @apply outline-none ring-2 ring-highlight ring-offset-2;
 }
 
 /* Improved loading states */

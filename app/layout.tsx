@@ -1,16 +1,15 @@
 import type { Metadata } from 'next'
-import { Lato } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { ServiceWorkerRegistration } from '@/components/service-worker-registration'
 
-const lato = Lato({ 
+const inter = Inter({ 
   subsets: ['latin'],
-  weight: ['100', '300', '400', '700', '900'],
-  style: ['normal', 'italic'],
-  variable: '--font-lato'
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-inter'
 })
 
 export const metadata: Metadata = {
@@ -82,7 +81,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content="#fbbf24" />
       </head>
-      <body className={lato.className}>
+      <body className={inter.className}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

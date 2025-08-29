@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
-import { ProductCard } from '@/components/ui/product-card'
+import { ProductTile } from '@/components/ui/product-tile'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -252,12 +252,11 @@ export default function WatchesPage() {
             </div>
             
                         {/* Mobile-optimized grid: 2x2 on mobile to show 4 products in one screen */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
+            <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4 md:gap-4 lg:gap-6">
               {filteredProducts.map((product) => (
-                <ProductCard 
+                <ProductTile 
                   key={product.id} 
-                  product={product} 
-                  variant="watches"
+                  product={product}
                 />
               ))}
             </div>

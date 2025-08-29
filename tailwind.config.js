@@ -15,89 +15,56 @@ module.exports = {
   			'2xl': '1400px'
   		}
   	},
-  	extend: {
-  		colors: {
-  			border: 'hsl(var(--border))',
-  			input: 'hsl(var(--input))',
-  			ring: 'hsl(var(--ring))',
-  			background: 'hsl(var(--background))',
-  			foreground: 'hsl(var(--foreground))',
-  			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
-  			},
-  			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
-  				foreground: 'hsl(var(--secondary-foreground))'
-  			},
-  			destructive: {
-  				DEFAULT: 'hsl(var(--destructive))',
-  				foreground: 'hsl(var(--destructive-foreground))'
-  			},
-  			muted: {
-  				DEFAULT: 'hsl(var(--muted))',
-  				foreground: 'hsl(var(--muted-foreground))'
-  			},
-  			accent: {
-  				DEFAULT: 'hsl(var(--accent))',
-  				foreground: 'hsl(var(--accent-foreground))'
-  			},
-  			popover: {
-  				DEFAULT: 'hsl(var(--popover))',
-  				foreground: 'hsl(var(--popover-foreground))'
-  			},
-  			card: {
-  				DEFAULT: 'hsl(var(--card))',
-  				foreground: 'hsl(var(--card-foreground))'
-  			},
-  			// Walnut-inspired color palette
-  			walnut: {
-  				'50': '#fdfbf7',
-  				'100': '#faf6ed',
-  				'200': '#f4ecdb',
-  				'300': '#ecddc1',
-  				'400': '#e1c99a',
-  				'500': '#d4b272',
-  				'600': '#c69d5a',
-  				'700': '#b88547',
-  				'800': '#966b3d',
-  				'900': '#7a5735',
-  				'950': '#422e1c'
-  			},
-  			// Natural earth tones
-  			earth: {
-  				'50': '#fafaf9',
-  				'100': '#f5f5f4',
-  				'200': '#e7e5e4',
-  				'300': '#d6d3d1',
-  				'400': '#a8a29e',
-  				'500': '#78716c',
-  				'600': '#57534e',
-  				'700': '#44403c',
-  				'800': '#292524',
-  				'900': '#1c1917',
-  				'950': '#0c0a09'
-  			},
-  			// Warm cream tones
-  			cream: {
-  				'50': '#fefefe',
-  				'100': '#fefdfb',
-  				'200': '#fcfaf6',
-  				'300': '#f8f4ed',
-  				'400': '#f2e9d9',
-  				'500': '#e8d9c0',
-  				'600': '#dcc5a3',
-  				'700': '#c8a87d',
-  				'800': '#b08e62',
-  				'900': '#927552',
-  				'950': '#4d3d2a'
-  			},
-  			// Sophisticated slate
-  			slate: {
-  				'50': '#f8fafc',
-  				'100': '#f1f5f9',
-  				'200': '#e2e8f0',
-  				'300': '#cbd5e1',
+  			extend: {
+			colors: {
+				border: 'hsl(var(--border))',
+				input: 'hsl(var(--input))',
+				ring: 'hsl(var(--ring))',
+				background: 'hsl(var(--background))',
+				foreground: 'hsl(var(--foreground))',
+				primary: {
+					DEFAULT: 'hsl(var(--primary))',
+					foreground: 'hsl(var(--primary-foreground))'
+				},
+				secondary: {
+					DEFAULT: 'hsl(var(--secondary))',
+					foreground: 'hsl(var(--secondary-foreground))'
+				},
+				destructive: {
+					DEFAULT: 'hsl(var(--destructive))',
+					foreground: 'hsl(var(--destructive-foreground))'
+				},
+				muted: {
+					DEFAULT: 'hsl(var(--muted))',
+					foreground: 'hsl(var(--muted-foreground))'
+				},
+				accent: {
+					DEFAULT: 'hsl(var(--accent))',
+					foreground: 'hsl(var(--accent-foreground))'
+				},
+				popover: {
+					DEFAULT: 'hsl(var(--popover))',
+					foreground: 'hsl(var(--popover-foreground))'
+				},
+				card: {
+					DEFAULT: 'hsl(var(--card))',
+					foreground: 'hsl(var(--card-foreground))'
+				},
+				// New minimalist color palette
+				highlight: {
+					DEFAULT: '#FFF9C4',
+					'50': '#FFFEF7',
+					'100': '#FFFDF0',
+					'200': '#FFFBE0',
+					'300': '#FFF9C4',
+					'400': '#FFF59E',
+					'500': '#FFF176',
+					'600': '#FFEE58',
+					'700': '#FFEB3B',
+					'800': '#FDD835',
+					'900': '#FBC02D'
+				}
+			},
   				'400': '#94a3b8',
   				'500': '#64748b',
   				'600': '#475569',
