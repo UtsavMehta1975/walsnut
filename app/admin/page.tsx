@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -69,7 +69,7 @@ interface Customer {
 }
 
 export default function AdminPage() {
-  const { data: session, status } = useSession()
+  const { user, isAuthenticated, isLoading } = useAuth()
   const [activeTab, setActiveTab] = useState('dashboard')
   const [isAddingProduct, setIsAddingProduct] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
@@ -79,21 +79,21 @@ export default function AdminPage() {
 
   // Check authentication and admin role
   useEffect(() => {
-    if (status === 'loading') return
+    if (isLoading) return
     
-    if (!session) {
+    if (!isAuthenticated) {
       window.location.href = '/auth/signin'
       return
     }
     
-    if (session.user.role !== 'ADMIN') {
+    if (user?.role !== 'admin') {
       window.location.href = '/'
       toast.error('Access denied. Admin privileges required.')
       return
     }
     
     fetchProducts()
-  }, [session, status])
+  }, [user, isAuthenticated, isLoading])
 
   const fetchProducts = async () => {
     try {
@@ -195,7 +195,7 @@ export default function AdminPage() {
   })
 
   // Show loading state while checking authentication
-  if (status === 'loading') {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -207,7 +207,7 @@ export default function AdminPage() {
   }
 
   // Check if user is admin
-  if (!session || session.user.role !== 'ADMIN') {
+  if (!isAuthenticated || user?.role !== 'admin') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

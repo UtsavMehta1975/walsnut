@@ -1,28 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { db } from '@/lib/db'
-import { z } from 'zod'
-
-const signupSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-})
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { name, email, password } = signupSchema.parse(body)
+    const { name, email, password } = await request.json()
+
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { message: 'Name, email, and password are required' },
+        { status: 400 }
+      )
+    }
 
     // Check if user already exists
     const existingUser = await db.user.findUnique({
-      where: { email }
+      where: { email: email.toLowerCase() }
     })
 
     if (existingUser) {
       return NextResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 400 }
+        { message: 'User with this email already exists' },
+        { status: 409 }
       )
     }
 
@@ -33,37 +32,25 @@ export async function POST(request: NextRequest) {
     const user = await db.user.create({
       data: {
         name,
-        email,
+        email: email.toLowerCase(),
         hashedPassword,
-        role: 'CUSTOMER'
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true
+        role: 'user', // Default role
       }
     })
 
-    return NextResponse.json(
-      { 
-        message: 'User created successfully',
-        user 
-      },
-      { status: 201 }
-    )
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
-        { status: 400 }
-      )
+    // Return user data (without password)
+    const userData = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
     }
 
+    return NextResponse.json(userData, { status: 201 })
+  } catch (error) {
     console.error('Signup error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { message: 'Internal server error' },
       { status: 500 }
     )
   }

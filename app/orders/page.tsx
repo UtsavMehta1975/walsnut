@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -32,9 +32,9 @@ const statusConfig = {
 }
 
 export default function OrdersPage() {
-  const { data: session, status } = useSession()
+  const { isAuthenticated, isLoading } = useAuth()
   const [orders, setOrders] = useState<OrderWithItems[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingOrders, setIsLoadingOrders] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -42,7 +42,7 @@ export default function OrdersPage() {
 
   const fetchOrders = useCallback(async () => {
     try {
-      setIsLoading(true)
+      setIsLoadingOrders(true)
       setError(null)
       
       const params = new URLSearchParams({
@@ -66,18 +66,18 @@ export default function OrdersPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load orders')
     } finally {
-      setIsLoading(false)
+      setIsLoadingOrders(false)
     }
   }, [currentPage, selectedStatus])
 
   useEffect(() => {
-    if (status === 'authenticated') {
+    if (isAuthenticated && !isLoading) {
       fetchOrders()
-    } else if (status === 'unauthenticated') {
-      setIsLoading(false)
+    } else if (!isAuthenticated && !isLoading) {
+      setIsLoadingOrders(false)
       setError('Please sign in to view your orders')
     }
-  }, [status, fetchOrders])
+  }, [isAuthenticated, isLoading, fetchOrders])
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -92,7 +92,7 @@ export default function OrdersPage() {
     return <IconComponent className="h-4 w-4" />
   }
 
-  if (status === 'loading') {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />

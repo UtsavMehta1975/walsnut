@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -14,7 +14,7 @@ import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 
 export default function CartPage() {
-  const { data: session } = useSession()
+  const { isAuthenticated } = useAuth()
   const { items, removeItem, updateQuantity, clearCart, getTotal } = useCartStore()
   const [isCheckingOut, setIsCheckingOut] = useState(false)
 
@@ -28,7 +28,7 @@ export default function CartPage() {
   }
 
   const handleCheckout = () => {
-    if (!session) {
+    if (!isAuthenticated) {
       toast.error('Please sign in to checkout')
       return
     }

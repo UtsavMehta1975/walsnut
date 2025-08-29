@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -24,7 +24,7 @@ interface WishlistItem {
 }
 
 export default function WishlistPage() {
-  const { data: session } = useSession()
+  const { isAuthenticated } = useAuth()
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { addItem } = useCartStore()

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -27,11 +27,11 @@ interface Order {
 }
 
 export default function AccountPage() {
-  const { data: session } = useSession()
+  const { user, isAuthenticated } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
   const [profileData, setProfileData] = useState({
-    name: session?.user?.name || 'John Doe',
-    email: session?.user?.email || 'john@example.com',
+    name: user?.name || 'John Doe',
+    email: user?.email || 'john@example.com',
     phone: '+1 (555) 123-4567',
     address: '123 Main St, New York, NY 10001'
   })
@@ -69,8 +69,8 @@ export default function AccountPage() {
     setIsEditing(false)
     // Reset to original data
     setProfileData({
-      name: session?.user?.name || 'John Doe',
-      email: session?.user?.email || 'john@example.com',
+      name: user?.name || 'John Doe',
+      email: user?.email || 'john@example.com',
       phone: '+1 (555) 123-4567',
       address: '123 Main St, New York, NY 10001'
     })
@@ -89,12 +89,12 @@ export default function AccountPage() {
     }
   }
 
-  if (!session) {
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Please sign in to view your account</h1>
-          <Button variant="luxury">Sign In</Button>
+          <Button className="btn-walnut">Sign In</Button>
         </div>
       </div>
     )
