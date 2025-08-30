@@ -86,7 +86,12 @@ export default function AdminPage() {
       return
     }
     
-    if (user?.role !== 'ADMIN') {
+    // Debug: Log user info
+    console.log('User:', user)
+    console.log('User role:', user?.role)
+    
+    // Check if user has admin role (case insensitive)
+    if (!user?.role || user.role.toUpperCase() !== 'ADMIN') {
       window.location.href = '/'
       toast.error('Access denied. Admin privileges required.')
       return
@@ -207,7 +212,7 @@ export default function AdminPage() {
   }
 
   // Check if user is admin
-  if (!isAuthenticated || user?.role !== 'ADMIN') {
+  if (!isAuthenticated || !user?.role || user.role.toUpperCase() !== 'ADMIN') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

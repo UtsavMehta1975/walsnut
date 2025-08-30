@@ -34,7 +34,9 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-black mb-1">Email</h3>
-                    <p className="text-gray-600">help@walnut.com</p>
+                    <a href="mailto:thewalnutstore01@gmail.com" className="text-gray-600 hover:text-yellow-400">
+                      thewalnutstore01@gmail.com
+                    </a>
                     <p className="text-sm text-gray-500">We&apos;ll respond within 24 hours</p>
                   </div>
                 </div>
@@ -45,8 +47,10 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-black mb-1">Phone</h3>
-                    <p className="text-gray-600">+91 94292 18482</p>
-                    <p className="text-sm text-gray-500">Monday - Friday, 9AM - 6PM</p>
+                    <a href="tel:+917466965196" className="text-gray-600 hover:text-yellow-400">
+                      +91 74669 65196
+                    </a>
+                    <p className="text-sm text-gray-500">24/7 Support Available</p>
                   </div>
                 </div>
 
@@ -67,9 +71,9 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-black mb-1">Business Hours</h3>
-                    <p className="text-gray-600">Monday - Friday: 9AM - 6PM</p>
-                    <p className="text-gray-600">Saturday: 10AM - 4PM</p>
-                    <p className="text-sm text-gray-500">Sunday: Closed</p>
+                    <p className="text-gray-600">24/7 Support Available</p>
+                    <p className="text-gray-600">Online orders anytime</p>
+                    <p className="text-sm text-gray-500">Customer service always ready to help</p>
                   </div>
                 </div>
               </div>
