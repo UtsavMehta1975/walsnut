@@ -3,19 +3,19 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Navbar } from '@/components/layout/navbar'
-import { Footer } from '@/components/layout/footer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/contexts/auth-context'
+import { Navbar } from '@/components/layout/navbar'
+import { Footer } from '@/components/layout/footer'
 import toast from 'react-hot-toast'
 
 export default function SignInPage() {
+  const router = useRouter()
+  const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
-  const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,15 +23,20 @@ export default function SignInPage() {
 
     try {
       const success = await login(email, password)
-      
       if (success) {
-        toast.success('Successfully signed in!')
-        router.push('/')
+        toast.success('Login successful!')
+        // Check if user is admin and redirect accordingly
+        const user = JSON.parse(localStorage.getItem('walnut_user') || '{}')
+        if (user.role === 'ADMIN') {
+          router.push('/admin')
+        } else {
+          router.push('/')
+        }
       } else {
         toast.error('Invalid email or password')
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.')
+      toast.error('Login failed. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -41,15 +46,15 @@ export default function SignInPage() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
-      <div className="flex min-h-screen items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-md space-y-8">
+      <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
           <div>
-            <h2 className="mt-6 text-center text-3xl lato-bold text-gray-900">
+            <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
               Sign in to your account
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
               Or{' '}
-              <Link href="/auth/signup" className="font-medium text-walnut-600 hover:text-walnut-500">
+              <Link href="/auth/signup" className="font-medium text-yellow-600 hover:text-yellow-500">
                 create a new account
               </Link>
             </p>
@@ -92,22 +97,20 @@ export default function SignInPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="text-sm">
-                <Link href="/auth/forgot-password" className="font-medium text-walnut-600 hover:text-walnut-500">
-                  Forgot your password?
-                </Link>
-              </div>
-            </div>
-
             <div>
               <Button
                 type="submit"
-                className="w-full btn-walnut"
                 disabled={isLoading}
+                className="w-full bg-black text-white hover:bg-gray-800"
               >
                 {isLoading ? 'Signing in...' : 'Sign in'}
               </Button>
+            </div>
+
+            <div className="text-center">
+              <Link href="/auth/forgot-password" className="text-sm text-yellow-600 hover:text-yellow-500">
+                Forgot your password?
+              </Link>
             </div>
           </form>
         </div>

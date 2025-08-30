@@ -2,12 +2,14 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart, Menu, X, User, Search } from 'lucide-react'
 import { useAuth } from '@/contexts/auth-context'
 import { useCart } from '@/store/cart-store'
 
 export function Navbar() {
+  const router = useRouter()
   const { isAuthenticated, user, logout } = useAuth()
   const { getItemCount } = useCart()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -35,6 +37,14 @@ export function Navbar() {
   const handleLogout = () => {
     logout()
     setIsUserMenuOpen(false)
+  }
+
+  const handleAdminPanelClick = () => {
+    if (mounted && isAuthenticated && user?.role === 'ADMIN') {
+      router.push('/admin')
+    } else {
+      router.push('/auth/signin')
+    }
   }
 
   const cartItemCount = mounted ? getItemCount() : 0
@@ -99,9 +109,12 @@ export function Navbar() {
                       My Orders
                     </Link>
                     {user?.role === 'ADMIN' && (
-                      <Link href="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <button
+                        onClick={handleAdminPanelClick}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
                         Admin Panel
-                      </Link>
+                      </button>
                     )}
                     <button
                       onClick={handleLogout}
@@ -189,13 +202,15 @@ export function Navbar() {
                     My Orders
                   </Link>
                   {user?.role === 'ADMIN' && (
-                    <Link
-                      href="/admin"
-                      className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
-                      onClick={() => setIsMobileMenuOpen(false)}
+                    <button
+                      onClick={() => {
+                        handleAdminPanelClick()
+                        setIsMobileMenuOpen(false)
+                      }}
+                      className="block w-full text-left px-3 py-2 text-gray-700 hover:text-yellow-400"
                     >
                       Admin Panel
-                    </Link>
+                    </button>
                   )}
                   <button
                     onClick={() => {

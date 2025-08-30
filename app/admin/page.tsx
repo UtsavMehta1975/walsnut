@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -69,6 +70,7 @@ interface Customer {
 }
 
 export default function AdminPage() {
+  const router = useRouter()
   const { user, isAuthenticated, isLoading } = useAuth()
   const [activeTab, setActiveTab] = useState('dashboard')
   const [isAddingProduct, setIsAddingProduct] = useState(false)
@@ -82,7 +84,7 @@ export default function AdminPage() {
     if (isLoading) return
     
     if (!isAuthenticated) {
-      window.location.href = '/auth/signin'
+      router.push('/auth/signin')
       return
     }
     
@@ -92,13 +94,13 @@ export default function AdminPage() {
     
     // Check if user has admin role (case insensitive)
     if (!user?.role || user.role.toUpperCase() !== 'ADMIN') {
-      window.location.href = '/'
+      router.push('/')
       toast.error('Access denied. Admin privileges required.')
       return
     }
     
     fetchProducts()
-  }, [user, isAuthenticated, isLoading])
+  }, [user, isAuthenticated, isLoading, router])
 
   const fetchProducts = async () => {
     try {
@@ -218,7 +220,7 @@ export default function AdminPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
           <p className="text-gray-600 mb-4">You need admin privileges to access this page.</p>
-          <Button onClick={() => window.location.href = '/'}>
+          <Button onClick={() => router.push('/')}>
             Go Home
           </Button>
         </div>
@@ -660,7 +662,7 @@ export default function AdminPage() {
                       value={newProduct.stockQuantity}
                       onChange={(e) => setNewProduct({ ...newProduct, stockQuantity: e.target.value })}
                     />
-                                                           <div className="md:col-span-2">
+                    <div className="md:col-span-2">
                       <p className="text-sm text-gray-600 mb-2">
                         Images can be managed after creating the product
                       </p>
@@ -804,56 +806,56 @@ export default function AdminPage() {
                 </div>
               )}
 
-                             {/* Products List */}
-               <div className="space-y-4">
-                 {isLoadingProducts ? (
-                   <div className="flex items-center justify-center p-8">
-                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500"></div>
-                   </div>
-                 ) : products.length === 0 ? (
-                   <div className="text-center p-8 text-gray-500">
-                     <Package className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                     <p>No products found. Create your first product to get started.</p>
-                   </div>
-                 ) : (
-                   products.map((product) => (
-                     <div key={product.id} className="border border-gray-200 rounded-lg p-6">
-                       <div className="flex items-center justify-between mb-4">
-                         <div className="flex items-center space-x-4">
-                           <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
-                             <Package className="h-8 w-8 text-gray-400" />
-                           </div>
-                           <div>
-                             <h4 className="font-semibold">{product.brand} {product.model}</h4>
-                             <p className="text-sm text-gray-600">{product.referenceNumber}</p>
-                             <p className="text-sm text-gray-600">${product.price.toLocaleString()}</p>
-                             <p className="text-sm text-gray-600">Stock: {product.stockQuantity}</p>
-                           </div>
-                         </div>
-                         <div className="flex space-x-2">
-                           <Button
-                             variant="outline"
-                             size="sm"
-                             onClick={() => handleEditProduct(product)}
-                           >
-                             <Edit className="h-4 w-4" />
-                           </Button>
-                           <Button
-                             variant="outline"
-                             size="sm"
-                             onClick={() => handleDeleteProduct(product.id)}
-                           >
-                             <Trash2 className="h-4 w-4" />
-                           </Button>
-                         </div>
-                       </div>
-                       
-                       {/* Image Manager for this product */}
-                       <AdminImageManager productId={product.id} />
-                     </div>
-                   ))
-                 )}
-               </div>
+              {/* Products List */}
+              <div className="space-y-4">
+                {isLoadingProducts ? (
+                  <div className="flex items-center justify-center p-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500"></div>
+                  </div>
+                ) : products.length === 0 ? (
+                  <div className="text-center p-8 text-gray-500">
+                    <Package className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <p>No products found. Create your first product to get started.</p>
+                  </div>
+                ) : (
+                  products.map((product) => (
+                    <div key={product.id} className="border border-gray-200 rounded-lg p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
+                            <Package className="h-8 w-8 text-gray-400" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold">{product.brand} {product.model}</h4>
+                            <p className="text-sm text-gray-600">{product.referenceNumber}</p>
+                            <p className="text-sm text-gray-600">${product.price.toLocaleString()}</p>
+                            <p className="text-sm text-gray-600">Stock: {product.stockQuantity}</p>
+                          </div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditProduct(product)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteProduct(product.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      {/* Image Manager for this product */}
+                      <AdminImageManager productId={product.id} />
+                    </div>
+                  ))
+                )}
+              </div>
             </CardContent>
           </Card>
         )}
