@@ -23,9 +23,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
 
   // Check for existing session on mount
   useEffect(() => {
+    setMounted(true)
     const savedUser = localStorage.getItem('walnut_user')
     if (savedUser) {
       try {
@@ -107,8 +109,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const value = {
-    user,
-    isAuthenticated: !!user,
+    user: mounted ? user : null,
+    isAuthenticated: mounted && !!user,
     isLoading,
     login,
     signup,

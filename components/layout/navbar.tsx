@@ -12,7 +12,12 @@ export function Navbar() {
   const { getItemCount } = useCart()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -31,6 +36,8 @@ export function Navbar() {
     logout()
     setIsUserMenuOpen(false)
   }
+
+  const cartItemCount = mounted ? getItemCount() : 0
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -67,15 +74,15 @@ export function Navbar() {
             {/* Cart */}
             <Link href="/cart" className="relative text-gray-700 hover:text-yellow-400 transition-colors">
               <ShoppingCart className="h-5 w-5" />
-              {getItemCount() > 0 && (
+              {mounted && cartItemCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {getItemCount()}
+                  {cartItemCount}
                 </span>
               )}
             </Link>
 
             {/* User Menu */}
-            {isAuthenticated ? (
+            {mounted && isAuthenticated ? (
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
@@ -118,9 +125,9 @@ export function Navbar() {
           <div className="md:hidden flex items-center space-x-4">
             <Link href="/cart" className="relative text-gray-700">
               <ShoppingCart className="h-5 w-5" />
-              {getItemCount() > 0 && (
+              {mounted && cartItemCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {getItemCount()}
+                  {cartItemCount}
                 </span>
               )}
             </Link>
@@ -165,7 +172,7 @@ export function Navbar() {
               >
                 Contact Us
               </Link>
-              {isAuthenticated ? (
+              {mounted && isAuthenticated ? (
                 <>
                   <Link
                     href="/account"

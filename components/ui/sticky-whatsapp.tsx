@@ -1,8 +1,19 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+
 export function StickyWhatsApp() {
+  const [mounted, setMounted] = useState(false)
   const phoneNumber = '+917466965196'
   const whatsappUrl = `https://wa.me/${phoneNumber.replace(/\D/g, '')}`
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return null
+  }
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
