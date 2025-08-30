@@ -1,142 +1,146 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { OptimizedImage } from '@/components/OptimizedImage'
-import { formatPrice } from '@/lib/utils'
-import { useCartStore } from '@/store/cart'
-import toast from 'react-hot-toast'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { ShoppingCart, Eye } from 'lucide-react'
+import { useCart } from '@/store/cart-store'
 
-interface ProductTileProps {
-  product: {
-    id: string
-    brand: string
-    model: string
-    referenceNumber?: string
-    price: number
-    previousPrice?: number
-    imageUrl: string
-    condition: string
-    year?: number
-    stockQuantity: number
-  }
-  images?: string[]
+interface Product {
+  id: string
+  brand: string
+  model: string
+  referenceNumber: string
+  price: number
+  previousPrice?: number
+  condition: string
+  year: number
+  imageUrl: string
+  stockQuantity: number
 }
 
-export function ProductTile({ product, images = [] }: ProductTileProps) {
-  const { addItem } = useCartStore()
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  
-  // Use provided images or fallback to single image
-  const productImages = images.length > 0 ? images : [product.imageUrl]
+interface ProductTileProps {
+  product: Product
+  variant?: 'default' | 'featured'
+}
 
-  // Auto-rotate images every 3 seconds
-  useEffect(() => {
-    if (productImages.length <= 1) return
+export function ProductTile({ product, variant = 'default' }: ProductTileProps) {
+  const router = useRouter()
+  const { addToCart } = useCart()
+  const [isLoading, setIsLoading] = useState(false)
 
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % productImages.length)
-    }, 3000)
+  const handleCardClick = () => {
+    router.push(`/watches/${product.id}`)
+  }
 
-    return () => clearInterval(interval)
-  }, [productImages.length])
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    addToCart({
+      id: product.id,
+      name: `${product.brand} ${product.model}`,
+      price: product.price,
+      image: product.imageUrl
+    })
+  }
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     
-    addItem({
-      productId: product.id,
-      brand: product.brand,
-      model: product.model,
+    addToCart({
+      id: product.id,
+      name: `${product.brand} ${product.model}`,
       price: product.price,
-      imageUrl: product.imageUrl,
-      stockQuantity: product.stockQuantity,
-      quantity: 1
+      image: product.imageUrl
     })
-    toast.success('Added to cart!')
   }
 
   return (
-    <Link href={`/watches/${product.id}`} className="block">
-      <div className="product-tile group cursor-pointer transition-all duration-300 hover:scale-[1.02]">
-        {/* Image Container - Borderless */}
-        <div className="relative aspect-square overflow-hidden">
-          {/* Main Image */}
-          <OptimizedImage
-            src={productImages[currentImageIndex]}
+    <Card 
+      className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
+        variant === 'featured' ? 'featured-product-card' : 'product-card'
+      }`}
+      onClick={handleCardClick}
+    >
+      <CardContent className="p-0">
+        {/* Product Image */}
+        <div className="relative aspect-square overflow-hidden rounded-t-lg">
+          <img
+            src={product.imageUrl}
             alt={`${product.brand} ${product.model}`}
-            width={400}
-            height={400}
-            fill={true}
-            className="object-cover transition-opacity duration-500"
+            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
           />
           
-          {/* Image Indicators */}
-          {productImages.length > 1 && (
-            <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
-              {productImages.map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    index === currentImageIndex 
-                      ? 'bg-highlight shadow-lg' 
-                      : 'bg-white/50'
-                  }`}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Discount Badge */}
-          {product.previousPrice && product.previousPrice > product.price && (
-            <div className="absolute top-2 left-2 bg-highlight text-black text-xs px-2 py-1 rounded-lg font-semibold">
-              {Math.round(((product.previousPrice - product.price) / product.previousPrice) * 100)}% OFF
-            </div>
-          )}
-
           {/* Condition Badge */}
-          <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-lg">
-            {product.condition.replace('_', ' ')}
+          <div className="absolute top-2 left-2">
+            <span className="bg-highlight text-black text-xs font-semibold px-2 py-1 rounded">
+              {product.condition}
+            </span>
           </div>
 
-          {/* Add to Cart Button - Overlay */}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-            <button
-              onClick={handleAddToCart}
-              className="bg-highlight text-black px-4 py-2 rounded-xl font-semibold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-all duration-300"
-            >
-              Add to Cart
-            </button>
-          </div>
+          {/* Stock Badge */}
+          {product.stockQuantity <= 5 && product.stockQuantity > 0 && (
+            <div className="absolute top-2 right-2">
+              <span className="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                Only {product.stockQuantity} left
+              </span>
+            </div>
+          )}
+
+          {/* Out of Stock Overlay */}
+          {product.stockQuantity === 0 && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <span className="text-white font-semibold">Out of Stock</span>
+            </div>
+          )}
         </div>
 
-        {/* Product Info - Minimal */}
-        <div className="p-3 space-y-1">
-          <h3 className="font-semibold text-sm text-black truncate">
-            {product.brand}
-          </h3>
-          <p className="text-xs text-gray-600 truncate">
-            {product.model}
-          </p>
-          {product.referenceNumber && (
-            <p className="text-xs text-gray-500 truncate">
-              {product.referenceNumber}
-            </p>
-          )}
-          
-          <div className="flex items-center justify-between pt-1">
-            <p className="text-lg font-bold text-black">
-              {formatPrice(product.price)}
-            </p>
-            {product.previousPrice && product.previousPrice > product.price && (
-              <p className="text-xs text-gray-500 line-through">
-                {formatPrice(product.previousPrice)}
-              </p>
+        {/* Product Info */}
+        <div className="p-4">
+          <div className="mb-2">
+            <h3 className="font-semibold text-gray-900 truncate">
+              {product.brand} {product.model}
+            </h3>
+            <p className="text-sm text-gray-500">{product.referenceNumber}</p>
+          </div>
+
+          {/* Price */}
+          <div className="mb-3">
+            <span className="text-lg font-bold text-gray-900">
+              ₹{product.price.toLocaleString()}
+            </span>
+            {product.previousPrice && (
+              <span className="text-sm text-gray-500 line-through ml-2">
+                ₹{product.previousPrice.toLocaleString()}
+              </span>
             )}
           </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            <Button 
+              onClick={handleAddToCart}
+              disabled={product.stockQuantity === 0}
+              className="flex-1 btn-highlight"
+              size="sm"
+            >
+              <ShoppingCart className="h-4 w-4 mr-1" />
+              Add to Cart
+            </Button>
+            <Button 
+              onClick={handleBuyNow}
+              disabled={product.stockQuantity === 0}
+              variant="outline"
+              size="sm"
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-      </div>
-    </Link>
+      </CardContent>
+    </Card>
   )
 }

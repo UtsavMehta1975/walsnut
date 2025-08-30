@@ -49,6 +49,16 @@ const nextConfig = {
         hostname: 'via.placeholder.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'i.pinimg.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'wallpaperaccess.com',
+        pathname: '/**',
+      },
     ],
   },
   

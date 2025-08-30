@@ -1,26 +1,19 @@
 'use client'
 
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@/contexts/AuthContext'
-import { ShoppingCart, Heart, User, Menu, X, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { useCartStore } from '@/store/cart'
-import { useState, useEffect, useRef } from 'react'
-import { cn } from '@/lib/utils'
-import { ClientOnly } from '@/components/ui/client-only'
+import { ShoppingCart, Menu, X, User, Search } from 'lucide-react'
+import { useAuth } from '@/contexts/auth-context'
+import { useCart } from '@/store/cart-store'
 
 export function Navbar() {
-  const { user, isAuthenticated, isLoading, logout } = useAuth()
-  const { getItemCount } = useCartStore()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const { isAuthenticated, user, logout } = useAuth()
+  const { getItemCount } = useCart()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
-  const cartItemCount = getItemCount()
-
-  // Close user menu when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
@@ -28,115 +21,70 @@ export function Navbar() {
       }
     }
 
-    if (isUserMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
+    document.addEventListener('mousedown', handleClickOutside)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [isUserMenuOpen])
+  }, [])
 
-  const handleSignOut = () => {
-    // Clear cart state
-    useCartStore.getState().clearCart()
-    
-    // Logout
+  const handleLogout = () => {
     logout()
-    
-    // Redirect to home
-    window.location.href = '/'
+    setIsUserMenuOpen(false)
   }
 
   return (
-    <nav className="nav-highlight sticky top-0 z-50">
+    <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Mobile Menu Button - Left Side */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden text-earth-600 hover:text-walnut-600"
-          >
-            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+          {/* Logo */}
+          <Link href="/" className="text-2xl font-bold text-black">
+            WALNUT
+          </Link>
 
-          {/* Desktop Navigation - Center */}
+          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/watches" className="text-black hover:text-gray-600 transition-colors duration-300">
-              Watches
+            <Link href="/" className="text-gray-700 hover:text-yellow-400 transition-colors">
+              Home
             </Link>
-            <Link href="/brands" className="text-black hover:text-gray-600 transition-colors duration-300">
-              Collections
+            <Link href="/watches" className="text-gray-700 hover:text-yellow-400 transition-colors">
+              Men Watch
             </Link>
-            <Link href="/about" className="text-black hover:text-gray-600 transition-colors duration-300">
-              About
+            <Link href="/reviews" className="text-gray-700 hover:text-yellow-400 transition-colors">
+              Reviews
             </Link>
-            <Link href="/contact" className="text-black hover:text-gray-600 transition-colors duration-300">
-              Contact
+            <Link href="/contact" className="text-gray-700 hover:text-yellow-400 transition-colors">
+              Contact Us
             </Link>
           </div>
 
-          {/* Logo - Right Side */}
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-xl inter-bold text-black">
-              Walnut
-            </span>
-          </Link>
-
-          {/* Desktop Actions - Right Side */}
+          {/* Desktop Right Side */}
           <div className="hidden md:flex items-center space-x-4">
             {/* Search */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="text-black hover:text-gray-600"
-            >
+            <button className="text-gray-700 hover:text-yellow-400 transition-colors">
               <Search className="h-5 w-5" />
-            </Button>
+            </button>
 
             {/* Cart */}
-            <Link href="/cart">
-              <Button variant="ghost" size="icon" className="relative text-black hover:text-gray-600">
-                <ShoppingCart className="h-5 w-5" />
-                <ClientOnly>
-                  {cartItemCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-highlight text-black text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {cartItemCount}
-                    </span>
-                  )}
-                </ClientOnly>
-              </Button>
-            </Link>
-
-            {/* Wishlist */}
-            <Link href="/wishlist">
-              <Button variant="ghost" size="icon" className="text-black hover:text-gray-600">
-                <Heart className="h-5 w-5" />
-              </Button>
+            <Link href="/cart" className="relative text-gray-700 hover:text-yellow-400 transition-colors">
+              <ShoppingCart className="h-5 w-5" />
+              {getItemCount() > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {getItemCount()}
+                </span>
+              )}
             </Link>
 
             {/* User Menu */}
-            {isLoading ? (
-              <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
-            ) : isAuthenticated ? (
+            {isAuthenticated ? (
               <div className="relative" ref={userMenuRef}>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="text-black hover:text-gray-600"
+                <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="text-gray-700 hover:text-yellow-400 transition-colors"
                 >
                   <User className="h-5 w-5" />
-                </Button>
+                </button>
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
-                    <div className="px-4 py-2 text-sm text-gray-700 border-b">
-                      <p className="font-medium">{user?.name}</p>
-                      <p className="text-gray-500">{user?.email}</p>
-                    </div>
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                     <Link href="/account" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       My Account
                     </Link>
@@ -149,126 +97,118 @@ export function Navbar() {
                       </Link>
                     )}
                     <button
-                      onClick={handleSignOut}
+                      onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                      Sign Out
+                      Logout
                     </button>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
-                <Link href="/auth/signin">
-                  <Button variant="ghost" className="text-black hover:text-gray-600">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/auth/signup">
-                  <Button className="btn-highlight">
-                    Sign Up
-                  </Button>
-                </Link>
-              </div>
+              <Link href="/auth/signin">
+                <Button variant="outline" className="border-black text-black hover:bg-black hover:text-white">
+                  Log in
+                </Button>
+              </Link>
             )}
           </div>
 
-          {/* Mobile Actions - Right Side (Cart, Search) */}
-          <div className="md:hidden flex items-center space-x-2">
-            {/* Search */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="text-black hover:text-gray-600"
-            >
-              <Search className="h-5 w-5" />
-            </Button>
-
-            {/* Cart */}
-            <Link href="/cart">
-              <Button variant="ghost" size="icon" className="relative text-black hover:text-gray-600">
-                <ShoppingCart className="h-5 w-5" />
-                <ClientOnly>
-                  {cartItemCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-highlight text-black text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {cartItemCount}
-                    </span>
-                  )}
-                </ClientOnly>
-              </Button>
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center space-x-4">
+            <Link href="/cart" className="relative text-gray-700">
+              <ShoppingCart className="h-5 w-5" />
+              {getItemCount() > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {getItemCount()}
+                </span>
+              )}
             </Link>
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="text-gray-700"
+            >
+              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
         </div>
 
-        {/* Search Bar */}
-        {isSearchOpen && (
-          <div className="py-4 border-t border-gray-200">
-            <div className="flex items-center space-x-2">
-              <Input
-                placeholder="Search watches..."
-                className="flex-1"
-              />
-              <Button className="btn-highlight">
-                <Search className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4">
-            <div className="flex flex-col space-y-4">
-              <Link href="/watches" className="text-black hover:text-gray-600">
-                Watches
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-white border-t border-gray-200">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              <Link
+                href="/"
+                className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Home
               </Link>
-              <Link href="/brands" className="text-black hover:text-gray-600">
-                Collections
+              <Link
+                href="/watches"
+                className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Men Watch
               </Link>
-              <Link href="/about" className="text-black hover:text-gray-600">
-                About
+              <Link
+                href="/reviews"
+                className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Reviews
               </Link>
-              <Link href="/contact" className="text-black hover:text-gray-600">
-                Contact
+              <Link
+                href="/contact"
+                className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Contact Us
               </Link>
-              
-              <div className="border-t border-gray-200 pt-4">
-                {isAuthenticated ? (
-                  <div className="space-y-2">
-                    <div className="text-sm text-gray-600">
-                      <p className="font-medium">{user?.name}</p>
-                      <p>{user?.email}</p>
-                    </div>
-                    <Link href="/account" className="block text-black hover:text-gray-600">
-                      My Account
-                    </Link>
-                    <Link href="/orders" className="block text-black hover:text-gray-600">
-                      My Orders
-                    </Link>
-                    {user?.role === 'ADMIN' && (
-                      <Link href="/admin" className="block text-black hover:text-gray-600">
-                        Admin Panel
-                      </Link>
-                    )}
-                    <button
-                      onClick={handleSignOut}
-                      className="block text-left text-black hover:text-gray-600"
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    href="/account"
+                    className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    My Account
+                  </Link>
+                  <Link
+                    href="/orders"
+                    className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    My Orders
+                  </Link>
+                  {user?.role === 'ADMIN' && (
+                    <Link
+                      href="/admin"
+                      className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
+                      onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      Sign Out
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <Link href="/auth/signin" className="block text-black hover:text-gray-600">
-                      Sign In
+                      Admin Panel
                     </Link>
-                    <Link href="/auth/signup" className="block text-black hover:text-gray-600">
-                      Sign Up
-                    </Link>
-                  </div>
-                )}
-              </div>
+                  )}
+                  <button
+                    onClick={() => {
+                      handleLogout()
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className="block w-full text-left px-3 py-2 text-gray-700 hover:text-yellow-400"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/auth/signin"
+                  className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Log in
+                </Link>
+              )}
             </div>
           </div>
         )}

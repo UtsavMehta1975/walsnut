@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
-import { AuthProvider } from '@/contexts/AuthContext'
+import { AuthProvider } from '@/contexts/auth-context'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { ServiceWorkerRegistration } from '@/components/service-worker-registration'
 

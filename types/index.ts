@@ -145,13 +145,10 @@ export interface ProductFilters {
 // Cart Types
 export interface CartItem {
   id: string
-  productId: string
-  brand: string
-  model: string
+  name: string
   price: number
-  quantity: number
-  imageUrl: string
-  stockQuantity: number
+  image: string
+  quantity?: number
 }
 
 export interface Cart {

@@ -1,16 +1,13 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { OptimizedImage } from '@/components/OptimizedImage'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { formatPrice } from '@/lib/utils'
-import { useCartStore } from '@/store/cart'
-import toast from 'react-hot-toast'
+import { useCart } from '@/store/cart-store'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
+import { ShoppingCart, Heart, ArrowLeft, Clock } from 'lucide-react'
 
 interface ProductSpecifications {
   movement: string
@@ -25,181 +22,87 @@ interface ProductSpecifications {
 
 interface Product {
   id: string
-  brand: string
-  model: string
-  referenceNumber: string
-  year: number
-  condition: string
+  name: string
   price: number
-  previousPrice?: number
-  images: Array<{
-    id: string
-    imageUrl: string
-    altText: string
-    isPrimary: boolean
-  }>
-  stockQuantity: number
+  originalPrice: number
+  discount: number
+  colors: string[]
+  category: string
+  image: string
   description: string
   specifications: ProductSpecifications
-  authenticity: {
-    guaranteed: boolean
-    certificate: boolean
-    serviceHistory: boolean
-  }
+  sku: string
+}
+
+// Mock product data based on AzoneHub
+const mockProduct: Product = {
+  id: '1',
+  name: 'Luxury Branded 7A Watch',
+  price: 2299,
+  originalPrice: 5899,
+  discount: 61,
+  colors: ['BLACK', 'BLUE'],
+  category: 'luxury',
+  image: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=600',
+  description: 'A **Luxury Branded 7A Watch** is a high-end timepiece that blends precision, craftsmanship, and stylish design. "7A" often refers to a premium grade of watch components, indicating superior materials and mechanisms compared to standard models. These watches typically feature movement, meaning they are powered by the natural motion of the wearer\'s wrist, eliminating the need for batteries.',
+  specifications: {
+    movement: 'Automatic',
+    case: 'Stainless Steel',
+    dial: 'Classic dial design',
+    bracelet: 'Stainless Steel',
+    waterResistance: '50m',
+    powerReserve: '48 hours',
+    diameter: '42MM',
+    thickness: '10mm'
+  },
+  sku: 'RLX-001'
 }
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const { id: productId } = params
   const [product, setProduct] = useState<Product | null>(null)
-  const [selectedImage, setSelectedImage] = useState(0)
+  const [selectedColor, setSelectedColor] = useState('BLACK')
+  const [quantity, setQuantity] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
-  const { addItem } = useCartStore()
-
-  const fetchProduct = useCallback(async () => {
-    try {
-      const response = await fetch(`/api/products/${productId}`)
-      if (response.ok) {
-        const data = await response.json()
-        
-        // Transform the data to match our interface
-        const transformedProduct: Product = {
-          id: data.id,
-          brand: data.brand,
-          model: data.model,
-          referenceNumber: data.referenceNumber || '',
-          year: data.year || 0,
-          condition: data.condition,
-          price: parseFloat(data.price),
-          previousPrice: data.previousPrice ? parseFloat(data.previousPrice) : undefined,
-          images: (data.images || []).map((img: any) => ({
-            ...img,
-            imageUrl: img.imageUrl?.replace(/\\u0026/g, '&').replace(/\\/g, '') || img.imageUrl
-          })),
-          stockQuantity: data.stockQuantity,
-          description: data.description,
-          specifications: {
-            movement: data.movement || 'Automatic',
-            case: data.caseMaterial || 'Stainless Steel',
-            dial: 'Classic dial design',
-            bracelet: data.bandMaterial || 'Stainless Steel',
-            waterResistance: data.waterResistance || '50m',
-            powerReserve: '48 hours',
-            diameter: data.diameter || '40mm',
-            thickness: '10mm'
-          },
-          authenticity: {
-            guaranteed: data.authenticityStatus === 'CERTIFIED',
-            certificate: data.authenticityStatus === 'CERTIFIED',
-            serviceHistory: data.authenticityStatus === 'VERIFIED'
-          }
-        }
-        
-        setProduct(transformedProduct)
-        
-        // Fetch related products
-        fetchRelatedProducts(data.brand, data.id)
-      } else {
-        toast.error('Product not found')
-      }
-    } catch (error) {
-      console.error('Error fetching product:', error)
-      toast.error('Failed to load product')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [productId])
+  const { addToCart } = useCart()
 
   useEffect(() => {
-    fetchProduct()
-  }, [fetchProduct])
-
-  const fetchRelatedProducts = async (brand: string, excludeId: string) => {
-    try {
-      const response = await fetch(`/api/products?brand=${brand}&limit=4`)
-      if (response.ok) {
-        const data = await response.json()
-        const filtered = data.data
-          .filter((p: any) => p.id !== excludeId)
-          .slice(0, 3)
-          .map((p: any) => ({
-            id: p.id,
-            brand: p.brand,
-            model: p.model,
-            referenceNumber: p.referenceNumber || '',
-            year: p.year || 0,
-            condition: p.condition,
-            price: parseFloat(p.price),
-            previousPrice: p.previousPrice ? parseFloat(p.previousPrice) : undefined,
-            images: (p.images || []).map((img: any) => ({
-              ...img,
-              imageUrl: img.imageUrl?.replace(/\\u0026/g, '&').replace(/\\/g, '') || img.imageUrl
-            })),
-            stockQuantity: p.stockQuantity,
-            description: p.description,
-            specifications: {
-              movement: p.movement || 'Automatic',
-              case: p.caseMaterial || 'Stainless Steel',
-              dial: 'Classic dial design',
-              bracelet: p.bandMaterial || 'Stainless Steel',
-              waterResistance: p.waterResistance || '50m',
-              powerReserve: '48 hours',
-              diameter: p.diameter || '40mm',
-              thickness: '10mm'
-            },
-            authenticity: {
-              guaranteed: p.authenticityStatus === 'CERTIFIED',
-              certificate: p.authenticityStatus === 'CERTIFIED',
-              serviceHistory: p.authenticityStatus === 'VERIFIED'
-            }
-          }))
-        setRelatedProducts(filtered)
-      }
-    } catch (error) {
-      console.error('Error fetching related products:', error)
-    }
-  }
+    // Simulate API call
+    setTimeout(() => {
+      setProduct(mockProduct)
+      setIsLoading(false)
+    }, 1000)
+  }, [productId])
 
   const handleAddToCart = () => {
     if (product) {
-      addItem({
-        productId: product.id,
-        brand: product.brand,
-        model: product.model,
+      addToCart({
+        id: product.id,
+        name: product.name,
         price: product.price,
-        imageUrl: product.images[0]?.imageUrl || '',
-        stockQuantity: product.stockQuantity,
-        quantity: 1
+        image: product.image
       })
-      toast.success('Added to cart!')
     }
   }
 
   const handleBuyNow = () => {
     if (product) {
-      addItem({
-        productId: product.id,
-        brand: product.brand,
-        model: product.model,
+      addToCart({
+        id: product.id,
+        name: product.name,
         price: product.price,
-        imageUrl: product.images[0]?.imageUrl || '',
-        stockQuantity: product.stockQuantity,
-        quantity: 1
+        image: product.image
       })
       // Redirect to checkout
       window.location.href = '/checkout'
     }
   }
 
-  const handleAddToWishlist = () => {
-    toast.success('Added to wishlist!')
-  }
-
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading product details...</p>
         </div>
       </div>
@@ -208,14 +111,16 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <Navbar />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h1>
-            <p className="text-gray-600 mb-8">The product you&apos;re looking for doesn&apos;t exist.</p>
+            <h1 className="text-2xl font-bold text-black mb-4">Product Not Found</h1>
+            <p className="text-gray-600 mb-8">The product you're looking for doesn't exist.</p>
             <Link href="/watches">
-              <Button>Back to Watches</Button>
+              <Button className="bg-yellow-400 text-black hover:bg-yellow-500">
+                Back to Watches
+              </Button>
             </Link>
           </div>
         </div>
@@ -225,7 +130,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Navbar />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -233,22 +138,22 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
         <nav className="flex mb-8" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-3">
             <li className="inline-flex items-center">
-              <Link href="/" className="text-gray-700 hover:text-gold-600">
+              <Link href="/" className="text-gray-700 hover:text-yellow-400">
                 Home
               </Link>
             </li>
             <li>
               <div className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
-                <Link href="/watches" className="text-gray-700 hover:text-gold-600">
-                  Watches
+                <Link href="/watches" className="text-gray-700 hover:text-yellow-400">
+                  Men Watch
                 </Link>
               </div>
             </li>
             <li>
               <div className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
-                <span className="text-gray-500">{product.brand} {product.model}</span>
+                <span className="text-gray-500">{product.name}</span>
               </div>
             </li>
           </ol>
@@ -259,224 +164,242 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           <div className="space-y-4">
             {/* Main Image */}
             <div className="aspect-square overflow-hidden rounded-lg border border-gray-200 bg-white">
-              <OptimizedImage
-                src={product.images[selectedImage]?.imageUrl || product.images[0]?.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjgwMCIgdmlld0JveD0iMCAwIDgwMCA4MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iODAwIiBmaWxsPSIjOEI0NTEzIi8+Cjx0ZXh0IHg9IjQwMCIgeT0iNDAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNDgiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+V2F0Y2ggSW1hZ2U8L3RleHQ+Cjwvc3ZnPgo='}
-                alt={product.images[selectedImage]?.altText || `${product.brand} ${product.model}`}
+              <Image
+                src={product.image}
+                alt={product.name}
                 width={800}
                 height={800}
                 className="w-full h-full object-cover"
               />
             </div>
             
-            {/* Thumbnail Images */}
-            {product.images.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
-                {product.images.map((image, index) => (
-                  <button
-                    key={image.id}
-                    onClick={() => setSelectedImage(index)}
-                    className={`aspect-square overflow-hidden rounded-lg border-2 transition-colors ${
-                      selectedImage === index ? 'border-gold-500' : 'border-gray-200'
-                    }`}
-                  >
-                    <OptimizedImage
-                      src={image.imageUrl}
-                      alt={image.altText || `${product.brand} ${product.model}`}
-                      width={200}
-                      height={200}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
+            {/* Image Gallery Placeholder */}
+            <div className="grid grid-cols-4 gap-2">
+              {[1, 2, 3, 4].map((index) => (
+                <div key={index} className="aspect-square overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
+                  <Image
+                    src={product.image}
+                    alt={`${product.name} - View ${index}`}
+                    width={200}
+                    height={200}
+                    className="w-full h-full object-cover cursor-pointer hover:opacity-75 transition-opacity"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Product Details */}
           <div className="space-y-6">
-            {/* Brand and Model */}
+            {/* Product Name */}
             <div>
-              <h1 className="text-3xl lato-black text-gray-900 mb-2">
-                {product.brand} {product.model}
+              <h1 className="text-3xl font-bold text-black mb-2">
+                {product.name}
               </h1>
-              {product.referenceNumber && (
-                <p className="text-gray-600">Reference: {product.referenceNumber}</p>
-              )}
             </div>
 
             {/* Price */}
             <div className="space-y-2">
               <div className="flex items-center space-x-3">
-                <span className="text-3xl font-bold text-gray-900">
-                  {formatPrice(product.price)}
+                <span className="text-3xl font-bold text-black">
+                  Rs. {product.price.toLocaleString()}
                 </span>
-                {product.previousPrice && (
-                  <span className="text-xl text-gray-500 line-through">
-                    {formatPrice(product.previousPrice)}
-                  </span>
-                )}
+                <span className="text-xl text-gray-500 line-through">
+                  Rs. {product.originalPrice.toLocaleString()}
+                </span>
               </div>
-              {product.previousPrice && (
-                <p className="text-green-600 font-medium">
-                  Save {formatPrice(product.previousPrice - product.price)}
-                </p>
-              )}
+              <div className="bg-red-500 text-white px-2 py-1 rounded text-sm font-bold inline-block">
+                {product.discount}% off
+              </div>
             </div>
 
-            {/* Condition and Year */}
-            <div className="flex items-center space-x-4">
-              <Badge variant={product.condition === 'NEW' ? 'default' : 'secondary'}>
-                {product.condition.replace('_', ' ')}
-              </Badge>
-              {product.year && (
-                <span className="text-gray-600">Year: {product.year}</span>
-              )}
+            {/* SKU */}
+            <div className="text-sm text-gray-600">
+              <strong>SKU:</strong> {product.sku}
             </div>
 
-            {/* Stock Status */}
-            <div className="flex items-center space-x-2">
-              <span className={`w-3 h-3 rounded-full ${product.stockQuantity > 0 ? 'bg-green-500' : 'bg-red-500'}`}></span>
-              <span className="text-sm text-gray-600">
-                {product.stockQuantity > 0 ? `${product.stockQuantity} in stock` : 'Out of stock'}
-              </span>
-            </div>
-
-            {/* Description */}
+            {/* Color Options */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
-              <p className="text-gray-600 leading-relaxed">{product.description}</p>
+              <h3 className="text-lg font-semibold text-black mb-3">COLOR: {selectedColor}</h3>
+              <div className="flex flex-wrap gap-2">
+                {product.colors.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      selectedColor === color
+                        ? 'bg-yellow-400 text-black'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {color}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quantity */}
+            <div>
+              <h3 className="text-lg font-semibold text-black mb-3">Quantity</h3>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center border border-gray-300 rounded-lg">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="px-3 py-2 text-gray-600 hover:bg-gray-100"
+                  >
+                    -
+                  </button>
+                  <span className="px-4 py-2 border-x border-gray-300">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="px-3 py-2 text-gray-600 hover:bg-gray-100"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Action Buttons */}
             <div className="space-y-3">
               <Button 
-                onClick={handleBuyNow}
-                disabled={product.stockQuantity === 0}
-                className="w-full bg-gold-600 hover:bg-gold-700 text-white"
+                onClick={handleAddToCart}
+                className="w-full bg-black text-white hover:bg-gray-800"
               >
-                Buy Now
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Add to cart
               </Button>
-              <div className="grid grid-cols-2 gap-3">
-                <Button 
-                  onClick={handleAddToCart}
-                  disabled={product.stockQuantity === 0}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Add to Cart
-                </Button>
-                <Button 
-                  onClick={handleAddToWishlist}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Add to Wishlist
-                </Button>
+              <Button 
+                onClick={handleBuyNow}
+                className="w-full bg-yellow-400 text-black hover:bg-yellow-500 font-bold"
+              >
+                Buy it now
+              </Button>
+            </div>
+
+            {/* Sale Ending Timer */}
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex items-center justify-center space-x-2">
+                <Clock className="h-5 w-5 text-red-600" />
+                <p className="text-red-600 font-semibold">
+                  Sale Ending In: 24:59:45
+                </p>
               </div>
             </div>
 
-            {/* Authenticity */}
-            <Card>
-              <CardHeader>
-                <h3 className="text-lg font-semibold text-gray-900">Authenticity Guarantee</h3>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                    <span className="text-sm text-gray-600">100% Authentic</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                    <span className="text-sm text-gray-600">Certificate of Authenticity</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                    <span className="text-sm text-gray-600">Service History Available</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Pickup Availability */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <p className="text-gray-600 text-center">Couldn't load pickup availability</p>
+              <Button variant="outline" className="w-full mt-2">
+                Refresh
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* Specifications */}
+        {/* Product Specifications */}
         <div className="mt-16">
-          <h2 className="text-2xl lato-black text-gray-900 mb-6">Specifications</h2>
-          <Card>
-            <CardContent className="p-6">
+          <h2 className="text-2xl font-bold text-black mb-6">Product Specifications :</h2>
+          <div className="bg-gray-50 rounded-lg p-6">
+            <div className="prose max-w-none">
+              <div dangerouslySetInnerHTML={{ __html: product.description.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+            </div>
+            
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold text-black mb-4">Key Features:</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-gray-900">Movement</h4>
-                    <p className="text-gray-600">{product.specifications.movement}</p>
+                    <h4 className="font-semibold text-black">Exclusivity:</h4>
+                    <ul className="list-disc list-inside text-gray-600 space-y-1">
+                      <li>Limited editions or unique designs that make the watch a statement piece</li>
+                      <li>Often comes with a luxury box, certificates of authenticity, and sometimes a warranty.</li>
+                    </ul>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">Case</h4>
-                    <p className="text-gray-600">{product.specifications.case}</p>
+                    <h4 className="font-semibold text-black">Luxury Brand:</h4>
+                    <ul className="list-disc list-inside text-gray-600 space-y-1">
+                      <li>Manufactured by a renowned luxury brand, known for exceptional design, precision, and exclusivity.</li>
+                      <li>Often comes with a signature logo or emblem that represents quality and sophistication.</li>
+                    </ul>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">Dial</h4>
-                    <p className="text-gray-600">{product.specifications.dial}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">Bracelet</h4>
-                    <p className="text-gray-600">{product.specifications.bracelet}</p>
+                    <h4 className="font-semibold text-black">Premium Materials:</h4>
+                    <ul className="list-disc list-inside text-gray-600 space-y-1">
+                      <li><strong>Case:</strong> Often crafted from stainless steel, titanium, or even precious metals like gold or platinum for enhanced durability and luxury appeal.</li>
+                      <li><strong>Dial:</strong> May feature polished or textured finishes, with markers and hands made from high-quality metals like 18K gold, stainless steel, or even diamond accents.</li>
+                      <li><strong>Crystal:</strong> Usually made from scratch-resistant sapphire crystal, which offers clarity and resistance to damage.</li>
+                      <li><strong>Strap:</strong> Leather, stainless steel, or even exotic materials like alligator leather or rubber, designed for comfort and longevity.</li>
+                    </ul>
                   </div>
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-gray-900">Water Resistance</h4>
-                    <p className="text-gray-600">{product.specifications.waterResistance}</p>
+                    <h4 className="font-semibold text-black">Water Resistance:</h4>
+                    <p className="text-gray-600">Most luxury watches are water-resistant to varying depths, making them suitable for everyday wear and light water exposure.</p>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">Power Reserve</h4>
-                    <p className="text-gray-600">{product.specifications.powerReserve}</p>
+                    <h4 className="font-semibold text-black">Sleek and Timeless Design:</h4>
+                    <ul className="list-disc list-inside text-gray-600 space-y-1">
+                      <li>The design is often minimalist and elegant, with a classic appeal that works for both formal and casual occasions.</li>
+                      <li>May feature complications such as date, day, or moon phase displays, adding functionality to its aesthetic.</li>
+                    </ul>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">Diameter</h4>
-                    <p className="text-gray-600">{product.specifications.diameter}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">Thickness</h4>
-                    <p className="text-gray-600">{product.specifications.thickness}</p>
+                    <h4 className="font-semibold text-black">Precision and Accuracy:</h4>
+                    <ul className="list-disc list-inside text-gray-600 space-y-1">
+                      <li>Known for impeccable timekeeping, with Swiss or Japanese movement providing high precision.</li>
+                      <li>Generally subjected to rigorous testing and calibration to ensure accuracy and performance.</li>
+                    </ul>
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
 
-        {/* Related Products */}
-        {relatedProducts.length > 0 && (
-          <div className="mt-16">
-            <h2 className="text-2xl lato-black text-gray-900 mb-6">Related Products</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {relatedProducts.map((relatedProduct) => (
-                <Link key={relatedProduct.id} href={`/watches/${relatedProduct.id}`}>
-                  <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                    <CardContent className="p-4">
-                      <div className="aspect-square overflow-hidden rounded-lg mb-4">
-                        <OptimizedImage
-                          src={relatedProduct.images[0]?.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjOEI0NTEzIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+UmVsYXRlZCBXYXRjaDwvdGV4dD4KPC9zdmc+Cg=='}
-                          alt={relatedProduct.images[0]?.altText || `${relatedProduct.brand} ${relatedProduct.model}`}
-                          width={400}
-                          height={400}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <h3 className="font-semibold text-gray-900 mb-1">
-                        {relatedProduct.brand} {relatedProduct.model}
-                      </h3>
-                      <p className="text-gray-600 text-sm mb-2">{relatedProduct.referenceNumber}</p>
-                      <p className="font-bold text-gray-900">{formatPrice(relatedProduct.price)}</p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold text-black mb-4">Ideal for:</h3>
+              <ul className="list-disc list-inside text-gray-600 space-y-1">
+                <li>Those who appreciate refined aesthetics, cutting-edge craftsmanship, and the art of horology.</li>
+                <li>Watch collectors or enthusiasts looking for a reliable, stylish, and exclusive timepiece.</li>
+                <li>Gift-giving for special occasions such as anniversaries, promotions, or milestone celebrations.</li>
+              </ul>
+            </div>
+
+            <div className="mt-6 p-4 bg-yellow-50 rounded-lg">
+              <p className="text-gray-800">
+                The Luxury Branded 7A Watch represents a perfect fusion of form and function, capturing the essence of luxury with every tick.
+              </p>
             </div>
           </div>
-        )}
+        </div>
+
+        {/* Related Products Section */}
+        <div className="mt-16">
+          <h2 className="text-2xl font-bold text-black mb-6">Recently Viewed Products</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((index) => (
+              <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="aspect-square overflow-hidden">
+                  <Image
+                    src={product.image}
+                    alt={`Related Product ${index}`}
+                    width={300}
+                    height={300}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-semibold text-black mb-2">Related Watch {index}</h3>
+                  <p className="text-gray-600 text-sm mb-2">BLACK - Rs. 2,299.00</p>
+                  <p className="text-gray-600 text-sm mb-3">BLUE - Rs. 2,299.00</p>
+                  <Button className="w-full bg-black text-white hover:bg-gray-800">
+                    Add to cart
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
       
       <Footer />

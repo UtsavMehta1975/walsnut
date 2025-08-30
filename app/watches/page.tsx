@@ -1,268 +1,223 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import Link from 'next/link'
-import { ProductTile } from '@/components/ui/product-tile'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Search, Filter, Grid, List } from 'lucide-react'
-import { formatPrice } from '@/lib/utils'
-import toast from 'react-hot-toast'
-
+import { useState, useEffect } from 'react'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
-import { useDebounce } from '@/lib/hooks/use-performance'
+import { Button } from '@/components/ui/button'
+import { ShoppingCart, Heart } from 'lucide-react'
+import { useCart } from '@/store/cart-store'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 interface Product {
   id: string
-  brand: string
-  model: string
-  referenceNumber: string
+  name: string
   price: number
-  previousPrice?: number
-  condition: string
-  year: number
-  imageUrl: string
-  stockQuantity: number
+  originalPrice: number
+  image: string
+  description: string
+  discount: number
+  colors: string[]
+  category: string
+  inStock: boolean
 }
 
+const allProducts: Product[] = [
+  {
+    id: '1',
+    name: 'Luxury Branded 7A Watch',
+    price: 2299,
+    originalPrice: 5899,
+    image: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=600',
+    description: 'A Luxury Branded 7A Watch is a high-end timepiece that blends precision, craftsmanship, and stylish design.',
+    discount: 61,
+    colors: ['BLACK', 'BLUE'],
+    category: 'luxury',
+    inStock: true
+  },
+  {
+    id: '2',
+    name: 'Branded GMT 2 Watch (King Ko*Li Using it )',
+    price: 2299,
+    originalPrice: 5899,
+    image: 'https://images.pexels.com/photos/277390/pexels-photo-277390.jpeg?auto=compress&cs=tinysrgb&w=600',
+    description: 'A Luxury Branded 7A Watch is a high-end timepiece that blends precision, craftsmanship, and stylish design.',
+    discount: 61,
+    colors: ['Black-Red', 'Black-Green'],
+    category: 'gmt',
+    inStock: false
+  },
+  {
+    id: '3',
+    name: 'Luxury Branded 7A Day-Date Watch',
+    price: 2299,
+    originalPrice: 5899,
+    image: 'https://images.pexels.com/photos/162553/pexels-photo-162553.jpeg?auto=compress&cs=tinysrgb&w=600',
+    description: 'A Luxury Branded 7A Watch is a high-end timepiece that blends precision, craftsmanship, and stylish design.',
+    discount: 61,
+    colors: ['BLACK'],
+    category: 'luxury',
+    inStock: false
+  },
+  {
+    id: '4',
+    name: 'luxury Rainbow watch',
+    price: 3899,
+    originalPrice: 16599,
+    image: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=600',
+    description: 'luxury Rainbow watch',
+    discount: 77,
+    colors: ['Rainbow'],
+    category: 'special',
+    inStock: false
+  }
+]
+
 export default function WatchesPage() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedBrand, setSelectedBrand] = useState('all')
-  const [selectedCondition, setSelectedCondition] = useState('all')
-  const [sortBy, setSortBy] = useState('default')
-  const [isLoading, setIsLoading] = useState(true)
+  const [products, setProducts] = useState<Product[]>(allProducts)
+  const { addToCart } = useCart()
+  const router = useRouter()
 
-  // Debounced search for better performance
-  const debouncedSearchTerm = useDebounce(searchTerm, 300)
-
-  const brands = ['Walnut']
-  const conditions = ['NEW', 'PRE_OWNED', 'VINTAGE']
-
-  useEffect(() => {
-    fetchProducts()
-  }, [])
-
-  const fetchProducts = async () => {
-    try {
-      const response = await fetch('/api/products')
-      if (response.ok) {
-        const data = await response.json()
-        console.log('API Response:', data) // Debug log
-        // Transform the data to match our interface
-        const transformedProducts: Product[] = data.data.map((product: any) => ({
-          id: product.id,
-          brand: product.brand,
-          model: product.model,
-          referenceNumber: product.referenceNumber || '',
-          price: parseFloat(product.price),
-          previousPrice: product.previousPrice ? parseFloat(product.previousPrice) : undefined,
-          condition: product.condition,
-          year: product.year || 0,
-          imageUrl: product.images?.[0]?.imageUrl?.replace(/\\u0026/g, '&').replace(/\\/g, '') || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjOEI0NTEzIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+V2F0Y2g8L3RleHQ+Cjwvc3ZnPgo=',
-          stockQuantity: product.stockQuantity
-        }))
-        console.log('Transformed Products:', transformedProducts) // Debug log
-        setProducts(transformedProducts)
-      } else {
-        console.error('Failed to fetch products')
-        toast.error('Failed to load products')
-      }
-    } catch (error) {
-      console.error('Error fetching products:', error)
-      toast.error('Failed to load products')
-    } finally {
-      setIsLoading(false)
-    }
+  const handleAddToCart = (product: Product) => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image
+    })
   }
 
-  const filterAndSortProducts = useCallback(() => {
-    let filtered = [...products]
-
-    // Search filter with debounced term
-    if (debouncedSearchTerm) {
-      filtered = filtered.filter(product =>
-        product.brand.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        product.model.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        product.referenceNumber.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-      )
-    }
-
-    // Brand filter
-    if (selectedBrand && selectedBrand !== 'all') {
-      filtered = filtered.filter(product => product.brand === selectedBrand)
-    }
-
-    // Condition filter
-    if (selectedCondition && selectedCondition !== 'all') {
-      filtered = filtered.filter(product => product.condition === selectedCondition)
-    }
-
-    // Sort
-    switch (sortBy) {
-      case 'price-low':
-        filtered.sort((a, b) => a.price - b.price)
-        break
-      case 'price-high':
-        filtered.sort((a, b) => b.price - a.price)
-        break
-      case 'year-new':
-        filtered.sort((a, b) => b.year - a.year)
-        break
-      case 'year-old':
-        filtered.sort((a, b) => a.year - b.year)
-        break
-      case 'default':
-      default:
-        break
-    }
-
-    setFilteredProducts(filtered)
-  }, [products, debouncedSearchTerm, selectedBrand, selectedCondition, sortBy])
-
-  useEffect(() => {
-    filterAndSortProducts()
-  }, [filterAndSortProducts, debouncedSearchTerm, selectedBrand, selectedCondition, sortBy])
-
-
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading watches...</p>
-        </div>
-      </div>
-    )
+  const handleProductClick = (productId: string) => {
+    router.push(`/watches/${productId}`)
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Navbar />
       
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-2xl md:text-3xl lato-black text-gray-900 mb-2">
-            Naturally Crafted Collection
-          </h1>
-          <p className="text-gray-600">
-            Discover our precision-crafted homage timepieces, rooted in the legacy of iconic design
-          </p>
-        </div>
-      </div>
+      <main className="py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-black mb-4">
+              Men Watch
+            </h1>
+          </div>
 
-      {/* Filters and Search */}
-      <div className="bg-white border-b border-gray-200 sticky top-16 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="space-y-4">
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search watches, brands, models..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+          {/* Products Grid - 2x2 Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {products.map((product) => (
+              <div key={product.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                {/* Product Image */}
+                <div 
+                  className="relative h-64 cursor-pointer"
+                  onClick={() => handleProductClick(product.id)}
+                >
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    fill
+                    className="object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                  {/* Discount Badge */}
+                  <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-bold">
+                    {product.discount}% off
+                  </div>
+                  {/* Sold Out Badge */}
+                  {!product.inStock && (
+                    <div className="absolute top-2 right-2 bg-black text-white px-2 py-1 rounded text-sm font-bold">
+                      Sold Out
+                    </div>
+                  )}
+                  {/* Wishlist Button */}
+                  <button 
+                    className="absolute bottom-2 right-2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      // Handle wishlist functionality
+                    }}
+                  >
+                    <Heart className="h-4 w-4 text-gray-600" />
+                  </button>
+                </div>
 
-            {/* Filters */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Select value={selectedBrand} onValueChange={setSelectedBrand}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Brand" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Brands</SelectItem>
-                  {brands.map(brand => (
-                    <SelectItem key={brand} value={brand}>{brand}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                {/* Product Info */}
+                <div className="p-4">
+                  <h3 
+                    className="text-lg font-semibold text-black mb-2 cursor-pointer hover:text-yellow-600"
+                    onClick={() => handleProductClick(product.id)}
+                  >
+                    {product.name}
+                  </h3>
 
-              <Select value={selectedCondition} onValueChange={setSelectedCondition}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Condition" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Conditions</SelectItem>
-                  {conditions.map(condition => (
-                    <SelectItem key={condition} value={condition}>{condition.replace('_', ' ')}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  {/* Color Options */}
+                  {product.colors.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {product.colors.slice(0, 2).map((color) => (
+                        <span key={color} className="text-xs bg-gray-100 px-2 py-1 rounded">
+                          {color}
+                        </span>
+                      ))}
+                      {product.colors.length > 2 && (
+                        <span className="text-xs text-gray-500">
+                          +{product.colors.length - 2} See {product.colors.length - 2} more option(s)
+                        </span>
+                      )}
+                    </div>
+                  )}
 
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="default">Default</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
-                  <SelectItem value="year-new">Year: Newest First</SelectItem>
-                  <SelectItem value="year-old">Year: Oldest First</SelectItem>
-                </SelectContent>
-              </Select>
+                  {/* Price */}
+                  <div className="mb-3">
+                    <div className="text-sm text-gray-600">Regular price Rs. {product.price.toLocaleString()}</div>
+                    <div className="text-sm text-gray-600">Sale price Rs. {product.price.toLocaleString()}</div>
+                    <div className="text-sm text-gray-500 line-through">Regular price ~~Rs. {product.originalPrice.toLocaleString()}~~</div>
+                    <div className="text-xs text-gray-600">Unit price /</div>
+                  </div>
 
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setSearchTerm('')
-                  setSelectedBrand('all')
-                  setSelectedCondition('all')
-                  setSortBy('default')
-                }}
-                className="w-full"
-              >
-                Clear Filters
-              </Button>
-            </div>
+                  {/* Sale Ending Timer */}
+                  <div className="mb-3 text-center">
+                    <p className="text-xs text-red-500 font-semibold">
+                      Sale Ending In:
+                    </p>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="space-y-2">
+                    {product.inStock ? (
+                      <Button 
+                        onClick={() => handleAddToCart(product)}
+                        className="w-full bg-black text-white hover:bg-gray-800"
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        Add To Cart
+                      </Button>
+                    ) : (
+                      <Button 
+                        disabled
+                        className="w-full bg-gray-300 text-gray-500 cursor-not-allowed"
+                      >
+                        Sold Out
+                      </Button>
+                    )}
+                    <Button 
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => handleProductClick(product.id)}
+                    >
+                      Select options
+                    </Button>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-sm text-gray-600 mt-3 line-clamp-2">
+                    {product.description}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
-
-      {/* Products Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {filteredProducts.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No watches found matching your criteria.</p>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSearchTerm('')
-                setSelectedBrand('all')
-                setSelectedCondition('all')
-                setSortBy('default')
-              }}
-              className="mt-4"
-            >
-              Clear all filters
-            </Button>
-          </div>
-        ) : (
-          <>
-            <div className="mb-4 text-sm text-gray-600">
-              Showing {filteredProducts.length} of {products.length} watches
-            </div>
-            
-                        {/* Mobile-optimized grid: 2x2 on mobile to show 4 products in one screen */}
-            <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4 md:gap-4 lg:gap-6">
-              {filteredProducts.map((product) => (
-                <ProductTile 
-                  key={product.id} 
-                  product={product}
-                />
-              ))}
-            </div>
-          </>
-        )}
-      </div>
+      </main>
       
       <Footer />
     </div>

@@ -7,7 +7,7 @@ import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/contexts/auth-context'
 import toast from 'react-hot-toast'
 
 export default function SignUpPage() {

@@ -2,57 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Inter Font Import */
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
-/* Inter Font Classes */
-.inter-thin {
-  font-family: "Inter", sans-serif;
-  font-weight: 100;
-  font-style: normal;
-}
-
-.inter-light {
-  font-family: "Inter", sans-serif;
-  font-weight: 200;
-  font-style: normal;
-}
-
-.inter-regular {
-  font-family: "Inter", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.inter-medium {
-  font-family: "Inter", sans-serif;
-  font-weight: 500;
-  font-style: normal;
-}
-
-.inter-semibold {
-  font-family: "Inter", sans-serif;
-  font-weight: 600;
-  font-style: normal;
-}
-
-.inter-bold {
-  font-family: "Inter", sans-serif;
-  font-weight: 700;
-  font-style: normal;
-}
-
-.inter-extrabold {
-  font-family: "Inter", sans-serif;
-  font-weight: 800;
-  font-style: normal;
-}
-
-.inter-black {
-  font-family: "Inter", sans-serif;
-  font-weight: 900;
-  font-style: normal;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 @layer base {
   :root {
@@ -76,11 +26,6 @@
     --input: 0 0% 89.8%;
     --ring: 0 0% 0%;
     --radius: 0.75rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
   }
 
   .dark {
@@ -103,21 +48,16 @@
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
   }
 
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
   
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-family: "Inter", sans-serif;
-    font-feature-settings: "rlig" 1, "calt" 1;
   }
 
   html {
@@ -126,7 +66,6 @@
 }
 
 @layer components {
-  /* Minimalist gradients */
   .highlight-gradient {
     background: linear-gradient(135deg, #FFF9C4 0%, #FFF176 50%, #FFEE58 100%);
   }
@@ -135,7 +74,6 @@
     background: linear-gradient(135deg, #FFFEF7 0%, #FFFDF0 50%, #FFFBE0 100%);
   }
   
-  /* Minimalist borders */
   .highlight-border {
     border: 1px solid #FFF9C4;
   }
@@ -144,7 +82,6 @@
     border: 2px solid #FFF176;
   }
   
-  /* Minimalist shadows */
   .highlight-shadow {
     box-shadow: 0 4px 6px -1px rgba(255, 249, 196, 0.1), 0 2px 4px -1px rgba(255, 249, 196, 0.06);
   }
@@ -157,24 +94,21 @@
     box-shadow: 0 20px 25px -5px rgba(255, 249, 196, 0.1), 0 10px 10px -5px rgba(255, 249, 196, 0.04);
   }
   
-  /* Product cards with minimalist design */
   .product-card {
-    @apply transition-all duration-300 ease-in-out;
-    @apply hover:scale-[1.02] hover:highlight-shadow-lg;
-    @apply bg-white;
-    @apply border-0;
+    transition: all 0.3s ease-in-out;
+    background-color: white;
+    border: none;
   }
   
   .product-card:hover {
-    @apply highlight-shadow-lg;
+    transform: scale(1.02);
+    box-shadow: 0 10px 15px -3px rgba(255, 249, 196, 0.1), 0 4px 6px -2px rgba(255, 249, 196, 0.05);
   }
   
-  /* Hero section with clean background */
   .hero-section {
     background: #FFFFFF;
   }
   
-  /* Text gradients */
   .text-gradient-highlight {
     background: linear-gradient(135deg, #FFF176 0%, #FFEE58 100%);
     -webkit-background-clip: text;
@@ -182,111 +116,119 @@
     background-clip: text;
   }
   
-  /* Button styles */
   .btn-highlight {
-    @apply bg-highlight;
-    @apply hover:bg-highlight-400;
-    @apply text-black font-semibold;
-    @apply transition-all duration-300;
-    @apply rounded-xl;
+    background-color: #FFF9C4;
+    color: black;
+    font-weight: 600;
+    transition: all 0.3s;
+    border-radius: 0.75rem;
+  }
+  
+  .btn-highlight:hover {
+    background-color: #FFF59E;
   }
   
   .btn-highlight-outline {
-    @apply border-2 border-highlight;
-    @apply hover:border-highlight-400;
-    @apply text-black hover:text-black;
-    @apply bg-white hover:bg-highlight-50;
-    @apply font-semibold transition-all duration-300;
-    @apply rounded-xl;
+    border: 2px solid #FFF9C4;
+    color: black;
+    background-color: white;
+    font-weight: 600;
+    transition: all 0.3s;
+    border-radius: 0.75rem;
   }
   
-  /* Card styles */
+  .btn-highlight-outline:hover {
+    border-color: #FFF59E;
+    background-color: #FFFEF7;
+  }
+  
   .card-highlight {
-    @apply bg-white;
-    @apply border-0;
-    @apply highlight-shadow;
-    @apply rounded-xl;
+    background-color: white;
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(255, 249, 196, 0.1), 0 2px 4px -1px rgba(255, 249, 196, 0.06);
+    border-radius: 0.75rem;
   }
   
   .card-highlight:hover {
-    @apply highlight-shadow-lg;
+    box-shadow: 0 10px 15px -3px rgba(255, 249, 196, 0.1), 0 4px 6px -2px rgba(255, 249, 196, 0.05);
   }
   
-  /* Navigation styles */
   .nav-highlight {
-    @apply bg-white/95 backdrop-blur-sm;
-    @apply border-b border-gray-200;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    border-bottom: 1px solid #e5e7eb;
   }
   
-  /* Form styles */
   .input-highlight {
-    @apply border border-gray-200;
-    @apply focus:border-highlight focus:ring-highlight/20;
-    @apply bg-white;
-    @apply transition-all duration-200 ease-out;
-    @apply rounded-xl;
+    border: 1px solid #e5e7eb;
+    background-color: white;
+    transition: all 0.2s ease-out;
+    border-radius: 0.75rem;
   }
   
-  /* Loading states */
-  .loading-highlight {
-    @apply bg-gradient-to-r from-highlight-50 to-highlight-100;
-    @apply animate-pulse;
-  }
-
-  /* Better focus states for accessibility */
-  .btn-highlight:focus,
-  .btn-highlight-outline:focus,
   .input-highlight:focus {
-    @apply outline-none ring-2 ring-highlight ring-offset-2;
+    border-color: #FFF9C4;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 249, 196, 0.2);
+  }
+  
+  .loading-highlight {
+    background: linear-gradient(90deg, #FFFEF7 0%, #FFFDF0 100%);
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
-  /* Improved loading states */
   .loading-skeleton {
-    @apply animate-pulse bg-gray-200 rounded;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    background-color: #e5e7eb;
+    border-radius: 0.25rem;
   }
 
-  /* Mobile-first responsive design */
   .container-mobile {
-    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    width: 100%;
+    max-width: 80rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
-  /* Touch-friendly interactive elements */
   .touch-friendly {
-    @apply cursor-pointer;
-    @apply transition-all duration-200 ease-out;
-    @apply active:scale-95;
+    cursor: pointer;
+    transition: all 0.2s ease-out;
   }
 
-  /* Mobile-optimized images */
+  .touch-friendly:active {
+    transform: scale(0.95);
+  }
+
   .mobile-image {
-    @apply w-full h-auto;
-    @apply object-cover;
-    @apply rounded-lg;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 0.5rem;
   }
 
-  /* Better mobile typography */
   .mobile-heading {
-    @apply text-xl sm:text-2xl md:text-3xl;
-    @apply font-black;
-    @apply leading-tight;
+    font-size: 1.25rem;
+    font-weight: 900;
+    line-height: 1.2;
   }
 
   .mobile-subheading {
-    @apply text-lg sm:text-xl md:text-2xl;
-    @apply font-bold;
-    @apply leading-relaxed;
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.6;
   }
 
-  /* Mobile-friendly spacing */
   .mobile-section {
-    @apply py-8 sm:py-12 md:py-16;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
   }
 
   .mobile-margin {
-    @apply mb-6 sm:mb-8 md:mb-12;
+    margin-bottom: 1.5rem;
   }
 
-  /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 8px;
   }
@@ -304,72 +246,69 @@
     background: #94a3b8;
   }
 
-  /* Loading animation */
   .shimmer {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200px 100%;
     animation: shimmer 1.5s infinite;
   }
 
-  /* Fade in animation */
   .fade-in {
     animation: fadeIn 0.6s ease-out;
   }
 }
 
 @layer utilities {
-  /* Mobile-specific optimizations */
   @media (max-width: 768px) {
-    /* Improved touch targets */
     .btn-highlight,
     .btn-highlight-outline {
-      @apply min-h-[44px] px-4 py-3;
-      @apply text-base font-semibold;
+      min-height: 44px;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      font-weight: 600;
     }
     
-    /* Better mobile spacing */
     .mobile-padding {
-      @apply px-4 py-6;
+      padding: 1rem 1.5rem;
     }
     
-    /* Mobile-friendly cards */
     .card-highlight {
-      @apply rounded-lg;
-      @apply shadow-sm;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
     }
     
-    /* Mobile navigation improvements */
     .nav-highlight {
-      @apply px-4;
+      padding-left: 1rem;
+      padding-right: 1rem;
     }
     
-    /* Mobile form improvements */
     .input-highlight {
-      @apply min-h-[44px] px-3 py-2;
-      @apply text-base;
+      min-height: 44px;
+      padding: 0.5rem 0.75rem;
+      font-size: 1rem;
     }
     
-    /* Mobile text sizing */
     .mobile-text-lg {
-      @apply text-lg leading-relaxed;
+      font-size: 1.125rem;
+      line-height: 1.6;
     }
     
     .mobile-text-base {
-      @apply text-base leading-relaxed;
+      font-size: 1rem;
+      line-height: 1.6;
     }
     
-    /* Mobile grid adjustments */
     .mobile-grid-1 {
-      @apply grid-cols-1 gap-4;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 1rem;
     }
     
     .mobile-grid-2 {
-      @apply grid-cols-2 gap-3;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
     }
   }
 }
 
-/* Keyframe animations */
 @keyframes shimmer {
   0% {
     background-position: -200px 0;
@@ -389,5 +328,3 @@
     transform: translateY(0);
   }
 }
-
-

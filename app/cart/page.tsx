@@ -1,61 +1,56 @@
 'use client'
 
 import { useState } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/contexts/auth-context'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Trash2, ShoppingBag, ArrowLeft } from 'lucide-react'
-import { formatPrice } from '@/lib/utils'
-import { useCartStore } from '@/store/cart'
-import toast from 'react-hot-toast'
+import { Trash2, ShoppingBag, ArrowLeft, Minus, Plus } from 'lucide-react'
+import { useCart } from '@/store/cart-store'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 
 export default function CartPage() {
-  const { isAuthenticated } = useAuth()
-  const { items, removeItem, updateQuantity, clearCart, getTotal } = useCartStore()
+  const { user } = useAuth()
+  const { items, removeFromCart, updateQuantity, clearCart, getTotal } = useCart()
   const [isCheckingOut, setIsCheckingOut] = useState(false)
 
-  const handleQuantityChange = (itemId: string, newQuantity: number) => {
+  const handleQuantityChange = (id: string, newQuantity: number) => {
     if (newQuantity <= 0) {
-      removeItem(itemId)
-      toast.success('Item removed from cart')
+      removeFromCart(id)
     } else {
-      updateQuantity(itemId, newQuantity)
+      updateQuantity(id, newQuantity)
     }
   }
 
   const handleCheckout = () => {
-    if (!isAuthenticated) {
-      toast.error('Please sign in to checkout')
+    if (!user) {
+      // Redirect to login or show login modal
       return
     }
     
     setIsCheckingOut(true)
     // Here you would integrate with your payment processor
     setTimeout(() => {
-      toast.success('Checkout functionality coming soon!')
       setIsCheckingOut(false)
     }, 2000)
   }
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <Navbar />
-        <div className="flex items-center justify-center px-4 py-8 flex-1">
+        <div className="flex items-center justify-center px-4 py-16">
           <div className="text-center">
             <ShoppingBag className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl lato-black text-gray-900 mb-2">
+            <h2 className="text-2xl font-bold text-black mb-2">
               Your cart is empty
             </h2>
             <p className="text-gray-600 mb-6">
-              Start shopping to add luxury timepieces to your cart
+              Start shopping to add premium timepieces to your cart
             </p>
             <Link href="/watches">
-              <Button variant="luxury" size="lg">
+              <Button className="bg-yellow-400 text-black hover:bg-yellow-500 font-bold px-8 py-3">
                 Browse Watches
               </Button>
             </Link>
@@ -67,7 +62,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Navbar />
       
       {/* Header */}
@@ -80,7 +75,7 @@ export default function CartPage() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl md:text-3xl lato-black text-gray-900">
+              <h1 className="text-2xl md:text-3xl font-bold text-black">
                 Shopping Cart
               </h1>
               <p className="text-gray-600">
@@ -97,69 +92,67 @@ export default function CartPage() {
           <div className="lg:col-span-2">
             <div className="space-y-4">
               {items.map((item) => (
-                <Card key={item.id} className="overflow-hidden">
-                  <CardContent className="p-4">
-                    <div className="flex space-x-4">
-                      {/* Product Image */}
-                      <div className="relative w-20 h-20 md:w-24 md:h-24 flex-shrink-0">
-                        <Image
-                          src={item.imageUrl}
-                          alt={`${item.brand} ${item.model}`}
-                          fill
-                          className="object-cover rounded-lg"
-                        />
-                      </div>
+                <div key={item.id} className="bg-white border border-gray-200 rounded-lg p-4">
+                  <div className="flex space-x-4">
+                    {/* Product Image */}
+                    <div className="relative w-20 h-20 md:w-24 md:h-24 flex-shrink-0">
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        fill
+                        className="object-cover rounded-lg"
+                      />
+                    </div>
 
-                      {/* Product Details */}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 text-sm md:text-base truncate">
-                          {item.brand} {item.model}
-                        </h3>
-                        <p className="text-sm text-gray-600 mb-2">
-                          {formatPrice(item.price)}
-                        </p>
-                        
-                        {/* Quantity Controls */}
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleQuantityChange(item.productId, item.quantity - 1)}
-                            className="w-8 h-8 p-0"
-                          >
-                            -
-                          </Button>
-                          <span className="text-sm font-medium w-8 text-center">
-                            {item.quantity}
-                          </span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleQuantityChange(item.productId, item.quantity + 1)}
-                            className="w-8 h-8 p-0"
-                          >
-                            +
-                          </Button>
-                        </div>
-                      </div>
-
-                      {/* Remove Button */}
-                      <div className="flex flex-col items-end justify-between">
+                    {/* Product Details */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-black text-sm md:text-base truncate">
+                        {item.name}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-2">
+                        Rs. {item.price.toLocaleString()}
+                      </p>
+                      
+                      {/* Quantity Controls */}
+                      <div className="flex items-center space-x-2">
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
-                          onClick={() => removeItem(item.productId)}
-                          className="text-red-600 hover:text-red-700"
+                          onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                          className="w-8 h-8 p-0 border-gray-300"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Minus className="h-3 w-3" />
                         </Button>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {formatPrice(item.price * item.quantity)}
-                        </p>
+                        <span className="text-sm font-medium w-8 text-center">
+                          {item.quantity}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                          className="w-8 h-8 p-0 border-gray-300"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+
+                    {/* Remove Button and Total */}
+                    <div className="flex flex-col items-end justify-between">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeFromCart(item.id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <p className="text-sm font-semibold text-black">
+                        Rs. {(item.price * item.quantity).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
 
@@ -177,14 +170,12 @@ export default function CartPage() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <h3 className="text-lg font-semibold text-gray-900">Order Summary</h3>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <div className="bg-gray-50 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-black mb-4">Order Summary</h3>
+              <div className="space-y-4">
                 <div className="flex justify-between text-sm">
                   <span>Subtotal</span>
-                  <span>{formatPrice(getTotal())}</span>
+                  <span>Rs. {getTotal().toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Shipping</span>
@@ -193,16 +184,16 @@ export default function CartPage() {
                 <div className="border-t pt-4">
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>{formatPrice(getTotal())}</span>
+                    <span>Rs. {getTotal().toLocaleString()}</span>
                   </div>
                 </div>
                 
-                {!isAuthenticated && (
+                {!user && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                     <p className="text-sm text-blue-800 mb-2">
                       Sign in to complete your purchase and track your orders
                     </p>
-                    <Link href="/auth/signin">
+                    <Link href="/login">
                       <Button variant="outline" size="sm" className="w-full">
                         Sign In
                       </Button>
@@ -211,16 +202,14 @@ export default function CartPage() {
                 )}
                 
                 <Button
-                  variant="luxury"
-                  size="lg"
-                  className="w-full"
+                  className="w-full bg-yellow-400 text-black hover:bg-yellow-500 font-bold py-3"
                   onClick={handleCheckout}
                   disabled={isCheckingOut}
                 >
                   {isCheckingOut ? 'Processing...' : 'Proceed to Checkout'}
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </div>
