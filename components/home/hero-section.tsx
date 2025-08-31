@@ -52,6 +52,72 @@ export function HeroSection() {
           </div>
         </div>
       </div>
+
+      {/* Gifting Guide Section */}
+      <div className="bg-gradient-to-r from-yellow-50 to-orange-50 py-12 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            {/* Left side - Image */}
+            <div className="relative">
+              <div className="aspect-square rounded-lg overflow-hidden shadow-lg">
+                <Image 
+                  src="/gift-image.jpg"
+                  alt="Luxury Watch Gifting Guide"
+                  width={600}
+                  height={600}
+                  className="w-full h-full object-cover"
+                />
+                {/* Overlay for better text readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+              </div>
+            </div>
+
+            {/* Right side - Content */}
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">
+                  Perfect Gift for Every Occasion
+                </h2>
+                <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                  Discover our curated collection of premium timepieces that make the perfect gift for birthdays, anniversaries, graduations, and special milestones. Each watch tells a story of craftsmanship and elegance.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                  <div className="text-2xl font-bold text-yellow-600 mb-2">🎁</div>
+                  <div className="text-sm font-medium text-gray-800">Birthday Gifts</div>
+                </div>
+                <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                  <div className="text-2xl font-bold text-red-600 mb-2">💝</div>
+                  <div className="text-sm font-medium text-gray-800">Anniversary</div>
+                </div>
+                <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                  <div className="text-2xl font-bold text-blue-600 mb-2">🎓</div>
+                  <div className="text-sm font-medium text-gray-800">Graduation</div>
+                </div>
+                <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                  <div className="text-2xl font-bold text-green-600 mb-2">🏆</div>
+                  <div className="text-sm font-medium text-gray-800">Achievement</div>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href="/watch-advisor">
+                  <Button size="lg" className="bg-black text-white hover:bg-gray-800 font-bold">
+                    Get Gift Recommendations
+                  </Button>
+                </Link>
+                <Link href="/watches">
+                  <Button size="lg" variant="outline" className="border-black text-black hover:bg-black hover:text-white font-bold">
+                    Browse Collection
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   )
 }

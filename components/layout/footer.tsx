@@ -75,7 +75,7 @@ export function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/refund" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                  <Link href="/refund-policy" className="text-gray-300 hover:text-yellow-400 transition-colors">
                     Refund Policy
                   </Link>
                 </li>
@@ -134,10 +134,10 @@ export function Footer() {
               © {currentYear} Walnut Store. All Rights Reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <Link href="/privacy" className="text-gray-300 hover:text-yellow-400 text-sm transition-colors">
+              <Link href="/privacy-policy" className="text-gray-300 hover:text-yellow-400 text-sm transition-colors">
                 Privacy Policy
               </Link>
-              <Link href="/terms" className="text-gray-300 hover:text-yellow-400 text-sm transition-colors">
+              <Link href="/terms-of-service" className="text-gray-300 hover:text-yellow-400 text-sm transition-colors">
                 Terms of Service
               </Link>
             </div>
