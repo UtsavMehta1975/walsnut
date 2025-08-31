@@ -110,8 +110,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const value = {
-    user: mounted ? user : null,
-    isAuthenticated: mounted && !!user,
+    user: user, // Remove the mounted check here - let components handle it
+    isAuthenticated: !!user,
     isLoading,
     login,
     signup,

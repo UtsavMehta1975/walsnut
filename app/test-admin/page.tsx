@@ -9,6 +9,7 @@ export default function TestAdminPage() {
   const { user, isAuthenticated, isLoading, login } = useAuth()
   const router = useRouter()
   const [testResult, setTestResult] = useState<string>('')
+  const [adminCheckResult, setAdminCheckResult] = useState<string>('')
 
   const testAdminLogin = async () => {
     try {
@@ -29,6 +30,22 @@ export default function TestAdminPage() {
     }
   }
 
+  const checkAdminInDatabase = async () => {
+    try {
+      const response = await fetch('/api/auth/check-admin?email=admin@walnut.com')
+      const data = await response.json()
+      
+      if (response.ok) {
+        setAdminCheckResult(JSON.stringify(data, null, 2))
+        console.log('Admin check result:', data)
+      } else {
+        setAdminCheckResult(`Error: ${data.message}`)
+      }
+    } catch (error) {
+      setAdminCheckResult(`Error: ${error}`)
+    }
+  }
+
   const testAdminPanelAccess = () => {
     console.log('=== TESTING ADMIN PANEL ACCESS ===')
     console.log('User:', user)
@@ -36,7 +53,7 @@ export default function TestAdminPage() {
     console.log('User role:', user?.role)
     console.log('Role === ADMIN:', user?.role === 'ADMIN')
     
-    if (isAuthenticated && user?.role === 'ADMIN') {
+    if (isAuthenticated && user?.role?.toUpperCase() === 'ADMIN') {
       console.log('✅ Should be able to access admin panel')
       router.push('/admin')
     } else {
@@ -77,6 +94,10 @@ export default function TestAdminPage() {
             Test Admin Login
           </Button>
           
+          <Button onClick={checkAdminInDatabase} className="w-full">
+            Check Admin in Database
+          </Button>
+          
           <Button onClick={testAdminPanelAccess} className="w-full">
             Test Admin Panel Access
           </Button>
@@ -93,6 +114,13 @@ export default function TestAdminPage() {
         <div className="mb-4">
           <h2 className="font-semibold mb-2">Test Result:</h2>
           <p className="text-sm">{testResult}</p>
+        </div>
+
+        <div className="mb-4">
+          <h2 className="font-semibold mb-2">Admin Database Check:</h2>
+          <pre className="text-xs bg-gray-100 p-2 rounded overflow-auto">
+            {adminCheckResult}
+          </pre>
         </div>
 
         <div className="mb-4">

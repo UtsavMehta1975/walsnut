@@ -47,7 +47,8 @@ export function Navbar() {
     console.log('user?.role:', user?.role)
     console.log('user?.role.toUpperCase() === "ADMIN":', user?.role?.toUpperCase() === 'ADMIN')
     
-    if (mounted && isAuthenticated && user?.role?.toUpperCase() === 'ADMIN') {
+    // Remove mounted check from here since we handle it in the UI rendering
+    if (isAuthenticated && user?.role?.toUpperCase() === 'ADMIN') {
       console.log('✅ Redirecting to admin panel...')
       router.push('/admin')
     } else {
