@@ -53,8 +53,8 @@ export function Navbar() {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link href="/" className="text-2xl font-bold text-black">
+          {/* Logo with border */}
+          <Link href="/" className="text-2xl font-bold text-black border-2 border-black px-3 py-1 rounded hover:bg-black hover:text-white transition-colors">
             WALNUT
           </Link>
 
