@@ -81,9 +81,20 @@ export default function AdminPage() {
 
   // Check authentication and admin role
   useEffect(() => {
-    if (isLoading) return
+    console.log('=== ADMIN PAGE AUTH CHECK ===')
+    console.log('isLoading:', isLoading)
+    console.log('isAuthenticated:', isAuthenticated)
+    console.log('user:', user)
+    console.log('user?.role:', user?.role)
+    console.log('user?.role.toUpperCase() === "ADMIN":', user?.role?.toUpperCase() === 'ADMIN')
+    
+    if (isLoading) {
+      console.log('Still loading...')
+      return
+    }
     
     if (!isAuthenticated) {
+      console.log('❌ Not authenticated, redirecting to signin')
       router.push('/auth/signin')
       return
     }
@@ -94,11 +105,13 @@ export default function AdminPage() {
     
     // Check if user has admin role (case insensitive)
     if (!user?.role || user.role.toUpperCase() !== 'ADMIN') {
-      router.push('/')
+      console.log('❌ Not admin, redirecting to signin')
+      router.push('/auth/signin')
       toast.error('Access denied. Admin privileges required.')
       return
     }
     
+    console.log('✅ Admin access granted, fetching products')
     fetchProducts()
   }, [user, isAuthenticated, isLoading, router])
 

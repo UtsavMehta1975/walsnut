@@ -50,10 +50,11 @@ export function Navbar() {
     // Remove mounted check from here since we handle it in the UI rendering
     if (isAuthenticated && user?.role?.toUpperCase() === 'ADMIN') {
       console.log('✅ Redirecting to admin panel...')
-      router.push('/admin')
+      // Use window.location.href to force full page navigation
+      window.location.href = '/admin'
     } else {
       console.log('❌ Redirecting to signin page...')
-      router.push('/auth/signin')
+      window.location.href = '/auth/signin'
     }
   }
 
