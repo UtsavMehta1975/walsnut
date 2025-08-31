@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button'
 
 export default function DebugAuthPage() {
   const { user, isAuthenticated, isLoading, login } = useAuth()
-  const [email, setEmail] = useState('superadmin@walnut.com')
-  const [password, setPassword] = useState('123456')
+  const [email, setEmail] = useState('admin@walnut.com')
+  const [password, setPassword] = useState('password123')
   const [loginResult, setLoginResult] = useState<string>('')
 
   const handleLogin = async () => {

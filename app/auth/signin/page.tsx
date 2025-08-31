@@ -13,8 +13,8 @@ import toast from 'react-hot-toast'
 export default function SignInPage() {
   const router = useRouter()
   const { login } = useAuth()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('admin@walnut.com')
+  const [password, setPassword] = useState('password123')
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
