@@ -56,6 +56,16 @@ export function HeroSection() {
       {/* Gifting Guide Section */}
       <div className="bg-gradient-to-r from-yellow-50 to-orange-50 py-12 px-4">
         <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-black mb-4">
+              Need Gifting Advice? Let Us Guide You
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+              Shop for someone special or yourself using our Watch Advisor. Get personalized recommendations based on style, budget, and occasion.
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             {/* Left side - Image */}
             <div className="relative">
@@ -75,42 +85,60 @@ export function HeroSection() {
             {/* Right side - Content */}
             <div className="space-y-6">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">
-                  Perfect Gift for Every Occasion
-                </h2>
-                <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                  Discover our curated collection of premium timepieces that make the perfect gift for birthdays, anniversaries, graduations, and special milestones. Each watch tells a story of craftsmanship and elegance.
+                <h3 className="text-xl font-semibold text-black mb-3">
+                  Personalized Watch Recommendations
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Our expert advisors help you find the perfect timepiece for any occasion, whether it's a birthday, anniversary, or just because.
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-                  <div className="text-2xl font-bold text-yellow-600 mb-2">🎁</div>
-                  <div className="text-sm font-medium text-gray-800">Birthday Gifts</div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <div className="text-yellow-600 font-bold">👥</div>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-black">Expert Guidance</h4>
+                    <p className="text-sm text-gray-600">Professional advice</p>
+                  </div>
                 </div>
-                <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-                  <div className="text-2xl font-bold text-red-600 mb-2">💝</div>
-                  <div className="text-sm font-medium text-gray-800">Anniversary</div>
+
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <div className="text-yellow-600 font-bold">⚡</div>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-black">Quick Results</h4>
+                    <p className="text-sm text-gray-600">Instant recommendations</p>
+                  </div>
                 </div>
-                <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-                  <div className="text-2xl font-bold text-blue-600 mb-2">🎓</div>
-                  <div className="text-sm font-medium text-gray-800">Graduation</div>
+
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <div className="text-yellow-600 font-bold">🎁</div>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-black">Perfect Gifts</h4>
+                    <p className="text-sm text-gray-600">For every occasion</p>
+                  </div>
                 </div>
-                <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-                  <div className="text-2xl font-bold text-green-600 mb-2">🏆</div>
-                  <div className="text-sm font-medium text-gray-800">Achievement</div>
+
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <div className="text-yellow-600 font-bold">✨</div>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-black">Premium Quality</h4>
+                    <p className="text-sm text-gray-600">Authentic timepieces</p>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="pt-4">
                 <Link href="/watch-advisor">
                   <Button size="lg" className="bg-black text-white hover:bg-gray-800 font-bold">
-                    Get Gift Recommendations
-                  </Button>
-                </Link>
-                <Link href="/watches">
-                  <Button size="lg" variant="outline" className="border-black text-black hover:bg-black hover:text-white font-bold">
-                    Browse Collection
+                    EXPLORE WATCH ADVISOR
                   </Button>
                 </Link>
               </div>
