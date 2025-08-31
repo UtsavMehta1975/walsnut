@@ -42,6 +42,8 @@ export default function SignUpPage() {
       
       if (success) {
         toast.success('Account created successfully!')
+        // Signup typically creates regular users, so redirect to store
+        console.log('New user account created, redirecting to store...')
         router.push('/')
       } else {
         toast.error('Failed to create account. Please try again.')

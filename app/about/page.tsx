@@ -210,7 +210,7 @@ export default function AboutPage() {
                 <strong>Disclaimer:</strong> Walnut timepieces are inspired by classic designs but are our own unique products. They are not associated, affiliated, endorsed by, or connected to any of the renowned brands whose designs we admire.
               </p>
               <p className="text-base md:text-lg text-gray-600 leading-relaxed">
-                All brand names and trademarks are the property of their respective owners. We make no claims to these trademarks. Our homage watches celebrate the artistry of iconic design while offering accessible luxury to discerning customers.
+                Our inspired timepieces celebrate the artistry of iconic design while offering accessible luxury to discerning customers. Each piece is crafted with precision and attention to detail.
               </p>
             </div>
           </div>

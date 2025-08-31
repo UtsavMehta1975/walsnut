@@ -26,7 +26,7 @@ const trendingProducts: Product[] = [
   {
     id: '1',
     name: 'Men Quartz Blue Dial Analog Stainless Steel Watch',
-    brand: 'Emporio Armani',
+    brand: 'Luxury AAA',
     price: 18495,
     originalPrice: 18495,
     image: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
@@ -39,7 +39,7 @@ const trendingProducts: Product[] = [
   {
     id: '2',
     name: 'Men Quartz Grey Dial Chronograph Stainless Steel Watch',
-    brand: 'Diesel',
+    brand: 'Sport Elite',
     price: 23495,
     originalPrice: 23495,
     image: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
@@ -52,7 +52,7 @@ const trendingProducts: Product[] = [
   {
     id: '3',
     name: 'Men Quartz Black Dial Analog Stainless Steel Watch',
-    brand: 'Versace',
+    brand: 'Luxury Premium',
     price: 148500,
     originalPrice: 148500,
     image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
@@ -64,7 +64,7 @@ const trendingProducts: Product[] = [
   {
     id: '4',
     name: 'Men Quartz Green Dial Analog Stainless Steel Watch',
-    brand: 'Philipp Plein',
+    brand: 'Fashion Elite',
     price: 46495,
     originalPrice: 46495,
     image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
@@ -77,7 +77,7 @@ const trendingProducts: Product[] = [
   {
     id: '5',
     name: 'Seapair NV Men Quartz Black Dial Analog Stainless Steel Watch',
-    brand: 'Atlantic',
+    brand: 'Classic Heritage',
     price: 21200,
     originalPrice: 26500,
     image: 'https://images.unsplash.com/photo-1533139502658-0198f920d8e8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
@@ -90,7 +90,7 @@ const trendingProducts: Product[] = [
   {
     id: '6',
     name: 'Men Quartz Grey Dial Chronograph Stainless Steel Watch',
-    brand: 'Diesel',
+    brand: 'Sport Elite',
     price: 22495,
     originalPrice: 22495,
     image: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
@@ -103,7 +103,7 @@ const trendingProducts: Product[] = [
   {
     id: '7',
     name: 'Seawave Men Quartz Blue Dial Analog Stainless Steel Watch',
-    brand: 'Atlantic',
+    brand: 'Premium AAA',
     price: 29200,
     originalPrice: 36500,
     image: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
@@ -117,7 +117,7 @@ const trendingProducts: Product[] = [
   {
     id: '8',
     name: 'Seawave Men Quartz Blue Dial Chronograph Stainless Steel Watch',
-    brand: 'Atlantic',
+    brand: 'Sport Premium',
     price: 42800,
     originalPrice: 53500,
     image: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',

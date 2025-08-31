@@ -36,58 +36,61 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="lg:col-span-1">
-            <h4 className="text-white font-semibold mb-4">Quick Links</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/" className="text-gray-300 hover:text-yellow-400 transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link href="/watches" className="text-gray-300 hover:text-yellow-400 transition-colors">
-                  Men Watch
-                </Link>
-              </li>
-              <li>
-                <Link href="/reviews" className="text-gray-300 hover:text-yellow-400 transition-colors">
-                  Reviews
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="text-gray-300 hover:text-yellow-400 transition-colors">
-                  Contact Us
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {/* Quick Links and Customer Services - Side by side on mobile */}
+          <div className="grid grid-cols-2 gap-8 md:col-span-1 lg:col-span-2">
+            {/* Quick Links */}
+            <div>
+              <h4 className="text-white font-semibold mb-4">Quick Links</h4>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    Home
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/watches" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    Men Watch
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/reviews" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    Reviews
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    Contact Us
+                  </Link>
+                </li>
+              </ul>
+            </div>
 
-          {/* Customer Services */}
-          <div className="lg:col-span-1">
-            <h4 className="text-white font-semibold mb-4">Customer Services</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/shipping" className="text-gray-300 hover:text-yellow-400 transition-colors">
-                  Shipping Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/refund" className="text-gray-300 hover:text-yellow-400 transition-colors">
-                  Refund Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/warranty" className="text-gray-300 hover:text-yellow-400 transition-colors">
-                  Warranty
-                </Link>
-              </li>
-              <li>
-                <Link href="/support" className="text-gray-300 hover:text-yellow-400 transition-colors">
-                  Support
-                </Link>
-              </li>
-            </ul>
+            {/* Customer Services */}
+            <div>
+              <h4 className="text-white font-semibold mb-4">Customer Services</h4>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/shipping" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    Shipping Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/refund" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    Refund Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/warranty" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    Warranty
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/support" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    Support
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
 
           {/* Contact Info */}

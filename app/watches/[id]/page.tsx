@@ -37,25 +37,25 @@ interface Product {
 // Mock product data based on AzoneHub
 const mockProduct: Product = {
   id: '1',
-  name: 'Luxury Branded 7A Watch',
-  price: 2299,
-  originalPrice: 5899,
-  discount: 61,
-  colors: ['BLACK', 'BLUE'],
+  name: 'Luxury AAA Men Quartz Blue Dial Analog Stainless Steel Watch',
+  price: 18495,
+  originalPrice: 18495,
+  discount: 0,
+  colors: ['Blue', 'Black', 'Silver'],
   category: 'luxury',
-  image: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=600',
-  description: 'A **Luxury Branded 7A Watch** is a high-end timepiece that blends precision, craftsmanship, and stylish design. "7A" often refers to a premium grade of watch components, indicating superior materials and mechanisms compared to standard models. These watches typically feature movement, meaning they are powered by the natural motion of the wearer\'s wrist, eliminating the need for batteries.',
+      image: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+  description: 'A premium timepiece featuring a sophisticated blue dial with analog display. Crafted with precision engineering and premium materials for the discerning collector.',
   specifications: {
     movement: 'Automatic',
     case: 'Stainless Steel',
-    dial: 'Classic dial design',
+    dial: 'Blue',
     bracelet: 'Stainless Steel',
-    waterResistance: '50m',
+    waterResistance: '100m',
     powerReserve: '48 hours',
-    diameter: '42MM',
-    thickness: '10mm'
+    diameter: '41mm',
+    thickness: '12mm'
   },
-  sku: 'RLX-001'
+  sku: 'SKU-AAA-001'
 }
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
@@ -317,7 +317,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-black">Luxury Brand:</h4>
+                    <h4 className="font-semibold text-black">Collection:</h4>
                     <ul className="list-disc list-inside text-gray-600 space-y-1">
                       <li>Manufactured by a renowned luxury brand, known for exceptional design, precision, and exclusivity.</li>
                       <li>Often comes with a signature logo or emblem that represents quality and sophistication.</li>

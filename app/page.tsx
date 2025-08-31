@@ -1,3 +1,5 @@
+'use client'
+
 import { Navbar } from '@/components/layout/navbar'
 import { HeroSection } from '@/components/home/hero-section'
 import { ShopByBrands } from '@/components/home/shop-by-brands'

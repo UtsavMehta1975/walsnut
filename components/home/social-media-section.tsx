@@ -7,52 +7,36 @@ import { Instagram, Camera, Heart } from 'lucide-react'
 
 const socialPosts = [
   {
-    id: '1',
+    id: 1,
     image: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    caption: 'G-Shock Men\'s Black Dial Digital Resin Watch',
-    product: 'DW-5600UE-1DR - G1514',
-    price: '₹ 6,495',
-    likes: 1247
+    caption: 'Luxury AAA Round Silver Analog watch',
+    product: 'Luxury AAA Collection',
+    likes: 1247,
+    user: '@watchlover123'
   },
   {
-    id: '2',
+    id: 2,
     image: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    caption: 'Versace Round Silver Analog watch',
-    product: 'Women Quartz Silver Dial Stainless Steel Watch',
-    price: '₹ 103,400',
-    likes: 892
+    caption: 'Sport Elite Oval White Analog watch',
+    product: 'Sport Elite Collection',
+    likes: 892,
+    user: '@timepiece_collector'
   },
   {
-    id: '3',
+    id: 3,
     image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    caption: 'Coach Oval White Analog watch',
-    product: 'Sammy Women Quartz White Dial Stainless Steel Watch',
-    price: '₹ 15,480',
-    likes: 1567
+    caption: 'Luxury Premium Round Silver Analog watch',
+    product: 'Luxury Premium Collection',
+    likes: 1567,
+    user: '@luxury_watches'
   },
   {
-    id: '4',
+    id: 4,
     image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    caption: 'G-Shock Men\'s Black Dial Digital Resin Watch',
-    product: 'DW-5600UE-1DR - G1514',
-    price: '₹ 6,495',
-    likes: 2341
-  },
-  {
-    id: '5',
-    image: 'https://images.unsplash.com/photo-1533139502658-0198f920d8e8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    caption: 'Versace Round Silver Analog watch',
-    product: 'Women Quartz Silver Dial Stainless Steel Watch',
-    price: '₹ 103,400',
-    likes: 1789
-  },
-  {
-    id: '6',
-    image: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    caption: 'Coach Oval White Analog watch',
-    product: 'Sammy Women Quartz White Dial Stainless Steel Watch',
-    price: '₹ 15,480',
-    likes: 945
+    caption: 'Fashion Elite Oval White Analog watch',
+    product: 'Fashion Elite Collection',
+    likes: 945,
+    user: '@style_watcher'
   }
 ]
 

@@ -40,21 +40,6 @@ const featuredBrands = [
   }
 ]
 
-const brandCategories = [
-  { name: 'Casio', icon: '⌚', category: 'Digital' },
-  { name: 'Adriatica', icon: '⚡', category: 'Sport' },
-  { name: 'Fossil', icon: '🌟', category: 'Fashion' },
-  { name: 'Tissot', icon: '💎', category: 'Luxury' },
-  { name: 'Timex', icon: '⏰', category: 'Classic' },
-  { name: 'Guess', icon: '✨', category: 'Trendy' },
-  { name: 'Briston', icon: '🎯', category: 'Premium' },
-  { name: 'Coach', icon: '👜', category: 'Lifestyle' },
-  { name: 'Seiko', icon: '🔧', category: 'Precision' },
-  { name: 'Armani', icon: '👔', category: 'Elegant' },
-  { name: 'Calvin Klein', icon: '🎨', category: 'Design' },
-  { name: 'Michael Kors', icon: '💼', category: 'Sophisticated' }
-]
-
 export function ShopByBrands() {
   return (
     <section className="bg-gradient-to-br from-gray-50 to-white py-12">
@@ -108,32 +93,6 @@ export function ShopByBrands() {
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Brand Categories */}
-        <div className="mb-12">
-          <h3 className="text-2xl font-bold text-black mb-8 text-center">Shop by Category</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {brandCategories.map((brand, index) => (
-              <Link 
-                key={index} 
-                href={`/brands/${brand.name.toLowerCase().replace(' ', '-')}`}
-                className="group"
-              >
-                <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
-                  <div className="text-center">
-                    <div className="text-3xl mb-3 group-hover:scale-110 transition-transform duration-300">
-                      {brand.icon}
-                    </div>
-                    <h4 className="font-semibold text-gray-900 mb-1 group-hover:text-yellow-600 transition-colors">
-                      {brand.name}
-                    </h4>
-                    <p className="text-sm text-gray-600">{brand.category}</p>
-                  </div>
-                </div>
-              </Link>
             ))}
           </div>
         </div>

@@ -22,14 +22,16 @@ export default function SignInPage() {
     setIsLoading(true)
 
     try {
-      const success = await login(email, password)
-      if (success) {
+      const result = await login(email, password)
+      if (result.success) {
         toast.success('Login successful!')
-        // Check if user is admin and redirect accordingly
-        const user = JSON.parse(localStorage.getItem('walnut_user') || '{}')
-        if (user.role === 'ADMIN') {
+        
+        // Check user role and redirect accordingly
+        if (result.user?.role?.toUpperCase() === 'ADMIN') {
+          console.log('Admin user detected, redirecting to admin panel...')
           router.push('/admin')
         } else {
+          console.log('Regular user detected, redirecting to store...')
           router.push('/')
         }
       } else {

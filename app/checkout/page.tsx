@@ -13,13 +13,13 @@ import toast from 'react-hot-toast'
 import { formatPrice } from '@/lib/utils'
 import Image from 'next/image'
 
-interface CheckoutItem {
-  productId: string
-  brand: string
-  model: string
+interface CartItem {
+  id: string
+  name: string
   price: number
-  imageUrl: string
   quantity: number
+  image: string
+  collection: string
 }
 
 export default function CheckoutPage() {
@@ -50,13 +50,13 @@ export default function CheckoutPage() {
   })
 
   // Mock product data for Buy Now
-  const product: CheckoutItem = {
-    productId: productId || '1',
-    brand: brand || 'Walnut',
-    model: model || 'Apex Diver',
+  const product: CartItem = {
+    id: productId || '1',
+    name: brand || 'Walnut',
     price: parseFloat(price || '125000'),
-    imageUrl: imageUrl || 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=400&h=400&fit=crop',
-    quantity: 1
+    image: imageUrl || 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=400&h=400&fit=crop',
+    quantity: 1,
+    collection: model || 'Apex Diver'
   }
 
   const subtotal = product.price * product.quantity
@@ -121,14 +121,14 @@ export default function CheckoutPage() {
                 <div className="flex items-center space-x-4">
                   <div className="relative w-20 h-20">
                     <Image
-                      src={product.imageUrl}
-                      alt={`${product.brand} ${product.model}`}
+                      src={product.image}
+                      alt={`${product.name} ${product.collection}`}
                       fill
                       className="object-cover rounded"
                     />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold">{product.brand} {product.model}</h3>
+                    <h3 className="font-semibold">{product.name} {product.collection}</h3>
                     <p className="text-sm text-gray-600">Quantity: {product.quantity}</p>
                     <p className="text-lg font-bold">${product.price.toLocaleString()}</p>
                   </div>

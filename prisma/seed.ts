@@ -80,10 +80,10 @@ async function main() {
   // Create products with detailed specifications
   const products = [
     {
-      brand: 'Rolex',
+      brand: 'Luxury AAA',
       model: 'Submariner',
       referenceNumber: '126610LN',
-      description: 'The iconic Rolex Submariner, a legendary diving watch that has set the standard for underwater timepieces since 1953. This stainless steel model features a black dial and bezel, making it perfect for both professional diving and everyday wear.',
+      description: 'A premium diving timepiece featuring exceptional craftsmanship and precision engineering. This stainless steel model features a black dial and bezel, making it perfect for both professional diving and everyday wear.',
       price: 9500.00,
       previousPrice: 10500.00,
       condition: 'NEW' as Condition,
@@ -95,7 +95,7 @@ async function main() {
       waterResistance: '300m',
       diameter: '41mm',
       authenticityStatus: 'CERTIFIED' as AuthenticityStatus,
-      sku: 'ROLEX-SUB-126610LN',
+      sku: 'LUX-AAA-SUB-126610LN',
       stockQuantity: 2,
       isFeatured: true,
       categoryId: categories[0].id, // Luxury
@@ -111,10 +111,10 @@ async function main() {
       }
     },
     {
-      brand: 'Patek Philippe',
+      brand: 'Premium Elite',
       model: 'Nautilus',
       referenceNumber: '5711/1A-010',
-      description: 'The Patek Philippe Nautilus is one of the most coveted luxury sports watches ever created. This stainless steel model with blue dial represents the pinnacle of horological excellence and understated elegance.',
+      description: 'A sophisticated luxury sports timepiece representing the pinnacle of horological excellence and understated elegance. This stainless steel model with blue dial showcases exceptional craftsmanship.',
       price: 45000.00,
       previousPrice: 50000.00,
       condition: 'PRE_OWNED' as Condition,
@@ -126,7 +126,7 @@ async function main() {
       waterResistance: '120m',
       diameter: '40.5mm',
       authenticityStatus: 'CERTIFIED' as AuthenticityStatus,
-      sku: 'PP-NAUT-5711-1A',
+      sku: 'PRE-ELT-NAUT-5711-1A',
       stockQuantity: 1,
       isFeatured: true,
       categoryId: categories[0].id, // Luxury
@@ -142,10 +142,10 @@ async function main() {
       }
     },
     {
-      brand: 'Audemars Piguet',
+      brand: 'Sport Elite',
       model: 'Royal Oak',
       referenceNumber: '15500ST.OO.1220ST.01',
-      description: 'The Audemars Piguet Royal Oak revolutionized luxury sports watches with its distinctive octagonal bezel and integrated bracelet. This blue dial version is a modern classic.',
+      description: 'A revolutionary luxury sports timepiece featuring a distinctive octagonal bezel and integrated bracelet. This blue dial version represents modern classic design at its finest.',
       price: 28000.00,
       previousPrice: 32000.00,
       condition: 'NEW' as Condition,
@@ -157,7 +157,7 @@ async function main() {
       waterResistance: '50m',
       diameter: '41mm',
       authenticityStatus: 'VERIFIED' as AuthenticityStatus,
-      sku: 'AP-RO-15500ST',
+      sku: 'SPT-ELT-RO-15500ST',
       stockQuantity: 3,
       isFeatured: true,
       categoryId: categories[1].id, // Sport
@@ -173,10 +173,10 @@ async function main() {
       }
     },
     {
-      brand: 'Omega',
+      brand: 'Classic Vintage',
       model: 'Speedmaster Professional',
       referenceNumber: '310.30.42.50.01.001',
-      description: 'The legendary Moonwatch, worn by astronauts on the Apollo 11 mission. This chronograph represents human achievement and precision engineering at its finest.',
+      description: 'A legendary chronograph representing human achievement and precision engineering at its finest. This timepiece showcases exceptional craftsmanship and heritage.',
       price: 6500.00,
       previousPrice: 7200.00,
       condition: 'NEW' as Condition,
@@ -188,7 +188,7 @@ async function main() {
       waterResistance: '50m',
       diameter: '42mm',
       authenticityStatus: 'CERTIFIED' as AuthenticityStatus,
-      sku: 'OMEGA-SPEED-31030425001001',
+      sku: 'CLS-VNT-SPEED-31030425001001',
       stockQuantity: 5,
       isFeatured: false,
       categoryId: categories[1].id, // Sport
@@ -204,10 +204,10 @@ async function main() {
       }
     },
     {
-      brand: 'Cartier',
+      brand: 'Elegant Classic',
       model: 'Tank',
       referenceNumber: 'WSTA0040',
-      description: 'The Cartier Tank is an icon of Art Deco design and timeless elegance. This stainless steel model with blue hands offers perfect proportions and sophisticated style.',
+      description: 'An icon of Art Deco design and timeless elegance. This stainless steel model with blue hands offers perfect proportions and sophisticated style.',
       price: 3200.00,
       previousPrice: 3800.00,
       condition: 'PRE_OWNED' as Condition,
@@ -219,7 +219,7 @@ async function main() {
       waterResistance: '30m',
       diameter: '27.4mm x 34.8mm',
       authenticityStatus: 'VERIFIED' as AuthenticityStatus,
-      sku: 'CARTIER-TANK-WSTA0040',
+      sku: 'ELG-CLS-TANK-WSTA0040',
       stockQuantity: 2,
       isFeatured: false,
       categoryId: categories[0].id, // Luxury
@@ -235,10 +235,10 @@ async function main() {
       }
     },
     {
-      brand: 'Rolex',
+      brand: 'Racing Elite',
       model: 'Daytona',
       referenceNumber: '116500LN',
-      description: 'The Rolex Cosmograph Daytona is the ultimate racing chronograph. This stainless steel model with black ceramic bezel is highly sought after by collectors worldwide.',
+      description: 'The ultimate racing chronograph featuring exceptional precision and craftsmanship. This stainless steel model with black ceramic bezel is highly sought after by collectors worldwide.',
       price: 13500.00,
       previousPrice: 15000.00,
       condition: 'PRE_OWNED' as Condition,
@@ -250,7 +250,7 @@ async function main() {
       waterResistance: '100m',
       diameter: '40mm',
       authenticityStatus: 'CERTIFIED' as AuthenticityStatus,
-      sku: 'ROLEX-DAYTONA-116500LN',
+      sku: 'RAC-ELT-DAYTONA-116500LN',
       stockQuantity: 1,
       isFeatured: true,
       categoryId: categories[1].id, // Sport
@@ -408,21 +408,21 @@ async function main() {
     // Rolex Submariner - Multiple images
     {
       cloudinaryPublicId: 'walnut/rolex-submariner-1',
-      imageUrl: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop',
+      imageUrl: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=800&q=80',
       altText: 'Rolex Submariner front view',
       isPrimary: true,
       sortOrder: 0
     },
     {
       cloudinaryPublicId: 'walnut/rolex-submariner-2',
-      imageUrl: 'https://images.pexels.com/photos/162553/pexels-photo-162553.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop',
+      imageUrl: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=800&q=80',
       altText: 'Rolex Submariner side view',
       isPrimary: false,
       sortOrder: 1
     },
     {
       cloudinaryPublicId: 'walnut/rolex-submariner-3',
-      imageUrl: 'https://images.pexels.com/photos/2789328/pexels-photo-2789328.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop',
+      imageUrl: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=800&q=80',
       altText: 'Rolex Submariner detail view',
       isPrimary: false,
       sortOrder: 2
@@ -430,14 +430,14 @@ async function main() {
     // Patek Philippe Nautilus
     {
       cloudinaryPublicId: 'walnut/patek-nautilus-1',
-      imageUrl: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop',
+      imageUrl: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=800&q=80',
       altText: 'Patek Philippe Nautilus front view',
       isPrimary: true,
       sortOrder: 0
     },
     {
       cloudinaryPublicId: 'walnut/patek-nautilus-2',
-      imageUrl: 'https://images.pexels.com/photos/162553/pexels-photo-162553.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop',
+      imageUrl: 'https://images.unsplash.com/photo-1533139502658-0198f920d8e8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=800&q=80',
       altText: 'Patek Philippe Nautilus side view',
       isPrimary: false,
       sortOrder: 1
@@ -445,14 +445,14 @@ async function main() {
     // Audemars Piguet Royal Oak
     {
       cloudinaryPublicId: 'walnut/audemars-royal-oak-1',
-      imageUrl: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop',
+      imageUrl: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=800&q=80',
       altText: 'Audemars Piguet Royal Oak front view',
       isPrimary: true,
       sortOrder: 0
     },
     {
       cloudinaryPublicId: 'walnut/audemars-royal-oak-2',
-      imageUrl: 'https://images.pexels.com/photos/162553/pexels-photo-162553.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop',
+      imageUrl: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=800&q=80',
       altText: 'Audemars Piguet Royal Oak detail view',
       isPrimary: false,
       sortOrder: 1
@@ -460,14 +460,14 @@ async function main() {
     // Omega Speedmaster
     {
       cloudinaryPublicId: 'walnut/omega-speedmaster-1',
-      imageUrl: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop',
+      imageUrl: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=800&q=80',
       altText: 'Omega Speedmaster Professional front view',
       isPrimary: true,
       sortOrder: 0
     },
     {
       cloudinaryPublicId: 'walnut/omega-speedmaster-2',
-      imageUrl: 'https://images.pexels.com/photos/162553/pexels-photo-162553.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop',
+      imageUrl: 'https://images.unsplash.com/photo-1533139502658-0198f920d8e8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=800&q=80',
       altText: 'Omega Speedmaster Professional chronograph view',
       isPrimary: false,
       sortOrder: 1
@@ -475,7 +475,7 @@ async function main() {
     // Cartier Tank
     {
       cloudinaryPublicId: 'walnut/cartier-tank-1',
-      imageUrl: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop',
+      imageUrl: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=800&q=80',
       altText: 'Cartier Tank front view',
       isPrimary: true,
       sortOrder: 0
@@ -483,14 +483,14 @@ async function main() {
     // Rolex Daytona
     {
       cloudinaryPublicId: 'walnut/rolex-daytona-1',
-      imageUrl: 'https://images.pexels.com/photos/162553/pexels-photo-162553.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop',
+      imageUrl: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=800&q=80',
       altText: 'Rolex Daytona front view',
       isPrimary: true,
       sortOrder: 0
     },
     {
       cloudinaryPublicId: 'walnut/rolex-daytona-2',
-      imageUrl: 'https://images.pexels.com/photos/2789328/pexels-photo-2789328.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop',
+      imageUrl: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=800&q=80',
       altText: 'Rolex Daytona chronograph view',
       isPrimary: false,
       sortOrder: 1

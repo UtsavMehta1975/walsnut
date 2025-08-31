@@ -13,7 +13,7 @@ interface AuthContextType {
   user: User | null
   isAuthenticated: boolean
   isLoading: boolean
-  login: (email: string, password: string) => Promise<boolean>
+  login: (email: string, password: string) => Promise<{ success: boolean; user?: User }>
   signup: (name: string, email: string, password: string) => Promise<boolean>
   logout: () => void
 }
@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false)
   }, [])
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; user?: User }> => {
     try {
       setIsLoading(true)
       
@@ -56,15 +56,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const userData = await response.json()
         setUser(userData)
         localStorage.setItem('walnut_user', JSON.stringify(userData))
-        return true
+        return { success: true, user: userData }
       } else {
         const error = await response.json()
         console.error('Login failed:', error.message)
-        return false
+        return { success: false, user: undefined }
       }
     } catch (error) {
       console.error('Login error:', error)
-      return false
+      return { success: false, user: undefined }
     } finally {
       setIsLoading(false)
     }

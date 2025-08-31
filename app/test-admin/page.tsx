@@ -13,9 +13,10 @@ export default function TestAdminPage() {
 
   const testAdminLogin = async () => {
     try {
-      const success = await login('admin@walnut.com', 'password123')
-      if (success) {
+      const result = await login('admin@walnut.com', 'password123')
+      if (result.success) {
         setTestResult('Login successful!')
+        console.log('Login result:', result)
         // Wait a moment for state to update
         setTimeout(() => {
           console.log('User after login:', user)
@@ -52,6 +53,7 @@ export default function TestAdminPage() {
     console.log('Is authenticated:', isAuthenticated)
     console.log('User role:', user?.role)
     console.log('Role === ADMIN:', user?.role === 'ADMIN')
+    console.log('Role.toUpperCase() === ADMIN:', user?.role?.toUpperCase() === 'ADMIN')
     
     if (isAuthenticated && user?.role?.toUpperCase() === 'ADMIN') {
       console.log('✅ Should be able to access admin panel')
@@ -76,6 +78,11 @@ export default function TestAdminPage() {
     }
   }
 
+  const forceAdminRedirect = () => {
+    console.log('Force redirecting to admin panel...')
+    window.location.href = '/admin'
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
@@ -87,6 +94,8 @@ export default function TestAdminPage() {
           <p>Authenticated: {isAuthenticated ? 'Yes' : 'No'}</p>
           <p>User Role: {user?.role || 'None'}</p>
           <p>Role Type: {typeof user?.role}</p>
+          <p>Role === 'ADMIN': {user?.role === 'ADMIN' ? 'Yes' : 'No'}</p>
+          <p>Role.toUpperCase() === 'ADMIN': {user?.role?.toUpperCase() === 'ADMIN' ? 'Yes' : 'No'}</p>
         </div>
 
         <div className="space-y-2 mb-4">
@@ -108,6 +117,10 @@ export default function TestAdminPage() {
           
           <Button onClick={() => router.push('/admin')} className="w-full">
             Direct Admin Panel Access
+          </Button>
+
+          <Button onClick={forceAdminRedirect} className="w-full bg-red-500 hover:bg-red-600">
+            Force Admin Redirect
           </Button>
         </div>
 

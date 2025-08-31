@@ -32,28 +32,28 @@ export default function WishlistPage() {
       {
         id: '1',
         productId: '1',
-        brand: 'Luxury Branded',
+        brand: 'Luxury AAA',
         model: '7A Watch',
-        price: 2299,
-        imageUrl: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=600',
+        price: 18495,
+        imageUrl: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
         addedAt: new Date('2024-01-15')
       },
       {
         id: '2',
         productId: '2',
-        brand: 'Branded GMT',
+        brand: 'Sport Elite',
         model: '2 Watch',
-        price: 2299,
-        imageUrl: 'https://images.pexels.com/photos/277390/pexels-photo-277390.jpeg?auto=compress&cs=tinysrgb&w=600',
+        price: 23495,
+        imageUrl: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
         addedAt: new Date('2024-01-10')
       },
       {
         id: '3',
         productId: '3',
-        brand: 'Luxury Branded',
+        brand: 'Luxury Premium',
         model: '7A Day-Date Watch',
-        price: 2299,
-        imageUrl: 'https://images.pexels.com/photos/162553/pexels-photo-162553.jpeg?auto=compress&cs=tinysrgb&w=600',
+        price: 148500,
+        imageUrl: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
         addedAt: new Date('2024-01-05')
       }
     ]

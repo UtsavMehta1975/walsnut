@@ -119,14 +119,6 @@ export function Navbar() {
                     <Link href="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       My Orders
                     </Link>
-                    {user?.role?.toUpperCase() === 'ADMIN' && (
-                      <button
-                        onClick={handleAdminPanelClick}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        Admin Panel
-                      </button>
-                    )}
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -212,17 +204,6 @@ export function Navbar() {
                   >
                     My Orders
                   </Link>
-                  {user?.role === 'ADMIN' && (
-                    <button
-                      onClick={() => {
-                        handleAdminPanelClick()
-                        setIsMobileMenuOpen(false)
-                      }}
-                      className="block w-full text-left px-3 py-2 text-gray-700 hover:text-yellow-400"
-                    >
-                      Admin Panel
-                    </button>
-                  )}
                   <button
                     onClick={() => {
                       handleLogout()

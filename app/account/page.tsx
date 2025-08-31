@@ -45,7 +45,7 @@ export default function AccountPage() {
       status: 'Delivered',
       total: 12500,
       items: [
-        { brand: 'Rolex', model: 'Submariner', quantity: 1, price: 12500 }
+        { brand: 'Luxury AAA', model: 'Submariner', quantity: 1, price: 12500 }
       ]
     },
     {
@@ -55,7 +55,7 @@ export default function AccountPage() {
       status: 'Shipped',
       total: 45000,
       items: [
-        { brand: 'Patek Philippe', model: 'Nautilus', quantity: 1, price: 45000 }
+        { brand: 'Luxury Premium', model: 'Nautilus', quantity: 1, price: 45000 }
       ]
     }
   ]
