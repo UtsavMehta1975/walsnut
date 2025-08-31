@@ -29,6 +29,10 @@ export default function DebugAuthPage() {
           <p>Loading: {isLoading ? 'Yes' : 'No'}</p>
           <p>Authenticated: {isAuthenticated ? 'Yes' : 'No'}</p>
           <p>User: {user ? JSON.stringify(user, null, 2) : 'None'}</p>
+          <p>User Role: {user?.role || 'None'}</p>
+          <p>Role Type: {typeof user?.role}</p>
+          <p>Role === 'ADMIN': {user?.role === 'ADMIN' ? 'Yes' : 'No'}</p>
+          <p>Role.toUpperCase() === 'ADMIN': {user?.role?.toUpperCase() === 'ADMIN' ? 'Yes' : 'No'}</p>
         </div>
 
         <div className="mb-4">

@@ -40,9 +40,18 @@ export function Navbar() {
   }
 
   const handleAdminPanelClick = () => {
-    if (mounted && isAuthenticated && user?.role === 'ADMIN') {
+    console.log('=== ADMIN PANEL CLICK DEBUG ===')
+    console.log('mounted:', mounted)
+    console.log('isAuthenticated:', isAuthenticated)
+    console.log('user:', user)
+    console.log('user?.role:', user?.role)
+    console.log('user?.role.toUpperCase() === "ADMIN":', user?.role?.toUpperCase() === 'ADMIN')
+    
+    if (mounted && isAuthenticated && user?.role?.toUpperCase() === 'ADMIN') {
+      console.log('✅ Redirecting to admin panel...')
       router.push('/admin')
     } else {
+      console.log('❌ Redirecting to signin page...')
       router.push('/auth/signin')
     }
   }
@@ -108,7 +117,7 @@ export function Navbar() {
                     <Link href="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       My Orders
                     </Link>
-                    {user?.role === 'ADMIN' && (
+                    {user?.role?.toUpperCase() === 'ADMIN' && (
                       <button
                         onClick={handleAdminPanelClick}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
