@@ -8,13 +8,13 @@ import { Play, ArrowRight } from 'lucide-react'
 export function HeroSection() {
   return (
     <section className="relative">
-      {/* Mobile Hero Image - Top Section */}
-      <div className="block md:hidden relative">
-        <Link href="/watches" className="block w-full h-auto cursor-pointer">
+      {/* Hero Banner - Both Mobile and Desktop */}
+      <div className="relative w-full">
+        <Link href="/watches" className="block w-full cursor-pointer">
           <Image 
-            src="/bannerthiinking.svg"
+            src="/web-banner.png"
             alt="Premium Watches Collection"
-            width={800}
+            width={1280}
             height={600}
             className="w-full h-auto object-contain hover:opacity-90 transition-opacity duration-300"
             priority
@@ -22,21 +22,8 @@ export function HeroSection() {
         </Link>
       </div>
 
-      {/* Desktop Hero Video/Poster Banner */}
-      <div className="hidden md:block relative h-[600px] overflow-hidden">
-        <Link href="/watches" className="absolute inset-0 z-0 cursor-pointer">
-          <Image 
-            src="/web-banner.png"
-            alt="Premium Watches"
-            fill
-            className="object-cover hover:opacity-90 transition-opacity duration-300"
-            priority
-          />
-        </Link>
-      </div>
-
       {/* Quick Stats Banner */}
-      <div className="bg-white py-6 px-4 shadow-sm">
+      <div className="bg-white py-4 px-4 shadow-sm">
         <div className="max-w-7xl mx-auto grid grid-cols-3 gap-4 text-center">
           <div>
             <div className="text-2xl md:text-3xl font-bold text-black">80+</div>
