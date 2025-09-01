@@ -24,7 +24,7 @@ export function BrandShowcase() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {brands.map((brand) => (
-            <Link key={brand.name} href={`/brands/RS{brand.name.toLowerCase().replace(' ', '-')}`}>
+            <Link key={brand.name} href="/watches">
               <div className="bg-white rounded-lg p-8 text-center hover:shadow-lg transition-shadow duration-300 group">
                 <div className="w-16 h-16 bg-gold-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-gold-200 transition-colors">
                   <span className="text-2xl font-bold text-gold-600">{brand.logo}</span>
@@ -37,7 +37,7 @@ export function BrandShowcase() {
         </div>
 
         <div className="text-center mt-12">
-          <Link href="/brands">
+          <Link href="/watches">
             <button className="text-gold-600 hover:text-gold-700 font-semibold">
               Explore All Brands →
             </button>

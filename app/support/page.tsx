@@ -34,10 +34,10 @@ export default function SupportPage() {
               Get detailed responses within 24 hours
             </p>
             <a 
-              href="mailto:support@walnut.com" 
+              href="mailto:thewalnutstore01@gmail.com" 
               className="text-walnut-600 hover:text-walnut-700 font-medium"
             >
-              support@walnut.com
+              thewalnutstore01@gmail.com
             </a>
           </div>
           
@@ -50,10 +50,10 @@ export default function SupportPage() {
               Speak directly with our experts
             </p>
             <a 
-              href="tel:+91-1800-123-4567" 
+              href="tel:+917466965196" 
               className="text-walnut-600 hover:text-walnut-700 font-medium"
             >
-              +91 1800 123 4567
+              +91 74669 65196
             </a>
           </div>
           
@@ -61,13 +61,18 @@ export default function SupportPage() {
             <div className="bg-walnut-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <MessageCircle className="h-8 w-8 text-walnut-600" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Live Chat</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">WhatsApp Support</h3>
             <p className="text-gray-600 mb-4">
-              Instant help during business hours
+              Instant help via WhatsApp
             </p>
-            <button className="text-walnut-600 hover:text-walnut-700 font-medium">
-              Start Chat
-            </button>
+            <a 
+              href="https://wa.me/917466965196" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-walnut-600 hover:text-walnut-700 font-medium"
+            >
+              Chat on WhatsApp
+            </a>
           </div>
         </div>
 
@@ -109,7 +114,7 @@ export default function SupportPage() {
               <div className="space-y-2 text-gray-600">
                 <p><strong>Address:</strong> 123, Linking Road, Bandra West, Mumbai - 400050</p>
                 <p><strong>Phone:</strong> +91 22 2645 1234</p>
-                <p><strong>Email:</strong> mumbai@walnut.com</p>
+                <p><strong>Email:</strong> thewalnutstore01@gmail.com</p>
               </div>
             </div>
             
@@ -118,7 +123,7 @@ export default function SupportPage() {
               <div className="space-y-2 text-gray-600">
                 <p><strong>Address:</strong> 456, Connaught Place, New Delhi - 110001</p>
                 <p><strong>Phone:</strong> +91 11 2345 6789</p>
-                <p><strong>Email:</strong> delhi@walnut.com</p>
+                <p><strong>Email:</strong> thewalnutstore01@gmail.com</p>
               </div>
             </div>
             
@@ -127,7 +132,7 @@ export default function SupportPage() {
               <div className="space-y-2 text-gray-600">
                 <p><strong>Address:</strong> 789, 80 Feet Road, Koramangala, Bangalore - 560034</p>
                 <p><strong>Phone:</strong> +91 80 4123 4567</p>
-                <p><strong>Email:</strong> bangalore@walnut.com</p>
+                <p><strong>Email:</strong> thewalnutstore01@gmail.com</p>
               </div>
             </div>
             
@@ -136,7 +141,7 @@ export default function SupportPage() {
               <div className="space-y-2 text-gray-600">
                 <p><strong>Address:</strong> 321, T Nagar, Chennai - 600017</p>
                 <p><strong>Phone:</strong> +91 44 2345 6789</p>
-                <p><strong>Email:</strong> chennai@walnut.com</p>
+                <p><strong>Email:</strong> thewalnutstore01@gmail.com</p>
               </div>
             </div>
           </div>

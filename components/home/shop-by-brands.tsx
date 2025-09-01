@@ -59,7 +59,7 @@ export function ShopByBrands() {
           <h3 className="text-2xl font-bold text-black mb-8 text-center">Featured Collections</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredBrands.map((brand, index) => (
-              <div key={index} className="group cursor-pointer">
+              <Link key={index} href="/watches" className="group cursor-pointer">
                 <div className="relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
                   <div className="aspect-square relative">
                     <Image
@@ -92,7 +92,7 @@ export function ShopByBrands() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

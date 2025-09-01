@@ -66,7 +66,7 @@ export function SocialMediaSection() {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {socialPosts.map((post) => (
-            <div key={post.id} className="group cursor-pointer">
+            <Link key={post.id} href="/watches" className="group cursor-pointer">
               <div className="relative aspect-square overflow-hidden rounded-lg">
                 <Image
                   src={post.image}
@@ -92,10 +92,10 @@ export function SocialMediaSection() {
                   {post.product}
                 </p>
                 <p className="text-sm font-bold text-black mt-1">
-                  {post.price}
+                  View Collection
                 </p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
