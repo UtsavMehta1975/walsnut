@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { formatPrice } from '@/lib/utils'
+import { getOptimizedImageUrl } from '@/lib/image-utils'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -8,17 +10,6 @@ import { useCart } from '@/store/cart-store'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { ShoppingCart, Heart, ArrowLeft, Clock } from 'lucide-react'
-
-interface ProductSpecifications {
-  movement: string
-  case: string
-  dial: string
-  bracelet: string
-  waterResistance: string
-  powerReserve: string
-  diameter: string
-  thickness: string
-}
 
 interface Product {
   id: string
@@ -29,33 +20,9 @@ interface Product {
   colors: string[]
   category: string
   image: string
+  images: string[]
   description: string
-  specifications: ProductSpecifications
   sku: string
-}
-
-// Mock product data based on AzoneHub
-const mockProduct: Product = {
-  id: '1',
-  name: 'Luxury AAA Men Quartz Blue Dial Analog Stainless Steel Watch',
-  price: 18495,
-  originalPrice: 18495,
-  discount: 0,
-  colors: ['Blue', 'Black', 'Silver'],
-  category: 'luxury',
-      image: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-  description: 'A premium timepiece featuring a sophisticated blue dial with analog display. Crafted with precision engineering and premium materials for the discerning collector.',
-  specifications: {
-    movement: 'Automatic',
-    case: 'Stainless Steel',
-    dial: 'Blue',
-    bracelet: 'Stainless Steel',
-    waterResistance: '100m',
-    powerReserve: '48 hours',
-    diameter: '41mm',
-    thickness: '12mm'
-  },
-  sku: 'SKU-AAA-001'
 }
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
@@ -67,11 +34,42 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const { addToCart } = useCart()
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setProduct(mockProduct)
-      setIsLoading(false)
-    }, 1000)
+    const fetchProduct = async () => {
+      try {
+        setIsLoading(true)
+        const res = await fetch(`/api/products/${productId}`)
+        if (!res.ok) {
+          setProduct(null)
+          setIsLoading(false)
+          return
+        }
+        const p = await res.json()
+        const primary = p.images?.find((img: any) => img.isPrimary) || p.images?.[0]
+        const imageUrl = primary?.imageUrl ? getOptimizedImageUrl(primary.imageUrl) : '/web-banner.png'
+        const allImages = p.images?.map((img: any) => getOptimizedImageUrl(img.imageUrl)) || [imageUrl]
+        const mapped: Product = {
+          id: p.id,
+          name: `${p.brand} ${p.model}`,
+          price: Number(p.price) || 0,
+          originalPrice: p.previousPrice ? Number(p.previousPrice) : Number(p.price) || 0,
+          discount: p.previousPrice && Number(p.previousPrice) > Number(p.price)
+            ? Math.round(((Number(p.previousPrice) - Number(p.price)) / Number(p.previousPrice)) * 100)
+            : 0,
+          colors: [],
+          category: p.category?.name || 'luxury',
+          image: imageUrl,
+          images: allImages,
+          description: p.description || 'No description available for this product.',
+          sku: p.sku || 'N/A'
+        }
+        setProduct(mapped)
+      } catch {
+        setProduct(null)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchProduct()
   }, [productId])
 
   const handleAddToCart = () => {
@@ -93,7 +91,6 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
         price: product.price,
         image: product.image
       })
-      // Redirect to checkout
       window.location.href = '/checkout'
     }
   }
@@ -173,13 +170,13 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               />
             </div>
             
-            {/* Image Gallery Placeholder */}
+            {/* Image Gallery */}
             <div className="grid grid-cols-4 gap-2">
-              {[1, 2, 3, 4].map((index) => (
+              {product.images.slice(0, 4).map((imageUrl, index) => (
                 <div key={index} className="aspect-square overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
                   <Image
-                    src={product.image}
-                    alt={`${product.name} - View ${index}`}
+                    src={imageUrl}
+                    alt={`${product.name} - View ${index + 1}`}
                     width={200}
                     height={200}
                     className="w-full h-full object-cover cursor-pointer hover:opacity-75 transition-opacity"
@@ -202,10 +199,10 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             <div className="space-y-2">
               <div className="flex items-center space-x-3">
                 <span className="text-3xl font-bold text-black">
-                  Rs. {product.price.toLocaleString()}
+                  {formatPrice(product.price)}
                 </span>
                 <span className="text-xl text-gray-500 line-through">
-                  Rs. {product.originalPrice.toLocaleString()}
+                  {formatPrice(product.originalPrice)}
                 </span>
               </div>
               <div className="bg-red-500 text-white px-2 py-1 rounded text-sm font-bold inline-block">
@@ -302,7 +299,17 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           <h2 className="text-2xl font-bold text-black mb-6">Product Specifications :</h2>
           <div className="bg-gray-50 rounded-lg p-6">
             <div className="prose max-w-none">
-              <div dangerouslySetInnerHTML={{ __html: product.description.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+              <div className="text-gray-700 leading-relaxed">
+                {product.description ? (
+                  <div dangerouslySetInnerHTML={{ 
+                    __html: product.description
+                      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                      .replace(/\n/g, '<br>')
+                  }} />
+                ) : (
+                  <p>No detailed description available for this product.</p>
+                )}
+              </div>
             </div>
             
             <div className="mt-6">

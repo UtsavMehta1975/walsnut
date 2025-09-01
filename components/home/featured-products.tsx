@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { ShoppingCart, Heart } from 'lucide-react'
 import { useCart } from '@/store/cart-store'
 import { useRouter } from 'next/navigation'
+import { formatPrice } from '@/lib/utils'
 
 interface Product {
   id: string
@@ -19,48 +20,8 @@ interface Product {
   colors: string[]
 }
 
-const dummyProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Luxury AAA Men Quartz Blue Dial Analog Stainless Steel Watch',
-    price: 18495,
-    originalPrice: 18495,
-    image: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    description: 'A premium timepiece featuring a sophisticated blue dial with analog display. Crafted with precision engineering and premium materials.',
-    discount: 0,
-    colors: ['Blue', 'Black', 'Silver']
-  },
-  {
-    id: '2',
-    name: 'Sport Elite Men Quartz Grey Dial Chronograph Stainless Steel Watch',
-    price: 23495,
-    originalPrice: 23495,
-    image: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    description: 'A high-performance sports watch with chronograph functionality and elegant design.',
-    discount: 0,
-    colors: ['Grey', 'Black', 'Blue']
-  },
-  {
-    id: '3',
-    name: 'Luxury Premium Men Quartz Black Dial Analog Stainless Steel Watch',
-    price: 148500,
-    originalPrice: 148500,
-    image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    description: 'An ultra-premium timepiece with day-date functionality and luxury styling.',
-    discount: 0,
-    colors: ['Black', 'Silver', 'Gold']
-  },
-  {
-    id: '4',
-    name: 'Fashion Elite Men Quartz Green Dial Analog Stainless Steel Watch',
-    price: 46495,
-    originalPrice: 46495,
-    image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    description: 'A stylish fashion-forward timepiece with unique green dial and contemporary design.',
-    discount: 0,
-    colors: ['Green', 'Black', 'Silver']
-  }
-]
+// Fallback before API loads
+const dummyProducts: Product[] = []
 
 export function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([])
@@ -68,7 +29,36 @@ export function FeaturedProducts() {
   const router = useRouter()
 
   useEffect(() => {
-    setProducts(dummyProducts)
+    const fetchLatest = async () => {
+      try {
+        const res = await fetch('/api/products?limit=8&sortBy=createdAt&sortOrder=desc')
+        if (!res.ok) {
+          setProducts(dummyProducts)
+          return
+        }
+        const json = await res.json()
+        const data = Array.isArray(json?.data) ? json.data : json
+        const mapped: Product[] = data.map((p: any) => {
+          const primary = p.images?.find((img: any) => img.isPrimary) || p.images?.[0]
+          return {
+            id: p.id,
+            name: `${p.brand} ${p.model}`,
+            price: Number(p.price) || 0,
+            originalPrice: p.previousPrice ? Number(p.previousPrice) : Number(p.price) || 0,
+            image: primary?.imageUrl || '/web-banner.png',
+            description: p.description || '',
+            discount: p.previousPrice && Number(p.previousPrice) > Number(p.price)
+              ? Math.round(((Number(p.previousPrice) - Number(p.price)) / Number(p.previousPrice)) * 100)
+              : 0,
+            colors: []
+          }
+        })
+        setProducts(mapped)
+      } catch {
+        setProducts(dummyProducts)
+      }
+    }
+    fetchLatest()
   }, [])
 
   const handleAddToCart = (product: Product) => {
@@ -146,8 +136,8 @@ export function FeaturedProducts() {
 
                 {/* Price */}
                 <div className="mb-3">
-                  <span className="text-lg font-bold text-black">Rs. {product.price.toLocaleString()}</span>
-                  <span className="text-sm text-gray-500 line-through ml-2">Rs. {product.originalPrice.toLocaleString()}</span>
+                  <span className="text-lg font-bold text-black">{formatPrice(product.price)}</span>
+                  <span className="text-sm text-gray-500 line-through ml-2">{formatPrice(product.originalPrice)}</span>
                 </div>
 
                 {/* Description */}

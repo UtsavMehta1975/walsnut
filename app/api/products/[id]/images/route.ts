@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 
 // GET - Get all images for a product
@@ -28,6 +30,26 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader) {
+      return NextResponse.json(
+        { error: 'Authorization header required' },
+        { status: 401 }
+      )
+    }
+
+    const userEmail = authHeader.replace('Bearer ', '')
+    const user = await db.user.findUnique({
+      where: { email: userEmail },
+      select: { role: true }
+    })
+
+    if (!user || user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Admin access required' },
+        { status: 403 }
+      )
+    }
     const body = await request.json()
     const { imageUrl, altText, isPrimary, sortOrder } = body
 
@@ -94,6 +116,26 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader) {
+      return NextResponse.json(
+        { error: 'Authorization header required' },
+        { status: 401 }
+      )
+    }
+
+    const userEmail = authHeader.replace('Bearer ', '')
+    const user = await db.user.findUnique({
+      where: { email: userEmail },
+      select: { role: true }
+    })
+
+    if (!user || user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Admin access required' },
+        { status: 403 }
+      )
+    }
     const { imageIds } = await request.json()
 
     if (!Array.isArray(imageIds)) {

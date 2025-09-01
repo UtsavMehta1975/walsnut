@@ -1,11 +1,13 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart, Heart, Star, Clock, TrendingUp, Sparkles } from 'lucide-react'
 import { useCart } from '@/store/cart-store'
 import { useRouter } from 'next/navigation'
+import { formatPrice } from '@/lib/utils'
 
 interface Product {
   id: string
@@ -22,116 +24,12 @@ interface Product {
   badge?: string
 }
 
-const trendingProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Men Quartz Blue Dial Analog Stainless Steel Watch',
-    brand: 'Luxury AAA',
-    price: 18495,
-    originalPrice: 18495,
-    image: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    rating: 4.5,
-    reviews: 128,
-    isBestseller: true,
-    category: 'Premium',
-    badge: 'HOT'
-  },
-  {
-    id: '2',
-    name: 'Men Quartz Grey Dial Chronograph Stainless Steel Watch',
-    brand: 'Sport Elite',
-    price: 23495,
-    originalPrice: 23495,
-    image: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    rating: 4.3,
-    reviews: 95,
-    isBestseller: true,
-    category: 'Sport',
-    badge: 'NEW'
-  },
-  {
-    id: '3',
-    name: 'Men Quartz Black Dial Analog Stainless Steel Watch',
-    brand: 'Luxury Premium',
-    price: 148500,
-    originalPrice: 148500,
-    image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    rating: 4.7,
-    reviews: 67,
-    category: 'Luxury',
-    badge: 'LIMITED'
-  },
-  {
-    id: '4',
-    name: 'Men Quartz Green Dial Analog Stainless Steel Watch',
-    brand: 'Fashion Elite',
-    price: 46495,
-    originalPrice: 46495,
-    image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    rating: 4.2,
-    reviews: 89,
-    isBestseller: true,
-    category: 'Fashion',
-    badge: 'TRENDING'
-  },
-  {
-    id: '5',
-    name: 'Seapair NV Men Quartz Black Dial Analog Stainless Steel Watch',
-    brand: 'Classic Heritage',
-    price: 21200,
-    originalPrice: 26500,
-    image: 'https://images.unsplash.com/photo-1533139502658-0198f920d8e8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    rating: 4.4,
-    reviews: 156,
-    discount: 20,
-    category: 'Classic',
-    badge: 'SALE'
-  },
-  {
-    id: '6',
-    name: 'Men Quartz Grey Dial Chronograph Stainless Steel Watch',
-    brand: 'Sport Elite',
-    price: 22495,
-    originalPrice: 22495,
-    image: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    rating: 4.1,
-    reviews: 73,
-    isBestseller: true,
-    category: 'Sport',
-    badge: 'POPULAR'
-  },
-  {
-    id: '7',
-    name: 'Seawave Men Quartz Blue Dial Analog Stainless Steel Watch',
-    brand: 'Premium AAA',
-    price: 29200,
-    originalPrice: 36500,
-    image: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    rating: 4.6,
-    reviews: 234,
-    isBestseller: true,
-    discount: 20,
-    category: 'Premium',
-    badge: 'BESTSELLER'
-  },
-  {
-    id: '8',
-    name: 'Seawave Men Quartz Blue Dial Chronograph Stainless Steel Watch',
-    brand: 'Sport Premium',
-    price: 42800,
-    originalPrice: 53500,
-    image: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    rating: 4.3,
-    reviews: 112,
-    discount: 20,
-    category: 'Sport',
-    badge: 'FEATURED'
-  }
-]
+const trendingProducts: Product[] = []
 
 export function TrendingTimepieces() {
   const { addToCart } = useCart()
   const router = useRouter()
+  const [products, setProducts] = useState<Product[]>([])
 
   const handleProductClick = (productId: string) => {
     router.push(`/watches/${productId}`)
@@ -146,6 +44,35 @@ export function TrendingTimepieces() {
       image: product.image
     })
   }
+
+  useEffect(() => {
+    const fetchLatest = async () => {
+      try {
+        const res = await fetch('/api/products?limit=8&sortBy=createdAt&sortOrder=desc')
+        if (!res.ok) return
+        const json = await res.json()
+        const data = Array.isArray(json?.data) ? json.data : json
+        const mapped: Product[] = data.map((p: any) => {
+          const primary = p.images?.find((img: any) => img.isPrimary) || p.images?.[0]
+          return {
+            id: p.id,
+            name: `${p.brand} ${p.model}`,
+            brand: p.brand,
+            price: Number(p.price) || 0,
+            originalPrice: p.previousPrice ? Number(p.previousPrice) : Number(p.price) || 0,
+            image: primary?.imageUrl || '/web-banner.png',
+            rating: 4.5,
+            reviews: 0,
+            category: 'Premium',
+          }
+        })
+        setProducts(mapped)
+      } catch {
+        // ignore
+      }
+    }
+    fetchLatest()
+  }, [])
 
   const getBadgeColor = (badge: string) => {
     switch (badge) {
@@ -195,7 +122,7 @@ export function TrendingTimepieces() {
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {trendingProducts.map((product) => (
+          {products.map((product) => (
             <div 
               key={product.id} 
               className="group cursor-pointer"
@@ -272,11 +199,11 @@ export function TrendingTimepieces() {
                   {/* Price */}
                   <div className="mb-4">
                     <span className="text-xl font-bold text-black">
-                      ₹ {product.price.toLocaleString()}
+                      {formatPrice(product.price)}
                     </span>
                     {product.originalPrice > product.price && (
                       <span className="text-sm text-gray-500 line-through ml-2">
-                        ₹ {product.originalPrice.toLocaleString()}
+                        {formatPrice(product.originalPrice)}
                       </span>
                     )}
                   </div>

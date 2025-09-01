@@ -63,8 +63,23 @@ export async function GET(request: NextRequest) {
 
     const totalPages = Math.ceil(total / limit)
 
+    // Convert Decimal fields to numbers for consistent JSON serialization
+    const serializedOrders = orders.map(order => ({
+      ...order,
+      totalAmount: Number(order.totalAmount),
+      orderItems: order.orderItems.map(item => ({
+        ...item,
+        priceAtTimeOfPurchase: Number(item.priceAtTimeOfPurchase),
+        product: {
+          ...item.product,
+          price: Number(item.product.price),
+          previousPrice: item.product.previousPrice ? Number(item.product.previousPrice) : null,
+        }
+      }))
+    }))
+
     return NextResponse.json({
-      orders,
+      orders: serializedOrders,
       pagination: {
         page,
         limit,
@@ -103,14 +118,14 @@ export async function POST(request: NextRequest) {
 
       if (!product) {
         return NextResponse.json(
-          { error: `Product RS{item.productId} not found` },
+          { error: `Product ${item.productId} not found` },
           { status: 404 }
         )
       }
 
       if (product.stockQuantity < item.quantity) {
         return NextResponse.json(
-          { error: `Insufficient stock for RS{product.brand} RS{product.model}` },
+          { error: `Insufficient stock for ${product.brand} ${product.model}` },
           { status: 400 }
         )
       }

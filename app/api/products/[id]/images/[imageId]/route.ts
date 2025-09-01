@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 
 // DELETE - Delete a specific image
@@ -7,6 +9,26 @@ export async function DELETE(
   { params }: { params: { id: string; imageId: string } }
 ) {
   try {
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader) {
+      return NextResponse.json(
+        { error: 'Authorization header required' },
+        { status: 401 }
+      )
+    }
+
+    const userEmail = authHeader.replace('Bearer ', '')
+    const user = await db.user.findUnique({
+      where: { email: userEmail },
+      select: { role: true }
+    })
+
+    if (!user || user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Admin access required' },
+        { status: 403 }
+      )
+    }
     // Check if image exists and belongs to the product
     const image = await db.productImage.findFirst({
       where: {
@@ -59,6 +81,14 @@ export async function PATCH(
   { params }: { params: { id: string; imageId: string } }
 ) {
   try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session || session.user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
     const { isPrimary, altText, sortOrder } = await request.json()
 
     // If setting as primary, unset other primary images

@@ -43,7 +43,14 @@ export async function GET(
       )
     }
 
-    return NextResponse.json(product)
+    // Convert Decimal fields to numbers for consistent JSON serialization
+    const serializedProduct = {
+      ...product,
+      price: Number(product.price),
+      previousPrice: product.previousPrice ? Number(product.previousPrice) : null,
+    }
+
+    return NextResponse.json(serializedProduct)
   } catch (error) {
     console.error('Get product error:', error)
     return NextResponse.json(
@@ -100,7 +107,14 @@ export async function PUT(
       }
     })
 
-    return NextResponse.json(product)
+    // Convert Decimal fields to numbers for consistent JSON serialization
+    const serializedProduct = {
+      ...product,
+      price: Number(product.price),
+      previousPrice: product.previousPrice ? Number(product.previousPrice) : null,
+    }
+
+    return NextResponse.json(serializedProduct)
   } catch (error) {
     console.error('Update product error:', error)
     return NextResponse.json(

@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { Plus, Edit, Trash2, Package, Users, TrendingUp, ShoppingCart, Eye, FileText, Settings, BarChart3, Menu, X } from 'lucide-react'
+import { formatPrice } from '@/lib/utils'
 import toast from 'react-hot-toast'
 import AdminImageManager from '@/components/ui/admin-image-manager'
 
@@ -118,7 +119,11 @@ export default function AdminPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('/api/products?admin=true')
+      const response = await fetch('/api/products?admin=true', {
+        headers: {
+          'Authorization': `Bearer ${user?.email}`,
+        },
+      })
       if (response.ok) {
         const data = await response.json()
         setProducts(data)
@@ -253,6 +258,7 @@ export default function AdminPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.email}`,
         },
         body: JSON.stringify({
           brand: newProduct.brand,
@@ -560,7 +566,7 @@ export default function AdminPage() {
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                      <p className="text-xl lg:text-2xl font-bold text-gray-900">${totalRevenue.toLocaleString()}</p>
+                      <p className="text-xl lg:text-2xl font-bold text-gray-900">{formatPrice(totalRevenue)}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -579,7 +585,7 @@ export default function AdminPage() {
                       <div className="mb-3 sm:mb-0">
                         <h4 className="font-semibold text-gray-900">{order.customerName}</h4>
                         <p className="text-sm text-gray-600">{order.customerEmail}</p>
-                        <p className="text-sm text-gray-600">${order.total.toLocaleString()}</p>
+                        <p className="text-sm text-gray-600">{formatPrice(order.total)}</p>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -870,7 +876,7 @@ export default function AdminPage() {
                             <div className="min-w-0 flex-1">
                               <h4 className="font-semibold text-gray-900 truncate">{product.brand} {product.model}</h4>
                               <p className="text-sm text-gray-600">{product.referenceNumber}</p>
-                              <p className="text-sm text-gray-600">${product.price.toLocaleString()}</p>
+                              <p className="text-sm text-gray-600">{formatPrice(product.price)}</p>
                               <p className="text-sm text-gray-600">Stock: {product.stockQuantity}</p>
                             </div>
                           </div>
@@ -923,7 +929,7 @@ export default function AdminPage() {
                           <p className="text-sm text-gray-600">Date: {order.date}</p>
                         </div>
                         <div className="text-left lg:text-right">
-                          <p className="text-lg font-bold text-gray-900">${order.total.toLocaleString()}</p>
+                          <p className="text-lg font-bold text-gray-900">{formatPrice(order.total)}</p>
                           <Select value={order.status} onValueChange={(value: Order['status']) => handleUpdateOrderStatus(order.id, value)}>
                             <SelectTrigger className="w-full lg:w-32 mt-2">
                               <SelectValue />
@@ -942,7 +948,7 @@ export default function AdminPage() {
                         {order.items.map((item, index) => (
                           <div key={index} className="flex justify-between text-sm">
                             <span className="text-gray-700">{item.productName} x{item.quantity}</span>
-                            <span className="font-medium">${item.price.toLocaleString()}</span>
+                            <span className="font-medium">{formatPrice(item.price)}</span>
                           </div>
                         ))}
                       </div>
@@ -972,7 +978,7 @@ export default function AdminPage() {
                       </div>
                       <div className="text-left lg:text-right">
                         <p className="text-sm text-gray-600">{customer.totalOrders} orders</p>
-                        <p className="text-sm text-gray-600">${customer.totalSpent.toLocaleString()} spent</p>
+                        <p className="text-sm text-gray-600">{formatPrice(customer.totalSpent)} spent</p>
                         <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-2 ${
                           customer.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                         }`}>

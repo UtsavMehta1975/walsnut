@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useAuth } from '@/contexts/auth-context'
 import { Plus, Star, Edit, Trash2, Save, X as CloseIcon, GripVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -26,6 +27,7 @@ interface AdminImageManagerProps {
 }
 
 export default function AdminImageManager({ productId, className }: AdminImageManagerProps) {
+  const { user } = useAuth()
   const [images, setImages] = useState<ProductImage[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [editingImage, setEditingImage] = useState<string | null>(null)
@@ -66,6 +68,7 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.email}`,
         },
         body: JSON.stringify({
           imageUrl: newImageUrl.trim(),
@@ -97,6 +100,7 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.email}`,
         },
         body: JSON.stringify({
           isPrimary: true
@@ -124,6 +128,7 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.email}`,
         },
         body: JSON.stringify({
           altText: editAltText
@@ -153,6 +158,9 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
     try {
       const response = await fetch(`/api/products/${productId}/images/${imageId}`, {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${user?.email}`,
+        },
       })
 
       if (response.ok) {

@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart, Eye } from 'lucide-react'
 import { useCart } from '@/store/cart-store'
+import { formatPrice } from '@/lib/utils'
 
 interface Product {
   id: string
@@ -111,11 +112,11 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
           {/* Price */}
           <div className="mb-3">
             <span className="text-lg font-bold text-gray-900">
-              ₹{product.price.toLocaleString()}
+              {formatPrice(product.price)}
             </span>
             {product.previousPrice && (
               <span className="text-sm text-gray-500 line-through ml-2">
-                ₹{product.previousPrice.toLocaleString()}
+                {formatPrice(product.previousPrice)}
               </span>
             )}
           </div>

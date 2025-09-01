@@ -9,6 +9,7 @@ import { Heart, ShoppingCart, Trash2 } from 'lucide-react'
 import { useCart } from '@/store/cart-store'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
+import { formatPrice } from '@/lib/utils'
 
 interface WishlistItem {
   id: string
@@ -173,7 +174,7 @@ export default function WishlistPage() {
                 
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-xl font-bold text-black">
-                    Rs. {item.price.toLocaleString()}
+                    {formatPrice(item.price)}
                   </span>
                   <span className="text-sm text-gray-500">
                     Added {item.addedAt.toLocaleDateString()}
@@ -207,7 +208,7 @@ export default function WishlistPage() {
                 Wishlist Summary
               </h3>
               <p className="text-gray-600">
-                Total value: Rs. {wishlistItems.reduce((sum, item) => sum + item.price, 0).toLocaleString()}
+                Total value: {formatPrice(wishlistItems.reduce((sum, item) => sum + item.price, 0))}
               </p>
             </div>
             <Link href="/watches">

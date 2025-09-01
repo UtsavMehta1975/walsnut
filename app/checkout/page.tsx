@@ -130,7 +130,7 @@ export default function CheckoutPage() {
                   <div className="flex-1">
                     <h3 className="font-semibold">{product.name} {product.collection}</h3>
                     <p className="text-sm text-gray-600">Quantity: {product.quantity}</p>
-                    <p className="text-lg font-bold">${product.price.toLocaleString()}</p>
+                    <p className="text-lg font-bold">{formatPrice(product.price)}</p>
                   </div>
                 </div>
               </CardContent>

@@ -15,8 +15,15 @@ export async function GET(request: NextRequest) {
     const movement = searchParams.get('movement') || ''
     const minPrice = searchParams.get('minPrice') || ''
     const maxPrice = searchParams.get('maxPrice') || ''
-    const sortBy = searchParams.get('sortBy') || 'createdAt'
-    const sortOrder = searchParams.get('sortOrder') || 'desc'
+    const sortByParam = searchParams.get('sortBy') || 'createdAt'
+    const sortOrderParam = searchParams.get('sortOrder') || 'desc'
+    
+    // Validate sortBy to prevent SQL injection
+    const allowedSortFields = ['createdAt', 'price', 'brand', 'model', 'updatedAt']
+    const sortBy = allowedSortFields.includes(sortByParam) ? sortByParam : 'createdAt'
+    
+    // Validate sortOrder
+    const sortOrder = sortOrderParam === 'asc' ? 'asc' : 'desc'
     const featured = searchParams.get('featured') || ''
 
     const skip = (page - 1) * limit
@@ -89,6 +96,27 @@ export async function GET(request: NextRequest) {
 
     // For admin panel, return all products without pagination
     if (searchParams.get('admin') === 'true') {
+      const authHeader = request.headers.get('authorization')
+      if (!authHeader) {
+        return NextResponse.json(
+          { error: 'Authorization header required' },
+          { status: 401 }
+        )
+      }
+
+      const userEmail = authHeader.replace('Bearer ', '')
+      const user = await db.user.findUnique({
+        where: { email: userEmail },
+        select: { role: true }
+      })
+
+      if (!user || user.role !== 'ADMIN') {
+        return NextResponse.json(
+          { error: 'Admin access required' },
+          { status: 403 }
+        )
+      }
+
       const allProducts = await db.product.findMany({
         include: {
           images: {
@@ -98,11 +126,26 @@ export async function GET(request: NextRequest) {
         },
         orderBy: { createdAt: 'desc' }
       })
-      return NextResponse.json(allProducts)
+      
+      // Convert Decimal fields to numbers
+      const serializedAllProducts = allProducts.map(product => ({
+        ...product,
+        price: Number(product.price),
+        previousPrice: product.previousPrice ? Number(product.previousPrice) : null,
+      }))
+      
+      return NextResponse.json(serializedAllProducts)
     }
 
+    // Convert Decimal fields to numbers for consistent JSON serialization
+    const serializedProducts = products.map(product => ({
+      ...product,
+      price: Number(product.price),
+      previousPrice: product.previousPrice ? Number(product.previousPrice) : null,
+    }))
+
     return NextResponse.json({
-      data: products,
+      data: serializedProducts,
       pagination: {
         page,
         limit,
@@ -121,16 +164,59 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session || session.user.role !== 'ADMIN') {
+    // Check for admin authorization header (temporary solution)
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Authorization header required' },
         { status: 401 }
       )
     }
 
+    // Extract user email from authorization header
+    const userEmail = authHeader.replace('Bearer ', '')
+    
+    // Verify user is admin
+    const user = await db.user.findUnique({
+      where: { email: userEmail },
+      select: { role: true }
+    })
+
+    if (!user || user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Admin access required' },
+        { status: 403 }
+      )
+    }
+
     const body = await request.json()
+    
+    // Validate enum fields
+    const validConditions = ['NEW', 'PRE_OWNED', 'VINTAGE']
+    const validGenders = ['MENS', 'WOMENS', 'UNISEX']
+    const validMovements = ['AUTOMATIC', 'MANUAL', 'QUARTZ']
+    const validAuthenticityStatuses = ['PENDING', 'VERIFIED', 'CERTIFIED']
+    
+    if (body.condition && !validConditions.includes(body.condition)) {
+      return NextResponse.json(
+        { error: 'Invalid condition value' },
+        { status: 400 }
+      )
+    }
+    
+    if (body.gender && !validGenders.includes(body.gender)) {
+      return NextResponse.json(
+        { error: 'Invalid gender value' },
+        { status: 400 }
+      )
+    }
+    
+    if (body.movement && !validMovements.includes(body.movement)) {
+      return NextResponse.json(
+        { error: 'Invalid movement value' },
+        { status: 400 }
+      )
+    }
     
     // Generate SKU
     const sku = `${body.brand.substring(0, 3).toUpperCase()}-${body.model.substring(0, 3).toUpperCase()}-${Date.now().toString().slice(-6)}`
@@ -163,7 +249,14 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    return NextResponse.json(product)
+    // Convert Decimal fields to numbers
+    const serializedProduct = {
+      ...product,
+      price: Number(product.price),
+      previousPrice: product.previousPrice ? Number(product.previousPrice) : null,
+    }
+
+    return NextResponse.json(serializedProduct)
   } catch (error) {
     console.error('Create product error:', error)
     return NextResponse.json(

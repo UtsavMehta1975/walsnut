@@ -2,10 +2,10 @@
 const nextConfig = {
   // Linting configuration
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   // Image optimization
   images: {

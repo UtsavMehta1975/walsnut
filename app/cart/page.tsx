@@ -9,6 +9,7 @@ import { Trash2, ShoppingBag, ArrowLeft, Minus, Plus } from 'lucide-react'
 import { useCart } from '@/store/cart-store'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
+import { formatPrice } from '@/lib/utils'
 
 export default function CartPage() {
   const { user } = useAuth()
@@ -110,7 +111,7 @@ export default function CartPage() {
                         {item.name}
                       </h3>
                       <p className="text-sm text-gray-600 mb-2">
-                        Rs. {item.price.toLocaleString()}
+                        {formatPrice(item.price)}
                       </p>
                       
                       {/* Quantity Controls */}
@@ -148,7 +149,7 @@ export default function CartPage() {
                         <Trash2 className="h-4 w-4" />
                       </Button>
                       <p className="text-sm font-semibold text-black">
-                        Rs. {(item.price * item.quantity).toLocaleString()}
+                        {formatPrice(item.price * item.quantity)}
                       </p>
                     </div>
                   </div>
@@ -175,7 +176,7 @@ export default function CartPage() {
               <div className="space-y-4">
                 <div className="flex justify-between text-sm">
                   <span>Subtotal</span>
-                  <span>Rs. {getTotal().toLocaleString()}</span>
+                  <span>{formatPrice(getTotal())}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Shipping</span>
@@ -184,7 +185,7 @@ export default function CartPage() {
                 <div className="border-t pt-4">
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>Rs. {getTotal().toLocaleString()}</span>
+                    <span>{formatPrice(getTotal())}</span>
                   </div>
                 </div>
                 
