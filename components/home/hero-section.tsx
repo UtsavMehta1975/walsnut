@@ -10,29 +10,29 @@ export function HeroSection() {
     <section className="relative">
       {/* Mobile Hero Image - Top Section */}
       <div className="block md:hidden relative">
-        <div className="relative w-full h-auto">
+        <Link href="/watches" className="block w-full h-auto cursor-pointer">
           <Image 
             src="/bannerthiinking.svg"
             alt="Premium Watches Collection"
             width={800}
             height={600}
-            className="w-full h-auto object-contain"
+            className="w-full h-auto object-contain hover:opacity-90 transition-opacity duration-300"
             priority
           />
-        </div>
+        </Link>
       </div>
 
       {/* Desktop Hero Video/Poster Banner */}
       <div className="hidden md:block relative h-[600px] overflow-hidden">
-        <div className="absolute inset-0 z-0">
+        <Link href="/watches" className="absolute inset-0 z-0 cursor-pointer">
           <Image 
             src="/web-banner.png"
             alt="Premium Watches"
             fill
-            className="object-cover"
+            className="object-cover hover:opacity-90 transition-opacity duration-300"
             priority
           />
-        </div>
+        </Link>
       </div>
 
       {/* Quick Stats Banner */}
