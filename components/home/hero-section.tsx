@@ -12,7 +12,7 @@ export function HeroSection() {
       <div className="block md:hidden relative">
         <div className="relative w-full h-auto">
           <Image 
-            src="/mobile-banner.png"
+            src="/bannerthiinking.svg"
             alt="Premium Watches Collection"
             width={800}
             height={600}
