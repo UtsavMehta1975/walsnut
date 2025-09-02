@@ -48,7 +48,7 @@ export function convertGoogleDriveUrl(url: string): string {
  * Checks if a URL is a Google Drive URL
  */
 export function isGoogleDriveUrl(url: string): boolean {
-  return url && url.includes('drive.google.com');
+  return Boolean(url && url.includes('drive.google.com'));
 }
 
 /**
