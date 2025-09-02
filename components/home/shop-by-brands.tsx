@@ -98,31 +98,29 @@ export function ShopByBrands() {
         </div>
 
         {/* Features Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Shield className="h-8 w-8 text-yellow-600" />
-              </div>
-              <h4 className="text-lg font-semibold text-black mb-2">Authentic Quality</h4>
-              <p className="text-gray-600">Every timepiece is crafted with premium materials and precision engineering</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Shield className="h-8 w-8 text-yellow-600" />
             </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Clock className="h-8 w-8 text-yellow-600" />
-              </div>
-              <h4 className="text-lg font-semibold text-black mb-2">Fast Delivery</h4>
-              <p className="text-gray-600">Free shipping across India with express delivery options available</p>
+            <h4 className="text-lg font-semibold text-black mb-2">Authentic Quality</h4>
+            <p className="text-gray-600">Every timepiece is crafted with premium materials and precision engineering</p>
+          </div>
+          
+          <div className="text-center">
+            <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Clock className="h-8 w-8 text-yellow-600" />
             </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="h-8 w-8 text-yellow-600" />
-              </div>
-              <h4 className="text-lg font-semibold text-black mb-2">Expert Support</h4>
-              <p className="text-gray-600">24/7 customer support and expert guidance for your perfect timepiece</p>
+            <h4 className="text-lg font-semibold text-black mb-2">Fast Delivery</h4>
+            <p className="text-gray-600">Free shipping across India with express delivery options available</p>
+          </div>
+          
+          <div className="text-center">
+            <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Star className="h-8 w-8 text-yellow-600" />
             </div>
+            <h4 className="text-lg font-semibold text-black mb-2">Expert Support</h4>
+            <p className="text-gray-600">Expert guidance for your perfect timepiece</p>
           </div>
         </div>
 

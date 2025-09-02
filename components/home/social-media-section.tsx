@@ -8,35 +8,35 @@ import { Instagram, Camera, Heart } from 'lucide-react'
 const socialPosts = [
   {
     id: 1,
-    image: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    caption: 'Luxury AAA Round Silver Analog watch',
-    product: 'Luxury AAA Collection',
-    likes: 1247,
-    user: '@watchlover123'
+    image: '/web-banner.png',
+    caption: 'Premium Watch Collection',
+    product: 'Walnut Collection',
+    likes: 0,
+    user: '@thewalnutstore.in'
   },
   {
     id: 2,
-    image: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    caption: 'Sport Elite Oval White Analog watch',
-    product: 'Sport Elite Collection',
-    likes: 892,
-    user: '@timepiece_collector'
+    image: '/web-banner.png',
+    caption: 'Luxury Timepieces',
+    product: 'Premium Collection',
+    likes: 0,
+    user: '@thewalnutstore.in'
   },
   {
     id: 3,
-    image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    caption: 'Luxury Premium Round Silver Analog watch',
-    product: 'Luxury Premium Collection',
-    likes: 1567,
-    user: '@luxury_watches'
+    image: '/web-banner.png',
+    caption: 'Elegant Watches',
+    product: 'Elegant Collection',
+    likes: 0,
+    user: '@thewalnutstore.in'
   },
   {
     id: 4,
-    image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    caption: 'Fashion Elite Oval White Analog watch',
-    product: 'Fashion Elite Collection',
-    likes: 945,
-    user: '@style_watcher'
+    image: '/web-banner.png',
+    caption: 'Classic Timepieces',
+    product: 'Classic Collection',
+    likes: 0,
+    user: '@thewalnutstore.in'
   }
 ]
 

@@ -31,6 +31,8 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const [selectedColor, setSelectedColor] = useState('BLACK')
   const [quantity, setQuantity] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [showImageModal, setShowImageModal] = useState(false)
   const { addToCart } = useCart()
 
   useEffect(() => {
@@ -162,28 +164,39 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             {/* Main Image */}
             <div className="aspect-square overflow-hidden rounded-lg border border-gray-200 bg-white">
               <Image
-                src={product.image}
+                src={product.images[selectedImageIndex]}
                 alt={product.name}
                 width={800}
                 height={800}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover cursor-pointer"
+                onClick={() => setShowImageModal(true)}
               />
             </div>
             
             {/* Image Gallery */}
-            <div className="grid grid-cols-4 gap-2">
-              {product.images.slice(0, 4).map((imageUrl, index) => (
-                <div key={index} className="aspect-square overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
-                  <Image
-                    src={imageUrl}
-                    alt={`${product.name} - View ${index + 1}`}
-                    width={200}
-                    height={200}
-                    className="w-full h-full object-cover cursor-pointer hover:opacity-75 transition-opacity"
-                  />
-                </div>
-              ))}
-            </div>
+            {product.images.length > 1 && (
+              <div className="grid grid-cols-4 gap-2">
+                {product.images.slice(0, 4).map((imageUrl, index) => (
+                  <div 
+                    key={index} 
+                    className={`aspect-square overflow-hidden rounded-lg border-2 cursor-pointer transition-all ${
+                      selectedImageIndex === index 
+                        ? 'border-yellow-400 bg-yellow-50' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setSelectedImageIndex(index)}
+                  >
+                    <Image
+                      src={imageUrl}
+                      alt={`${product.name} - View ${index + 1}`}
+                      width={200}
+                      height={200}
+                      className="w-full h-full object-cover hover:opacity-75 transition-opacity"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Product Details */}
@@ -406,9 +419,55 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               </div>
             ))}
           </div>
-        </div>
+                </div>
       </div>
-      
+
+      {/* Image Modal */}
+      {showImageModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+          <div className="relative max-w-4xl max-h-full">
+            <button
+              onClick={() => setShowImageModal(false)}
+              className="absolute top-4 right-4 text-white hover:text-gray-300 text-4xl font-bold z-10"
+            >
+              ×
+            </button>
+            <div className="relative">
+              <Image
+                src={product.images[selectedImageIndex]}
+                alt={product.name}
+                width={800}
+                height={800}
+                className="w-full h-auto max-h-[80vh] object-contain"
+              />
+            </div>
+            {product.images.length > 1 && (
+              <div className="flex justify-center mt-4 space-x-2">
+                {product.images.map((imageUrl, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImageIndex(index)}
+                    className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                      selectedImageIndex === index 
+                        ? 'border-yellow-400' 
+                        : 'border-gray-400 hover:border-gray-300'
+                    }`}
+                  >
+                    <Image
+                      src={imageUrl}
+                      alt={`${product.name} - View ${index + 1}`}
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+       
       <Footer />
     </div>
   )

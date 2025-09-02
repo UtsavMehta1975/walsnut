@@ -37,28 +37,7 @@ export default function AccountPage() {
   })
 
   // Mock order data
-  const recentOrders: Order[] = [
-    {
-      id: '1',
-      orderNumber: 'ORD-2024-001',
-      date: new Date('2024-01-15'),
-      status: 'Delivered',
-      total: 12500,
-      items: [
-        { brand: 'Luxury AAA', model: 'Submariner', quantity: 1, price: 12500 }
-      ]
-    },
-    {
-      id: '2',
-      orderNumber: 'ORD-2024-002',
-      date: new Date('2024-01-10'),
-      status: 'Shipped',
-      total: 45000,
-      items: [
-        { brand: 'Luxury Premium', model: 'Nautilus', quantity: 1, price: 45000 }
-      ]
-    }
-  ]
+  const recentOrders: Order[] = []
 
   const handleSave = () => {
     setIsEditing(false)

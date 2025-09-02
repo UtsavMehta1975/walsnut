@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart, Menu, X, User, Search } from 'lucide-react'
+import { ShoppingCart, Menu, X, User, Search, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/contexts/auth-context'
 import { useCart } from '@/store/cart-store'
 
@@ -14,8 +14,10 @@ export function Navbar() {
   const { getItemCount } = useCart()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [isSaleDropdownOpen, setIsSaleDropdownOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
+  const saleDropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -25,6 +27,9 @@ export function Navbar() {
     function handleClickOutside(event: MouseEvent) {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false)
+      }
+      if (saleDropdownRef.current && !saleDropdownRef.current.contains(event.target as Node)) {
+        setIsSaleDropdownOpen(false)
       }
     }
 
@@ -74,9 +79,43 @@ export function Navbar() {
             <Link href="/" className="text-gray-700 hover:text-yellow-400 transition-colors">
               Home
             </Link>
-            <Link href="/watches" className="text-gray-700 hover:text-yellow-400 transition-colors">
-              Men Watch
+            <Link href="/watches?category=for-him" className="text-gray-700 hover:text-yellow-400 transition-colors">
+              For Him
             </Link>
+            <Link href="/watches?category=for-her" className="text-gray-700 hover:text-yellow-400 transition-colors">
+              For Her
+            </Link>
+            <Link href="/watches" className="text-gray-700 hover:text-yellow-400 transition-colors">
+              All Products
+            </Link>
+            <div className="relative" ref={saleDropdownRef}>
+              <button
+                onClick={() => setIsSaleDropdownOpen(!isSaleDropdownOpen)}
+                className="text-gray-700 hover:text-yellow-400 transition-colors flex items-center"
+              >
+                Sale
+                <ChevronDown className={`ml-1 h-4 w-4 transition-transform ${isSaleDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {isSaleDropdownOpen && (
+                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                  <Link
+                    href="/watches?category=sale-1499"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => setIsSaleDropdownOpen(false)}
+                  >
+                    ₹1,499 Collection
+                  </Link>
+                  <Link
+                    href="/watches?category=sale-1999"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => setIsSaleDropdownOpen(false)}
+                  >
+                    ₹1,999 Collection
+                  </Link>
+                </div>
+              )}
+            </div>
             <Link href="/reviews" className="text-gray-700 hover:text-yellow-400 transition-colors">
               Reviews
             </Link>
@@ -168,12 +207,45 @@ export function Navbar() {
                 Home
               </Link>
               <Link
+                href="/watches?category=for-him"
+                className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                For Him
+              </Link>
+              <Link
+                href="/watches?category=for-her"
+                className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                For Her
+              </Link>
+              <Link
                 href="/watches"
                 className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Men Watch
+                All Products
               </Link>
+              <div className="px-3 py-2">
+                <div className="text-gray-700 font-medium mb-2">Sale</div>
+                <div className="pl-4 space-y-1">
+                  <Link
+                    href="/watches?category=sale-1499"
+                    className="block text-gray-600 hover:text-yellow-400"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    ₹1,499 Collection
+                  </Link>
+                  <Link
+                    href="/watches?category=sale-1999"
+                    className="block text-gray-600 hover:text-yellow-400"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    ₹1,999 Collection
+                  </Link>
+                </div>
+              </div>
               <Link
                 href="/reviews"
                 className="block px-3 py-2 text-gray-700 hover:text-yellow-400"

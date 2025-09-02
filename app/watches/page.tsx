@@ -27,12 +27,28 @@ const allProducts: Product[] = []
 
 export default function WatchesPage() {
   const [products, setProducts] = useState<Product[]>(allProducts)
+  const [category, setCategory] = useState<string>('')
   const { addToCart } = useCart()
   const router = useRouter()
+  
+  useEffect(() => {
+    // Get category from URL parameters
+    const urlParams = new URLSearchParams(window.location.search)
+    const categoryParam = urlParams.get('category')
+    setCategory(categoryParam || '')
+  }, [])
+
   useEffect(() => {
     const fetchLatest = async () => {
       try {
-        const res = await fetch('/api/products?limit=20&sortBy=createdAt&sortOrder=desc')
+        let apiUrl = '/api/products?limit=20&sortBy=createdAt&sortOrder=desc'
+        
+        // Add category filter if specified
+        if (category) {
+          apiUrl += `&category=${category}`
+        }
+        
+        const res = await fetch(apiUrl)
         if (!res.ok) return
         const json = await res.json()
         const data = Array.isArray(json?.data) ? json.data : json
@@ -59,7 +75,7 @@ export default function WatchesPage() {
       }
     }
     fetchLatest()
-  }, [])
+  }, [category])
 
   const handleAddToCart = (product: Product) => {
     addToCart({
@@ -83,8 +99,22 @@ export default function WatchesPage() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-black mb-4">
-              Men Watch
+              {category === 'for-her' ? 'For Her Collection' : 
+               category === 'sale-1499' ? 'Sale - ₹1,499 Collection' :
+               category === 'sale-1999' ? 'Sale - ₹1,999 Collection' :
+               category === 'for-him' ? 'For Him Collection' :
+               'All Products'}
             </h1>
+            {(category === 'sale-1499' || category === 'sale-1999') && (
+              <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white py-4 px-6 rounded-lg mb-6">
+                <p className="text-lg font-semibold">
+                  🎉 Limited Time Offers - Premium Watches at Unbeatable Prices
+                </p>
+                <div className="mt-2 text-sm opacity-90">
+                  {category === 'sale-1499' ? 'Entry Level Collection at ₹1,499' : 'Premium Collection at ₹1,999'}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Products Grid - 2x2 Layout */}

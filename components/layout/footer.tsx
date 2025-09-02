@@ -49,7 +49,27 @@ export function Footer() {
                 </li>
                 <li>
                   <Link href="/watches" className="text-gray-300 hover:text-yellow-400 transition-colors">
-                    Men Watch
+                    For Him
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/watches?category=for-her" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    For Her
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/watches" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    All Products
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/watches?category=sale-1499" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    Sale - ₹1,499
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/watches?category=sale-1999" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    Sale - ₹1,999
                   </Link>
                 </li>
                 <li>

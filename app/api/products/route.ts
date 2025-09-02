@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
     const condition = searchParams.get('condition') || ''
     const gender = searchParams.get('gender') || ''
     const movement = searchParams.get('movement') || ''
+    const category = searchParams.get('category') || ''
     const minPrice = searchParams.get('minPrice') || ''
     const maxPrice = searchParams.get('maxPrice') || ''
     const sortByParam = searchParams.get('sortBy') || 'createdAt'
@@ -66,6 +67,15 @@ export async function GET(request: NextRequest) {
       where.isFeatured = true
     }
 
+    // TODO: Category filtering will be implemented after database schema update
+    // For now, we'll filter by gender which is already in the database
+    if (category === 'for-him') {
+      where.gender = 'MENS'
+    } else if (category === 'for-her') {
+      where.gender = 'WOMENS'
+    }
+    // Sale categories will be implemented after schema update
+
     // Build order by clause
     const orderBy: any = {}
     orderBy[sortBy] = sortOrder
@@ -77,7 +87,6 @@ export async function GET(request: NextRequest) {
           images: {
             orderBy: { sortOrder: 'asc' }
           },
-          category: true,
           _count: {
             select: {
               reviews: true,
@@ -121,8 +130,7 @@ export async function GET(request: NextRequest) {
         include: {
           images: {
             orderBy: { sortOrder: 'asc' }
-          },
-          category: true
+          }
         },
         orderBy: { createdAt: 'desc' }
       })
@@ -244,10 +252,13 @@ export async function POST(request: NextRequest) {
         isFeatured: body.isFeatured || false
       },
       include: {
-        images: true,
-        category: true
+        images: true
       }
     })
+
+    // TODO: Category system will be implemented after database schema update
+    // For now, we'll use the existing categoryId field
+    // The categories array from the admin panel will be processed later
 
     // Convert Decimal fields to numbers
     const serializedProduct = {

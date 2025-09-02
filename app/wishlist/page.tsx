@@ -28,38 +28,9 @@ export default function WishlistPage() {
   const { addToCart } = useCart()
 
   useEffect(() => {
-    // Mock wishlist data
-    const mockWishlist: WishlistItem[] = [
-      {
-        id: '1',
-        productId: '1',
-        brand: 'Luxury AAA',
-        model: '7A Watch',
-        price: 18495,
-        imageUrl: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-        addedAt: new Date('2024-01-15')
-      },
-      {
-        id: '2',
-        productId: '2',
-        brand: 'Sport Elite',
-        model: '2 Watch',
-        price: 23495,
-        imageUrl: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-        addedAt: new Date('2024-01-10')
-      },
-      {
-        id: '3',
-        productId: '3',
-        brand: 'Luxury Premium',
-        model: '7A Day-Date Watch',
-        price: 148500,
-        imageUrl: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-        addedAt: new Date('2024-01-05')
-      }
-    ]
-    
-    setWishlistItems(mockWishlist)
+    // TODO: Fetch real wishlist data from API when user is authenticated
+    // For now, show empty wishlist
+    setWishlistItems([])
     setIsLoading(false)
   }, [])
 

@@ -33,13 +33,22 @@ model Category {
   name        String
   slug        String    @unique
   description String?
+  type        CategoryType @default(GENERAL)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   // Relations
-  products Product[]
+  products ProductCategory[]
 
   @@map("categories")
+}
+
+enum CategoryType {
+  FOR_HIM
+  FOR_HER
+  SALE_1499
+  SALE_1999
+  GENERAL
 }
 
 model Product {
@@ -66,8 +75,7 @@ model Product {
   updatedAt          DateTime @updatedAt
 
   // Relations
-  categoryId         String?
-  category           Category? @relation(fields: [categoryId], references: [id])
+  categories         ProductCategory[]
   images             ProductImage[]
   orderItems         OrderItem[]
   wishlistItems      WatchWishlist[]
@@ -136,6 +144,20 @@ model WatchWishlist {
 
   @@unique([userId, productId])
   @@map("watch_wishlists")
+}
+
+model ProductCategory {
+  id         String   @id @default(cuid())
+  productId  String
+  categoryId String
+  createdAt  DateTime @default(now())
+
+  // Relations
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, categoryId])
+  @@map("product_categories")
 }
 
 model Review {

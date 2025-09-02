@@ -203,6 +203,7 @@ export default function AdminPage() {
     year: new Date().getFullYear().toString(),
     description: '',
     stockQuantity: '1',
+    categories: [] as string[],
     specifications: {
       movement: '',
       case: '',
@@ -270,6 +271,8 @@ export default function AdminPage() {
           year: parseInt(newProduct.year),
           description: newProduct.description,
           stockQuantity: parseInt(newProduct.stockQuantity),
+          // TODO: categories will be implemented after database schema update
+          // categories: newProduct.categories,
           specifications: newProduct.specifications,
           authenticity: newProduct.authenticity
         }),
@@ -288,6 +291,7 @@ export default function AdminPage() {
           year: new Date().getFullYear().toString(),
           description: '',
           stockQuantity: '1',
+          categories: [],
           specifications: {
             movement: '',
             case: '',
@@ -315,6 +319,32 @@ export default function AdminPage() {
     }
   }
 
+  const handleClearAllProducts = async () => {
+    if (!confirm('Are you sure you want to clear ALL products? This action cannot be undone!')) {
+      return
+    }
+
+    try {
+      // Clear all products through the API
+      const response = await fetch('/api/products/clear-all', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${user?.email}`,
+        },
+      })
+
+      if (response.ok) {
+        setProducts([])
+        toast.success('All products cleared successfully!')
+      } else {
+        const error = await response.json()
+        toast.error(error.error || 'Failed to clear products')
+      }
+    } catch (error) {
+      toast.error('Failed to clear products')
+    }
+  }
+
   const handleEditProduct = (product: Product) => {
     setEditingProduct(product)
     setNewProduct({
@@ -327,8 +357,22 @@ export default function AdminPage() {
       year: product.year.toString(),
       description: product.description,
       stockQuantity: product.stockQuantity.toString(),
-      specifications: product.specifications,
-      authenticity: product.authenticity
+      categories: [], // TODO: Add categories when Product interface is updated
+      specifications: {
+        movement: product.specifications?.movement || '',
+        case: product.specifications?.case || '',
+        dial: product.specifications?.dial || '',
+        bracelet: product.specifications?.bracelet || '',
+        waterResistance: product.specifications?.waterResistance || '',
+        powerReserve: product.specifications?.powerReserve || '',
+        diameter: product.specifications?.diameter || '',
+        thickness: product.specifications?.thickness || ''
+      },
+      authenticity: {
+        guaranteed: product.authenticity?.guaranteed ?? true,
+        certificate: product.authenticity?.certificate ?? true,
+        serviceHistory: product.authenticity?.serviceHistory ?? true
+      }
     })
     setIsAddingProduct(true)
   }
@@ -372,6 +416,7 @@ export default function AdminPage() {
           year: new Date().getFullYear().toString(),
           description: '',
           stockQuantity: '1',
+          categories: [],
           specifications: {
             movement: '',
             case: '',
@@ -573,6 +618,34 @@ export default function AdminPage() {
               </Card>
             </div>
 
+            {/* Clear Products Button */}
+            <Card className="hover:shadow-md transition-shadow border-red-200">
+              <CardHeader>
+                <CardTitle className="text-lg lg:text-xl text-red-700">Database Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-2">
+                        Clear all dummy products from the database to start fresh with real products.
+                      </p>
+                      <p className="text-xs text-red-600 font-medium">
+                        ⚠️ This action cannot be undone and will remove all products, reviews, and wishlist items.
+                      </p>
+                    </div>
+                    <Button 
+                      variant="destructive" 
+                      onClick={handleClearAllProducts}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      Clear All Products
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Recent Orders */}
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
@@ -618,32 +691,33 @@ export default function AdminPage() {
                     onClick={() => {
                       setIsAddingProduct(true)
                       setEditingProduct(null)
-                      setNewProduct({
-                        brand: '',
-                        model: '',
-                        referenceNumber: '',
-                        price: '',
-                        previousPrice: '',
-                        condition: 'NEW',
-                        year: new Date().getFullYear().toString(),
-                        description: '',
-                        stockQuantity: '1',
-                        specifications: {
-                          movement: '',
-                          case: '',
-                          dial: '',
-                          bracelet: '',
-                          waterResistance: '',
-                          powerReserve: '',
-                          diameter: '',
-                          thickness: ''
-                        },
-                        authenticity: {
-                          guaranteed: true,
-                          certificate: true,
-                          serviceHistory: true
-                        }
-                      })
+                              setNewProduct({
+          brand: '',
+          model: '',
+          referenceNumber: '',
+          price: '',
+          previousPrice: '',
+          condition: 'NEW',
+          year: new Date().getFullYear().toString(),
+          description: '',
+          stockQuantity: '1',
+          categories: [],
+          specifications: {
+            movement: '',
+            case: '',
+            dial: '',
+            bracelet: '',
+            waterResistance: '',
+            powerReserve: '',
+            diameter: '',
+            thickness: ''
+          },
+          authenticity: {
+            guaranteed: true,
+            certificate: true,
+            serviceHistory: true
+          }
+        })
                     }}
                     className="w-full sm:w-auto"
                   >
@@ -718,6 +792,97 @@ export default function AdminPage() {
                           onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
                           rows={3}
                         />
+                      </div>
+                    </div>
+
+                    {/* Category Selection */}
+                    <div className="mb-6">
+                      <h4 className="font-medium text-gray-900 mb-4">Product Categories</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={newProduct.categories.includes('for-him')}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setNewProduct({
+                                  ...newProduct,
+                                  categories: [...newProduct.categories, 'for-him']
+                                })
+                              } else {
+                                setNewProduct({
+                                  ...newProduct,
+                                  categories: newProduct.categories.filter(cat => cat !== 'for-him')
+                                })
+                              }
+                            }}
+                            className="mr-3 h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                          />
+                          For Him
+                        </label>
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={newProduct.categories.includes('for-her')}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setNewProduct({
+                                  ...newProduct,
+                                  categories: [...newProduct.categories, 'for-her']
+                                })
+                              } else {
+                                setNewProduct({
+                                  ...newProduct,
+                                  categories: newProduct.categories.filter(cat => cat !== 'for-her')
+                                })
+                              }
+                            }}
+                            className="mr-3 h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                          />
+                          For Her
+                        </label>
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={newProduct.categories.includes('sale-1499')}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setNewProduct({
+                                  ...newProduct,
+                                  categories: [...newProduct.categories, 'sale-1499']
+                                })
+                              } else {
+                                setNewProduct({
+                                  ...newProduct,
+                                  categories: newProduct.categories.filter(cat => cat !== 'sale-1499')
+                                })
+                              }
+                            }}
+                            className="mr-3 h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                          />
+                          Sale - ₹1,499 Collection
+                        </label>
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={newProduct.categories.includes('sale-1999')}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setNewProduct({
+                                  ...newProduct,
+                                  categories: [...newProduct.categories, 'sale-1999']
+                                })
+                              } else {
+                                setNewProduct({
+                                  ...newProduct,
+                                  categories: newProduct.categories.filter(cat => cat !== 'sale-1999')
+                                })
+                              }
+                            }}
+                            className="mr-3 h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                          />
+                          Sale - ₹1,999 Collection
+                        </label>
                       </div>
                     </div>
 

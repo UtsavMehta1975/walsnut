@@ -35,6 +35,13 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
   const [newImageUrl, setNewImageUrl] = useState('')
   const [newAltText, setNewAltText] = useState('')
   const [isAddingImage, setIsAddingImage] = useState(false)
+  
+  // Google Drive folder browser states
+  const [folderUrl, setFolderUrl] = useState('https://drive.google.com/drive/folders/1NuvIEZzWF77UR2qA1l6kIcfGEupKMzE1?usp=sharing')
+  const [isLoadingFolder, setIsLoadingFolder] = useState(false)
+  const [folderImages, setFolderImages] = useState<any[]>([])
+  const [showFolderBrowser, setShowFolderBrowser] = useState(false)
+  const [selectedImages, setSelectedImages] = useState<string[]>([])
 
   const fetchImages = useCallback(async () => {
     try {

@@ -11,29 +11,28 @@ export async function GET(
   try {
     const product = await db.product.findUnique({
       where: { id: params.id },
-      include: {
-        images: {
-          orderBy: { sortOrder: 'asc' }
-        },
-        category: true,
-        reviews: {
-          include: {
-            user: {
-              select: {
-                name: true,
-                email: true
-              }
-            }
+              include: {
+          images: {
+            orderBy: { sortOrder: 'asc' }
           },
-          orderBy: { createdAt: 'desc' }
-        },
-        _count: {
-          select: {
-            reviews: true,
-            wishlistItems: true
+          reviews: {
+            include: {
+              user: {
+                select: {
+                  name: true,
+                  email: true
+                }
+              }
+            },
+            orderBy: { createdAt: 'desc' }
+          },
+          _count: {
+            select: {
+              reviews: true,
+              wishlistItems: true
+            }
           }
         }
-      }
     })
 
     if (!product) {
