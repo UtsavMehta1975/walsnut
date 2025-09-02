@@ -3,6 +3,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart, Eye } from 'lucide-react'
@@ -70,9 +71,11 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
       <CardContent className="p-0">
         {/* Product Image */}
         <div className="relative aspect-square overflow-hidden rounded-t-lg">
-          <img
+          <Image
             src={product.imageUrl}
             alt={`${product.brand} ${product.model}`}
+            width={300}
+            height={300}
             className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
           />
           

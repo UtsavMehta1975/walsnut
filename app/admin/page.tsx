@@ -83,6 +83,26 @@ export default function AdminPage() {
 
   // Check authentication and admin role
   useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/products?admin=true', {
+          headers: {
+            'Authorization': `Bearer ${user?.email}`,
+          },
+        })
+        if (response.ok) {
+          const data = await response.json()
+          setProducts(data)
+        } else {
+          toast.error('Failed to fetch products')
+        }
+      } catch (error) {
+        toast.error('Failed to fetch products')
+      } finally {
+        setIsLoadingProducts(false)
+      }
+    }
+
     console.log('=== ADMIN PAGE AUTH CHECK ===')
     console.log('isLoading:', isLoading)
     console.log('isAuthenticated:', isAuthenticated)
@@ -116,26 +136,6 @@ export default function AdminPage() {
     console.log('✅ Admin access granted, fetching products')
     fetchProducts()
   }, [user, isAuthenticated, isLoading, router])
-
-  const fetchProducts = async () => {
-    try {
-      const response = await fetch('/api/products?admin=true', {
-        headers: {
-          'Authorization': `Bearer ${user?.email}`,
-        },
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setProducts(data)
-      } else {
-        toast.error('Failed to fetch products')
-      }
-    } catch (error) {
-      toast.error('Failed to fetch products')
-    } finally {
-      setIsLoadingProducts(false)
-    }
-  }
 
   const [orders, setOrders] = useState<Order[]>([
     {
