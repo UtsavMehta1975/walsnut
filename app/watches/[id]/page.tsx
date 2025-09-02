@@ -23,6 +23,28 @@ interface Product {
   images: string[]
   description: string
   sku: string
+  // Add specifications and other fields
+  brand: string
+  model: string
+  referenceNumber?: string
+  condition: string
+  year: number
+  stockQuantity: number
+  specifications?: {
+    movement?: string
+    case?: string
+    dial?: string
+    bracelet?: string
+    waterResistance?: string
+    powerReserve?: string
+    diameter?: string
+    thickness?: string
+  }
+  authenticity?: {
+    guaranteed?: boolean
+    certificate?: boolean
+    serviceHistory?: boolean
+  }
 }
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
@@ -62,7 +84,14 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           image: imageUrl,
           images: allImages,
           description: p.description || 'No description available for this product.',
-          sku: p.sku || 'N/A'
+          sku: p.sku || 'N/A',
+          brand: p.brand || 'N/A',
+          model: p.model || 'N/A',
+          condition: p.condition || 'New',
+          year: p.year || 2023,
+          stockQuantity: p.stockQuantity || 0,
+          specifications: p.specifications,
+          authenticity: p.authenticity
         }
         setProduct(mapped)
       } catch {
@@ -309,9 +338,10 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
         {/* Product Specifications */}
         <div className="mt-16">
-          <h2 className="text-2xl font-bold text-black mb-6">Product Specifications :</h2>
+          <h2 className="text-2xl font-bold text-black mb-6">Product Specifications</h2>
           <div className="bg-gray-50 rounded-lg p-6">
-            <div className="prose max-w-none">
+            {/* Product Description */}
+            <div className="prose max-w-none mb-8">
               <div className="text-gray-700 leading-relaxed">
                 {product.description ? (
                   <div dangerouslySetInnerHTML={{ 
@@ -325,70 +355,93 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               </div>
             </div>
             
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold text-black mb-4">Key Features:</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-semibold text-black">Exclusivity:</h4>
-                    <ul className="list-disc list-inside text-gray-600 space-y-1">
-                      <li>Limited editions or unique designs that make the watch a statement piece</li>
-                      <li>Often comes with a luxury box, certificates of authenticity, and sometimes a warranty.</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-black">Collection:</h4>
-                    <ul className="list-disc list-inside text-gray-600 space-y-1">
-                      <li>Manufactured by a renowned luxury brand, known for exceptional design, precision, and exclusivity.</li>
-                      <li>Often comes with a signature logo or emblem that represents quality and sophistication.</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-black">Premium Materials:</h4>
-                    <ul className="list-disc list-inside text-gray-600 space-y-1">
-                      <li><strong>Case:</strong> Often crafted from stainless steel, titanium, or even precious metals like gold or platinum for enhanced durability and luxury appeal.</li>
-                      <li><strong>Dial:</strong> May feature polished or textured finishes, with markers and hands made from high-quality metals like 18K gold, stainless steel, or even diamond accents.</li>
-                      <li><strong>Crystal:</strong> Usually made from scratch-resistant sapphire crystal, which offers clarity and resistance to damage.</li>
-                      <li><strong>Strap:</strong> Leather, stainless steel, or even exotic materials like alligator leather or rubber, designed for comfort and longevity.</li>
-                    </ul>
-                  </div>
+            {/* Technical Specifications */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold text-black">Basic Information:</h4>
+                  <ul className="list-none space-y-2 text-gray-600">
+                    <li><strong>Brand:</strong> {product.brand}</li>
+                    <li><strong>Model:</strong> {product.model}</li>
+                    {product.referenceNumber && (
+                      <li><strong>Reference:</strong> {product.referenceNumber}</li>
+                    )}
+                    <li><strong>Condition:</strong> {product.condition}</li>
+                    <li><strong>Year:</strong> {product.year}</li>
+                    <li><strong>Stock:</strong> {product.stockQuantity} available</li>
+                  </ul>
                 </div>
-                <div className="space-y-4">
+                
+                {product.specifications && (
                   <div>
-                    <h4 className="font-semibold text-black">Water Resistance:</h4>
-                    <p className="text-gray-600">Most luxury watches are water-resistant to varying depths, making them suitable for everyday wear and light water exposure.</p>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-black">Sleek and Timeless Design:</h4>
-                    <ul className="list-disc list-inside text-gray-600 space-y-1">
-                      <li>The design is often minimalist and elegant, with a classic appeal that works for both formal and casual occasions.</li>
-                      <li>May feature complications such as date, day, or moon phase displays, adding functionality to its aesthetic.</li>
+                    <h4 className="font-semibold text-black">Technical Details:</h4>
+                    <ul className="list-none space-y-2 text-gray-600">
+                      {product.specifications.movement && (
+                        <li><strong>Movement:</strong> {product.specifications.movement}</li>
+                      )}
+                      {product.specifications.case && (
+                        <li><strong>Case:</strong> {product.specifications.case}</li>
+                      )}
+                      {product.specifications.dial && (
+                        <li><strong>Dial:</strong> {product.specifications.dial}</li>
+                      )}
+                      {product.specifications.bracelet && (
+                        <li><strong>Bracelet:</strong> {product.specifications.bracelet}</li>
+                      )}
+                      {product.specifications.waterResistance && (
+                        <li><strong>Water Resistance:</strong> {product.specifications.waterResistance}</li>
+                      )}
+                      {product.specifications.powerReserve && (
+                        <li><strong>Power Reserve:</strong> {product.specifications.powerReserve}</li>
+                      )}
+                      {product.specifications.diameter && (
+                        <li><strong>Diameter:</strong> {product.specifications.diameter}</li>
+                      )}
+                      {product.specifications.thickness && (
+                        <li><strong>Thickness:</strong> {product.specifications.thickness}</li>
+                      )}
                     </ul>
                   </div>
+                )}
+              </div>
+              
+              <div className="space-y-4">
+                {product.authenticity && (
                   <div>
-                    <h4 className="font-semibold text-black">Precision and Accuracy:</h4>
-                    <ul className="list-disc list-inside text-gray-600 space-y-1">
-                      <li>Known for impeccable timekeeping, with Swiss or Japanese movement providing high precision.</li>
-                      <li>Generally subjected to rigorous testing and calibration to ensure accuracy and performance.</li>
+                    <h4 className="font-semibold text-black">Authenticity & Warranty:</h4>
+                    <ul className="list-none space-y-2 text-gray-600">
+                      <li>
+                        <strong>Guaranteed:</strong> 
+                        <span className={product.authenticity.guaranteed ? 'text-green-600' : 'text-red-600'}>
+                          {product.authenticity.guaranteed ? ' ✓ Yes' : ' ✗ No'}
+                        </span>
+                      </li>
+                      <li>
+                        <strong>Certificate:</strong> 
+                        <span className={product.authenticity.certificate ? 'text-green-600' : 'text-red-600'}>
+                          {product.authenticity.certificate ? ' ✓ Yes' : ' ✗ No'}
+                        </span>
+                      </li>
+                      <li>
+                        <strong>Service History:</strong> 
+                        <span className={product.authenticity.serviceHistory ? 'text-green-600' : 'text-red-600'}>
+                          {product.authenticity.serviceHistory ? ' ✓ Yes' : ' ✗ No'}
+                        </span>
+                      </li>
                     </ul>
                   </div>
+                )}
+                
+                <div>
+                  <h4 className="font-semibold text-black">Features:</h4>
+                  <ul className="list-disc list-inside text-gray-600 space-y-1">
+                    <li>Premium Swiss/Japanese craftsmanship</li>
+                    <li>High-quality materials and finishing</li>
+                    <li>Precision timekeeping</li>
+                    <li>Elegant design suitable for all occasions</li>
+                  </ul>
                 </div>
               </div>
-            </div>
-
-            <div className="mt-8">
-              <h3 className="text-lg font-semibold text-black mb-4">Ideal for:</h3>
-              <ul className="list-disc list-inside text-gray-600 space-y-1">
-                <li>Those who appreciate refined aesthetics, cutting-edge craftsmanship, and the art of horology.</li>
-                <li>Watch collectors or enthusiasts looking for a reliable, stylish, and exclusive timepiece.</li>
-                <li>Gift-giving for special occasions such as anniversaries, promotions, or milestone celebrations.</li>
-              </ul>
-            </div>
-
-            <div className="mt-6 p-4 bg-yellow-50 rounded-lg">
-              <p className="text-gray-800">
-                The Luxury Branded 7A Watch represents a perfect fusion of form and function, capturing the essence of luxury with every tick.
-              </p>
             </div>
           </div>
         </div>
