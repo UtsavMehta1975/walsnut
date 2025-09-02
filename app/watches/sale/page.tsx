@@ -53,7 +53,8 @@ export default function SalePage() {
             const primary = p.images?.find((img: any) => img.isPrimary) || p.images?.[0]
             return {
               ...p,
-              imageUrl: primary?.imageUrl || '/web-banner.png'
+              imageUrl: primary?.imageUrl || '/web-banner.png',
+              referenceNumber: p.referenceNumber || 'N/A'
             }
           })
           setProducts(mappedProducts)

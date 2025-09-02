@@ -13,7 +13,7 @@ interface Product {
   id: string
   brand: string
   model: string
-  referenceNumber: string
+  referenceNumber?: string
   price: number
   previousPrice?: number
   condition: string
