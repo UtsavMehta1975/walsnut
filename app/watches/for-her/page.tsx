@@ -28,7 +28,13 @@ interface Product {
   isFeatured: boolean
   createdAt: string
   updatedAt: string
-  images: string[]
+  images: Array<{
+    id: string
+    imageUrl: string
+    isPrimary: boolean
+    sortOrder: number
+  }>
+  imageUrl: string // This will be derived from the primary image
 }
 
 export default function ForHerPage() {
@@ -42,7 +48,15 @@ export default function ForHerPage() {
         const response = await fetch('/api/products?category=for-her&limit=50')
         if (response.ok) {
           const data = await response.json()
-          setProducts(data.products || [])
+          const products = Array.isArray(data?.data) ? data.data : data
+          const mappedProducts = products.map((p: any) => {
+            const primary = p.images?.find((img: any) => img.isPrimary) || p.images?.[0]
+            return {
+              ...p,
+              imageUrl: primary?.imageUrl || '/web-banner.png'
+            }
+          })
+          setProducts(mappedProducts)
         } else {
           setError('Failed to fetch products')
         }
