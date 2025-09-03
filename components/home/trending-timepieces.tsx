@@ -8,6 +8,7 @@ import { ShoppingCart, Heart, Star, Clock, TrendingUp, Sparkles } from 'lucide-r
 import { useCart } from '@/store/cart-store'
 import { useRouter } from 'next/navigation'
 import { formatPrice } from '@/lib/utils'
+import { getProductImageUrl } from '@/lib/image-utils'
 
 interface Product {
   id: string
@@ -28,6 +29,7 @@ export function TrendingTimepieces() {
   const { addToCart } = useCart()
   const router = useRouter()
   const [products, setProducts] = useState<Product[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   const handleProductClick = (productId: string) => {
     router.push(`/watches/${productId}`)
@@ -46,7 +48,9 @@ export function TrendingTimepieces() {
   useEffect(() => {
     const fetchLatest = async () => {
       try {
-        const res = await fetch('/api/products?limit=8&sortBy=createdAt&sortOrder=desc')
+        setIsLoading(true)
+        // Fetch ALL products, not just 8
+        const res = await fetch('/api/products?limit=100&sortBy=createdAt&sortOrder=desc')
         if (!res.ok) {
           console.error('Failed to fetch products')
           return
@@ -58,14 +62,12 @@ export function TrendingTimepieces() {
         console.log('Data to map:', data) // Debug log
         
         const mapped: Product[] = data.map((p: any) => {
-          // Get the primary image or first available image
-          const primary = p.images?.find((img: any) => img.isPrimary) || p.images?.[0]
-          const imageUrl = primary?.imageUrl || p.imageUrl || '/web-banner.png'
+          // Use the new getProductImageUrl function for proper image handling
+          const imageUrl = getProductImageUrl(p)
           
           console.log(`Product ${p.brand} ${p.model}:`, { 
             hasImages: !!p.images, 
             imageCount: p.images?.length || 0,
-            primaryImage: primary?.imageUrl,
             finalImage: imageUrl
           }) // Debug log
           
@@ -87,6 +89,8 @@ export function TrendingTimepieces() {
         setProducts(mapped)
       } catch (error) {
         console.error('Error fetching trending products:', error)
+      } finally {
+        setIsLoading(false)
       }
     }
     fetchLatest()
@@ -106,6 +110,25 @@ export function TrendingTimepieces() {
     }
   }
 
+  if (isLoading) {
+    return (
+      <section className="bg-white py-8">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-light text-black mb-2">
+              Trending Timepieces
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-0 w-full mb-8">
+            {[...Array(12)].map((_, i) => (
+              <div key={i} className="aspect-square bg-gray-200 animate-pulse"></div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section className="bg-white py-8">
       <div className="max-w-7xl mx-auto px-2 sm:px-4">
@@ -114,6 +137,7 @@ export function TrendingTimepieces() {
           <h2 className="text-2xl md:text-3xl font-light text-black mb-2">
             Trending Timepieces
           </h2>
+          <p className="text-gray-600">Showing {products.length} premium timepieces</p>
         </div>
 
         {/* Sharp, Minimal Product Grid - Responsive with more columns on desktop */}
@@ -133,6 +157,7 @@ export function TrendingTimepieces() {
                   className="object-cover"
                   sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16vw"
                   priority={false}
+                  unoptimized={product.image.includes('drive.google.com')}
                 />
               </div>
             </div>
@@ -143,7 +168,7 @@ export function TrendingTimepieces() {
         <div className="text-center">
           <Link href="/watches">
             <Button size="lg" className="bg-black text-white hover:bg-gray-800 font-light text-lg px-6 py-3">
-              View All Timepieces
+              View All Timepieces ({products.length})
             </Button>
           </Link>
         </div>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { sanitizeImageUrl } from '@/lib/image-utils'
 
 // GET - Get all images for a product
 export async function GET(
@@ -60,9 +61,20 @@ export async function POST(
       )
     }
 
+    // Sanitize and validate the image URL
+    const sanitizedImageUrl = sanitizeImageUrl(imageUrl)
+    
+    // If sanitization failed, return error
+    if (sanitizedImageUrl === '/web-banner.png' && imageUrl !== '/web-banner.png') {
+      return NextResponse.json(
+        { error: 'Invalid image URL format. Please provide a valid image URL.' },
+        { status: 400 }
+      )
+    }
+
     // Validate URL format
     try {
-      new URL(imageUrl)
+      new URL(sanitizedImageUrl)
     } catch {
       return NextResponse.json(
         { error: 'Invalid image URL format' },
@@ -93,7 +105,7 @@ export async function POST(
       data: {
         productId: params.id,
         cloudinaryPublicId: `walnut/${Date.now()}`,
-        imageUrl: imageUrl,
+        imageUrl: sanitizedImageUrl,
         altText: altText || '',
         isPrimary: isPrimary || false,
         sortOrder: newSortOrder

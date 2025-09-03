@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import toast from 'react-hot-toast'
 import { OptimizedImage } from '@/components/OptimizedImage'
+import { sanitizeImageUrl, getThumbnailUrl } from '@/lib/image-utils'
 
 interface ProductImage {
   id: string
@@ -35,6 +36,11 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
   const [newImageUrl, setNewImageUrl] = useState('')
   const [newAltText, setNewAltText] = useState('')
   const [isAddingImage, setIsAddingImage] = useState(false)
+  
+  // Drag and drop states
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+  const [isReordering, setIsReordering] = useState(false)
   
   // Google Drive folder browser states
   const [folderUrl, setFolderUrl] = useState('https://drive.google.com/drive/folders/1NuvIEZzWF77UR2qA1l6kIcfGEupKMzE1?usp=sharing')
@@ -64,6 +70,40 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
     fetchImages()
   }, [fetchImages])
 
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/html', index.toString())
+  }
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setDragOverIndex(index)
+  }
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null)
+  }
+
+  const handleDrop = async (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault()
+    
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null)
+      setDragOverIndex(null)
+      return
+    }
+
+    // Call the reorder function
+    await handleReorder(draggedIndex, dropIndex)
+    
+    // Reset drag states
+    setDraggedIndex(null)
+    setDragOverIndex(null)
+  }
+
   const handleAddImage = async () => {
     if (!newImageUrl.trim()) {
       toast.error('Please enter an image URL')
@@ -71,6 +111,9 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
     }
 
     try {
+      // Sanitize the image URL before saving
+      const sanitizedUrl = sanitizeImageUrl(newImageUrl.trim())
+      
       const response = await fetch(`/api/products/${productId}/images`, {
         method: 'POST',
         headers: {
@@ -78,7 +121,7 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
           'Authorization': `Bearer ${user?.email}`,
         },
         body: JSON.stringify({
-          imageUrl: newImageUrl.trim(),
+          imageUrl: sanitizedUrl,
           altText: newAltText.trim() || 'Product image',
           isPrimary: images.length === 0, // First image is primary
           sortOrder: images.length
@@ -182,6 +225,8 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
   }
 
   const handleReorder = async (fromIndex: number, toIndex: number) => {
+    setIsReordering(true)
+    
     const newImages = [...images]
     const [movedImage] = newImages.splice(fromIndex, 1)
     newImages.splice(toIndex, 0, movedImage)
@@ -201,14 +246,20 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user?.email}`,
           },
           body: JSON.stringify({
             sortOrder: img.sortOrder
           }),
         })
       ))
+      toast.success('Image order updated successfully!')
     } catch (error) {
       toast.error('Failed to update image order')
+      // Revert local state if database update fails
+      fetchImages()
+    } finally {
+      setIsReordering(false)
     }
   }
 
@@ -304,15 +355,28 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
             images.map((image, index) => (
               <div
                 key={image.id}
-                className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg bg-white"
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, index)}
+                className={`flex items-center space-x-3 p-3 border border-gray-200 rounded-lg bg-white transition-all duration-200 ${
+                  draggedIndex === index ? 'opacity-50 scale-95' : ''
+                } ${
+                  dragOverIndex === index ? 'border-blue-400 bg-blue-50 shadow-md' : ''
+                }`}
               >
                 {/* Drag handle */}
-                <GripVertical className="h-4 w-4 text-gray-400 cursor-move" />
+                <div className="flex-shrink-0">
+                  <GripVertical className={`h-5 w-5 cursor-move transition-colors ${
+                    draggedIndex === index ? 'text-blue-500' : 'text-gray-400 hover:text-gray-600'
+                  }`} />
+                </div>
                 
                 {/* Image preview */}
                 <div className="flex-shrink-0 relative w-16 h-16">
                   <OptimizedImage
-                    src={image.imageUrl}
+                    src={getThumbnailUrl(image.imageUrl)}
                     alt={image.altText}
                     width={64}
                     height={64}
@@ -411,9 +475,20 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
         {/* Help text */}
         <div className="mt-4 p-3 bg-blue-50 rounded-lg">
           <p className="text-sm text-blue-700">
-            <strong>Tip:</strong> Use free image hosting services like Pexels, Unsplash, or Pixabay for fast-loading images. 
-            The first image you add will automatically be set as the primary image.
+            <strong>Tip:</strong> Drag and drop images to reorder them. The first image will automatically be set as the primary image.
+            Use free image hosting services like Pexels, Unsplash, or Pixabay for fast-loading images.
           </p>
+          <p className="text-xs text-blue-600 mt-2">
+            💡 <strong>How to reorder:</strong> Click and drag the grip handle (⋮⋮) on the left of any image to move it to a new position.
+          </p>
+          {isReordering && (
+            <div className="mt-3 p-2 bg-blue-100 rounded border border-blue-200">
+              <div className="flex items-center space-x-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                <span className="text-xs text-blue-700 font-medium">Updating image order...</span>
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

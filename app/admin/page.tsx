@@ -138,9 +138,94 @@ export default function AdminPage() {
       return
     }
     
-    console.log('✅ Admin access granted, fetching products')
-    fetchProducts()
+    console.log('✅ Admin access granted, fetching data')
+    fetchAllData()
   }, [user, isAuthenticated, isLoading, router])
+
+  // Fetch products from database
+  const fetchProducts = async () => {
+    try {
+      setIsLoadingProducts(true)
+      const response = await fetch('/api/products?admin=true', {
+        headers: {
+          'Authorization': `Bearer ${user?.email}`,
+        },
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setProducts(data)
+      } else {
+        toast.error('Failed to fetch products')
+      }
+    } catch (error) {
+      toast.error('Failed to fetch products')
+    } finally {
+      setIsLoadingProducts(false)
+    }
+  }
+
+  // Fetch all data from database
+  const fetchAllData = async () => {
+    await Promise.all([
+      fetchProducts(),
+      fetchOrders(),
+      fetchCustomers()
+    ])
+  }
+
+  // Fetch orders from database
+  const fetchOrders = async () => {
+    try {
+      setIsLoadingOrders(true)
+      const response = await fetch('/api/orders', {
+        headers: {
+          'Authorization': `Bearer ${user?.email}`,
+        },
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setOrders(data)
+      } else {
+        toast.error('Failed to fetch orders')
+      }
+    } catch (error) {
+      toast.error('Failed to fetch orders')
+    } finally {
+      setIsLoadingOrders(false)
+    }
+  }
+
+  // Fetch customers from database
+  const fetchCustomers = async () => {
+    try {
+      setIsLoadingCustomers(true)
+      const response = await fetch('/api/auth/list-users', {
+        headers: {
+          'Authorization': `Bearer ${user?.email}`,
+        },
+      })
+      if (response.ok) {
+        const data = await response.json()
+        // Transform user data to Customer format
+        const customersData: Customer[] = data.map((user: any) => ({
+          id: user.id,
+          name: user.name || user.email,
+          email: user.email,
+          joinDate: new Date(user.createdAt || Date.now()).toLocaleDateString(),
+          totalOrders: user.orderCount || 0,
+          totalSpent: user.totalSpent || 0,
+          status: user.isActive ? 'ACTIVE' : 'INACTIVE'
+        }))
+        setCustomers(customersData)
+      } else {
+        toast.error('Failed to fetch customers')
+      }
+    } catch (error) {
+      toast.error('Failed to fetch customers')
+    } finally {
+      setIsLoadingCustomers(false)
+    }
+  }
 
   const [newProduct, setNewProduct] = useState({
     brand: '',
@@ -352,7 +437,7 @@ export default function AdminPage() {
 
       if (response.ok) {
         const updatedProduct = await response.json()
-        setProducts(products.map(p => p.id === editingProduct.id ? updatedProduct : p))
+        setProducts(Array.isArray(products) ? products.map(p => p.id === editingProduct.id ? updatedProduct : p) : [updatedProduct])
         setEditingProduct(null)
         setIsAddingProduct(false)
         setNewProduct({
@@ -399,7 +484,7 @@ export default function AdminPage() {
       })
 
       if (response.ok) {
-        setProducts(products.filter(p => p.id !== productId))
+        setProducts(Array.isArray(products) ? products.filter(p => p.id !== productId) : [])
         toast.success('Product deleted successfully!')
       } else {
         toast.error('Failed to delete product')
@@ -410,16 +495,16 @@ export default function AdminPage() {
   }
 
   const handleUpdateOrderStatus = (orderId: string, status: Order['status']) => {
-    setOrders(orders.map(order => 
-      order.id === orderId ? { ...order, status } : order
-    ))
+            setOrders(Array.isArray(orders) ? orders.map(order =>
+          order.id === orderId ? { ...order, status } : order
+        ) : [])
     toast.success('Order status updated!')
   }
 
-  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0)
-  const totalOrders = orders.length
-  const totalCustomers = customers.length
-  const totalProducts = products.length
+  const totalRevenue = Array.isArray(orders) ? orders.reduce((sum, order) => sum + order.total, 0) : 0
+  const totalOrders = Array.isArray(orders) ? orders.length : 0
+  const totalCustomers = Array.isArray(customers) ? customers.length : 0
+  const totalProducts = Array.isArray(products) ? products.length : 0
 
   const tabItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -518,7 +603,13 @@ export default function AdminPage() {
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Total Products</p>
-                      <p className="text-xl lg:text-2xl font-bold text-gray-900">{totalProducts}</p>
+                      <p className="text-xl lg:text-2xl font-bold text-gray-900">
+                        {isLoadingProducts ? (
+                          <span className="animate-pulse bg-gray-200 h-8 w-16 rounded"></span>
+                        ) : (
+                          totalProducts
+                        )}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -532,7 +623,13 @@ export default function AdminPage() {
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Total Customers</p>
-                      <p className="text-xl lg:text-2xl font-bold text-gray-900">{totalCustomers}</p>
+                      <p className="text-xl lg:text-2xl font-bold text-gray-900">
+                        {isLoadingCustomers ? (
+                          <span className="animate-pulse bg-gray-200 h-8 w-16 rounded"></span>
+                        ) : (
+                          totalCustomers
+                        )}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -546,7 +643,13 @@ export default function AdminPage() {
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Total Orders</p>
-                      <p className="text-xl lg:text-2xl font-bold text-gray-900">{totalOrders}</p>
+                      <p className="text-xl lg:text-2xl font-bold text-gray-900">
+                        {isLoadingOrders ? (
+                          <span className="animate-pulse bg-gray-200 h-8 w-16 rounded"></span>
+                        ) : (
+                          totalOrders
+                        )}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -567,29 +670,52 @@ export default function AdminPage() {
               </Card>
             </div>
 
-            {/* Clear Products Button */}
-            <Card className="hover:shadow-md transition-shadow border-red-200">
+            {/* Data Synchronization */}
+            <Card className="hover:shadow-md transition-shadow border-blue-200">
               <CardHeader>
-                <CardTitle className="text-lg lg:text-xl text-red-700">Database Management</CardTitle>
+                <CardTitle className="text-lg lg:text-xl text-blue-700">Data Synchronization</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-600 mb-2">
-                        Clear all dummy products from the database to start fresh with real products.
+                        Refresh data from the database to see the latest information.
                       </p>
-                      <p className="text-xs text-red-600 font-medium">
-                        ⚠️ This action cannot be undone and will remove all products, reviews, and wishlist items.
+                      <p className="text-xs text-blue-600 font-medium">
+                        Click the buttons below to refresh specific data or all data at once.
                       </p>
                     </div>
-                    <Button 
-                      variant="destructive" 
-                      onClick={handleClearAllProducts}
-                      className="bg-red-600 hover:bg-red-700"
-                    >
-                      Clear All Products
-                    </Button>
+                    <div className="flex flex-wrap gap-2">
+                      <Button 
+                        onClick={fetchAllData}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        size="sm"
+                      >
+                        Refresh All Data
+                      </Button>
+                      <Button 
+                        onClick={fetchProducts}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                        size="sm"
+                      >
+                        Refresh Products
+                      </Button>
+                      <Button 
+                        onClick={fetchOrders}
+                        className="bg-purple-600 hover:bg-purple-700 text-white"
+                        size="sm"
+                      >
+                        Refresh Orders
+                      </Button>
+                      <Button 
+                        onClick={fetchCustomers}
+                        className="bg-orange-600 hover:bg-orange-700 text-white"
+                        size="sm"
+                      >
+                        Refresh Customers
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -602,8 +728,29 @@ export default function AdminPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {orders.slice(0, 5).map((order) => (
-                    <div key={order.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  {isLoadingOrders ? (
+                    // Loading skeleton for orders
+                    Array.from({ length: 5 }).map((_, index) => (
+                      <div key={index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-gray-200 rounded-lg">
+                        <div className="mb-3 sm:mb-0 space-y-2">
+                          <div className="animate-pulse bg-gray-200 h-4 w-32 rounded"></div>
+                          <div className="animate-pulse bg-gray-200 h-3 w-24 rounded"></div>
+                          <div className="animate-pulse bg-gray-200 h-3 w-20 rounded"></div>
+                        </div>
+                        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                          <div className="animate-pulse bg-gray-200 h-6 w-20 rounded-full"></div>
+                          <div className="animate-pulse bg-gray-200 h-3 w-16 rounded"></div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (!Array.isArray(orders) || orders.length === 0) ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <ShoppingCart className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <p>No orders found</p>
+                    </div>
+                  ) : (
+                    (Array.isArray(orders) ? orders.slice(0, 5) : []).map((order) => (
+                      <div key={order.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                       <div className="mb-3 sm:mb-0">
                         <h4 className="font-semibold text-gray-900">{order.customerName}</h4>
                         <p className="text-sm text-gray-600">{order.customerEmail}</p>
@@ -620,9 +767,10 @@ export default function AdminPage() {
                           {order.status}
                         </span>
                         <span className="text-sm text-gray-500">{order.date}</span>
+                                              </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -636,43 +784,53 @@ export default function AdminPage() {
               <CardHeader>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
                   <CardTitle className="text-lg lg:text-xl">Product Management</CardTitle>
-                  <Button
-                    onClick={() => {
-                      setIsAddingProduct(true)
-                      setEditingProduct(null)
-                              setNewProduct({
-          brand: '',
-          model: '',
-          referenceNumber: '',
-          price: '',
-          previousPrice: '',
-          condition: 'NEW',
-          year: new Date().getFullYear().toString(),
-          description: '',
-          stockQuantity: '1',
-          categories: [],
-          specifications: {
-            movement: '',
-            case: '',
-            dial: '',
-            bracelet: '',
-            waterResistance: '',
-            powerReserve: '',
-            diameter: '',
-            thickness: ''
-          },
-          authenticity: {
-            guaranteed: true,
-            certificate: true,
-            serviceHistory: true
-          }
-        })
-                    }}
-                    className="w-full sm:w-auto"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Product
-                  </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      onClick={fetchProducts}
+                      variant="outline"
+                      size="sm"
+                      className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                    >
+                      Refresh Products
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setIsAddingProduct(true)
+                        setEditingProduct(null)
+                        setNewProduct({
+                          brand: '',
+                          model: '',
+                          referenceNumber: '',
+                          price: '',
+                          previousPrice: '',
+                          condition: 'NEW',
+                          year: new Date().getFullYear().toString(),
+                          description: '',
+                          stockQuantity: '1',
+                          categories: [],
+                          specifications: {
+                            movement: '',
+                            case: '',
+                            dial: '',
+                            bracelet: '',
+                            waterResistance: '',
+                            powerReserve: '',
+                            diameter: '',
+                            thickness: ''
+                          },
+                          authenticity: {
+                            guaranteed: true,
+                            certificate: true,
+                            serviceHistory: true
+                          }
+                        })
+                      }}
+                      className="w-full sm:w-auto"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Product
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -751,17 +909,17 @@ export default function AdminPage() {
                         <label className="flex items-center">
                           <input
                             type="checkbox"
-                            checked={newProduct.categories.includes('for-him')}
+                            checked={Array.isArray(newProduct.categories) && newProduct.categories.includes('for-him')}
                             onChange={(e) => {
                               if (e.target.checked) {
                                 setNewProduct({
                                   ...newProduct,
-                                  categories: [...newProduct.categories, 'for-him']
+                                  categories: [...(Array.isArray(newProduct.categories) ? newProduct.categories : []), 'for-him']
                                 })
                               } else {
                                 setNewProduct({
                                   ...newProduct,
-                                  categories: newProduct.categories.filter(cat => cat !== 'for-him')
+                                  categories: Array.isArray(newProduct.categories) ? newProduct.categories.filter(cat => cat !== 'for-him') : []
                                 })
                               }
                             }}
@@ -772,17 +930,17 @@ export default function AdminPage() {
                         <label className="flex items-center">
                           <input
                             type="checkbox"
-                            checked={newProduct.categories.includes('for-her')}
+                            checked={Array.isArray(newProduct.categories) && newProduct.categories.includes('for-her')}
                             onChange={(e) => {
                               if (e.target.checked) {
                                 setNewProduct({
                                   ...newProduct,
-                                  categories: [...newProduct.categories, 'for-her']
+                                  categories: [...(Array.isArray(newProduct.categories) ? newProduct.categories : []), 'for-her']
                                 })
                               } else {
                                 setNewProduct({
                                   ...newProduct,
-                                  categories: newProduct.categories.filter(cat => cat !== 'for-her')
+                                  categories: Array.isArray(newProduct.categories) ? newProduct.categories.filter(cat => cat !== 'for-her') : []
                                 })
                               }
                             }}
@@ -793,17 +951,17 @@ export default function AdminPage() {
                         <label className="flex items-center">
                           <input
                             type="checkbox"
-                            checked={newProduct.categories.includes('sale-1499')}
+                            checked={Array.isArray(newProduct.categories) && newProduct.categories.includes('sale-1499')}
                             onChange={(e) => {
                               if (e.target.checked) {
                                 setNewProduct({
                                   ...newProduct,
-                                  categories: [...newProduct.categories, 'sale-1499']
+                                  categories: [...(Array.isArray(newProduct.categories) ? newProduct.categories : []), 'sale-1499']
                                 })
                               } else {
                                 setNewProduct({
                                   ...newProduct,
-                                  categories: newProduct.categories.filter(cat => cat !== 'sale-1499')
+                                  categories: Array.isArray(newProduct.categories) ? newProduct.categories.filter(cat => cat !== 'sale-1499') : []
                                 })
                               }
                             }}
@@ -814,17 +972,17 @@ export default function AdminPage() {
                         <label className="flex items-center">
                           <input
                             type="checkbox"
-                            checked={newProduct.categories.includes('sale-1999')}
+                            checked={Array.isArray(newProduct.categories) && newProduct.categories.includes('sale-1999')}
                             onChange={(e) => {
                               if (e.target.checked) {
                                 setNewProduct({
                                   ...newProduct,
-                                  categories: [...newProduct.categories, 'sale-1999']
+                                  categories: [...(Array.isArray(newProduct.categories) ? newProduct.categories : []), 'sale-1999']
                                 })
                               } else {
                                 setNewProduct({
                                   ...newProduct,
-                                  categories: newProduct.categories.filter(cat => cat !== 'sale-1999')
+                                  categories: Array.isArray(newProduct.categories) ? newProduct.categories.filter(cat => cat !== 'sale-1999') : []
                                 })
                               }
                             }}
@@ -974,13 +1132,13 @@ export default function AdminPage() {
                     <div className="flex items-center justify-center p-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
                     </div>
-                  ) : products.length === 0 ? (
+                  ) : (!Array.isArray(products) || products.length === 0) ? (
                     <div className="text-center p-8 text-gray-500">
                       <Package className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                       <p>No products found. Create your first product to get started.</p>
                     </div>
                   ) : (
-                    products.map((product) => (
+                    (Array.isArray(products) ? products : []).map((product) => (
                       <div key={product.id} className="border border-gray-200 rounded-lg p-4 lg:p-6 hover:shadow-md transition-shadow">
                         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
                           <div className="flex items-start space-x-4 mb-4 lg:mb-0">
@@ -1030,11 +1188,49 @@ export default function AdminPage() {
           <div className="space-y-6">
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
-                <CardTitle className="text-lg lg:text-xl">Order Management</CardTitle>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+                  <CardTitle className="text-lg lg:text-xl">Order Management</CardTitle>
+                  <Button
+                    onClick={fetchOrders}
+                    variant="outline"
+                    size="sm"
+                    className="text-purple-600 border-purple-600 hover:bg-purple-50"
+                  >
+                    Refresh Orders
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {orders.map((order) => (
+                  {isLoadingOrders ? (
+                    // Loading skeleton for orders
+                    Array.from({ length: 3 }).map((_, index) => (
+                      <div key={index} className="border border-gray-200 rounded-lg p-4 lg:p-6">
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
+                          <div className="mb-4 lg:mb-0 space-y-2">
+                            <div className="animate-pulse bg-gray-200 h-4 w-32 rounded"></div>
+                            <div className="animate-pulse bg-gray-200 h-3 w-48 rounded"></div>
+                            <div className="animate-pulse bg-gray-200 h-3 w-24 rounded"></div>
+                          </div>
+                          <div className="text-left lg:text-right space-y-2">
+                            <div className="animate-pulse bg-gray-200 h-6 w-20 rounded"></div>
+                            <div className="animate-pulse bg-gray-200 h-10 w-32 rounded"></div>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="animate-pulse bg-gray-200 h-3 w-full rounded"></div>
+                          <div className="animate-pulse bg-gray-200 h-3 w-3/4 rounded"></div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (!Array.isArray(orders) || orders.length === 0) ? (
+                    <div className="text-center py-12 text-gray-500">
+                      <ShoppingCart className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+                      <p className="text-lg font-medium">No orders found</p>
+                      <p className="text-sm">Orders will appear here once customers start placing them.</p>
+                    </div>
+                  ) : (
+                    (Array.isArray(orders) ? orders : []).map((order) => (
                     <div key={order.id} className="border border-gray-200 rounded-lg p-4 lg:p-6 hover:bg-gray-50 transition-colors">
                       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
                         <div className="mb-4 lg:mb-0">
@@ -1058,16 +1254,19 @@ export default function AdminPage() {
                           </Select>
                         </div>
                       </div>
-                      <div className="space-y-2">
-                        {order.items.map((item, index) => (
+                                            <div className="space-y-2">
+                        {Array.isArray(order.items) ? order.items.map((item, index) => (
                           <div key={index} className="flex justify-between text-sm">
                             <span className="text-gray-700">{item.productName} x{item.quantity}</span>
                             <span className="font-medium">{formatPrice(item.price)}</span>
                           </div>
-                        ))}
+                        )) : (
+                          <div className="text-sm text-gray-500">No items found</div>
+                        )}
                       </div>
-                    </div>
-                  ))}
+                      </div>
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -1079,11 +1278,44 @@ export default function AdminPage() {
           <div className="space-y-6">
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
-                <CardTitle className="text-lg lg:text-xl">Customer Management</CardTitle>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+                  <CardTitle className="text-lg lg:text-xl">Customer Management</CardTitle>
+                  <Button
+                    onClick={fetchCustomers}
+                    variant="outline"
+                    size="sm"
+                    className="text-orange-600 border-orange-600 hover:bg-orange-50"
+                  >
+                    Refresh Customers
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {customers.map((customer) => (
+                  {isLoadingCustomers ? (
+                    // Loading skeleton for customers
+                    Array.from({ length: 3 }).map((_, index) => (
+                      <div key={index} className="flex flex-col lg:flex-row lg:items-center lg:justify-between p-4 lg:p-6 border border-gray-200 rounded-lg">
+                        <div className="mb-4 lg:mb-0 space-y-2">
+                          <div className="animate-pulse bg-gray-200 h-4 w-32 rounded"></div>
+                          <div className="animate-pulse bg-gray-200 h-3 w-48 rounded"></div>
+                          <div className="animate-pulse bg-gray-200 h-3 w-24 rounded"></div>
+                        </div>
+                        <div className="text-left lg:text-right space-y-2">
+                          <div className="animate-pulse bg-gray-200 h-3 w-20 rounded"></div>
+                          <div className="animate-pulse bg-gray-200 h-3 w-24 rounded"></div>
+                          <div className="animate-pulse bg-gray-200 h-6 w-16 rounded-full"></div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (!Array.isArray(customers) || customers.length === 0) ? (
+                    <div className="text-center py-12 text-gray-500">
+                      <Users className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+                      <p className="text-lg font-medium">No customers found</p>
+                      <p className="text-sm">Customer data will appear here once users register and place orders.</p>
+                    </div>
+                  ) : (
+                    (Array.isArray(customers) ? customers : []).map((customer) => (
                     <div key={customer.id} className="flex flex-col lg:flex-row lg:items-center lg:justify-between p-4 lg:p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                       <div className="mb-4 lg:mb-0">
                         <h4 className="font-semibold text-gray-900">{customer.name}</h4>
@@ -1098,9 +1330,10 @@ export default function AdminPage() {
                         }`}>
                           {customer.status}
                         </span>
+                                              </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>

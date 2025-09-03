@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -12,37 +12,48 @@ import toast from 'react-hot-toast'
 
 export default function SignInPage() {
   const router = useRouter()
-  const { login, user } = useAuth()
+  const { login, user, isAuthenticated } = useAuth()
   const [email, setEmail] = useState('admin@walnut.com')
   const [password, setPassword] = useState('password123')
   const [isLoading, setIsLoading] = useState(false)
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      console.log('🔄 Already authenticated, redirecting...', user.role)
+      if (user.role?.toUpperCase() === 'ADMIN') {
+        router.push('/admin')
+      } else {
+        router.push('/')
+      }
+    }
+  }, [isAuthenticated, user, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
     try {
+      console.log('🔐 Attempting login with:', email)
       const result = await login(email, password)
       
       if (result.success) {
         toast.success('Login successful!')
+        console.log('✅ Login successful, checking user role...')
         
-        // Wait for the session to update and then redirect
-        const checkAndRedirect = () => {
+        // Wait a bit for the session to fully update
+        setTimeout(() => {
           if (user?.role?.toUpperCase() === 'ADMIN') {
+            console.log('🔄 Redirecting to admin panel...')
             router.push('/admin')
-          } else if (user?.role?.toUpperCase() === 'CUSTOMER') {
-            router.push('/')
           } else {
-            // If user role is not yet available, wait a bit more
-            setTimeout(checkAndRedirect, 200)
+            console.log('🔄 Redirecting to home...')
+            router.push('/')
           }
-        }
-        
-        // Start checking after a short delay
-        setTimeout(checkAndRedirect, 100)
+        }, 500)
       } else {
         toast.error('Invalid email or password')
+        console.log('❌ Login failed')
       }
     } catch (error) {
       console.error('Login error:', error)
@@ -123,6 +134,15 @@ export default function SignInPage() {
               </Link>
             </div>
           </form>
+
+          {/* Debug info */}
+          <div className="mt-4 p-4 bg-gray-100 rounded-lg text-xs text-gray-600">
+            <p><strong>Debug Info:</strong></p>
+            <p>Is Authenticated: {isAuthenticated ? 'Yes' : 'No'}</p>
+            <p>User Role: {user?.role || 'None'}</p>
+            <p>User ID: {user?.id || 'None'}</p>
+            <p>Session Status: {isAuthenticated ? 'Active' : 'Inactive'}</p>
+          </div>
         </div>
       </div>
       

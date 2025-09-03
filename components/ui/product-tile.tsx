@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { ShoppingCart, Eye } from 'lucide-react'
 import { useCart } from '@/store/cart-store'
 import { formatPrice } from '@/lib/utils'
+import { getProductImageUrl } from '@/lib/image-utils'
 
 interface Product {
   id: string
@@ -20,6 +21,12 @@ interface Product {
   year: number
   imageUrl: string
   stockQuantity: number
+  images?: Array<{
+    id: string
+    imageUrl: string
+    isPrimary: boolean
+    sortOrder: number
+  }>
 }
 
 interface ProductTileProps {
@@ -31,6 +38,9 @@ export function ProductTile({ product, variant = 'default' }: ProductTileProps) 
   const router = useRouter()
   const { addToCart } = useCart()
   const [isLoading, setIsLoading] = useState(false)
+
+  // Get the proper image URL using the utility function
+  const imageUrl = getProductImageUrl(product)
 
   const handleCardClick = () => {
     router.push(`/watches/${product.id}`)
@@ -44,7 +54,7 @@ export function ProductTile({ product, variant = 'default' }: ProductTileProps) 
       id: product.id,
       name: `${product.brand} ${product.model}`,
       price: product.price,
-      image: product.imageUrl
+      image: imageUrl
     })
   }
 
@@ -56,7 +66,7 @@ export function ProductTile({ product, variant = 'default' }: ProductTileProps) 
       id: product.id,
       name: `${product.brand} ${product.model}`,
       price: product.price,
-      image: product.imageUrl
+      image: imageUrl
     })
   }
 
@@ -71,11 +81,12 @@ export function ProductTile({ product, variant = 'default' }: ProductTileProps) 
         {/* Product Image */}
         <div className="relative aspect-square overflow-hidden rounded-t-lg">
           <Image
-            src={product.imageUrl}
+            src={imageUrl}
             alt={`${product.brand} ${product.model}`}
             width={300}
             height={300}
             className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+            unoptimized={imageUrl.includes('drive.google.com')}
           />
           
           {/* Condition Badge */}

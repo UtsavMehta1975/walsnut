@@ -28,12 +28,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Sync NextAuth session with our user state
   useEffect(() => {
+    console.log('🔄 Auth context - Session status:', status)
+    console.log('🔄 Auth context - Session data:', session)
+    
     if (status === 'loading') {
       setIsLoading(true)
       return
     }
 
     if (session?.user) {
+      console.log('✅ Auth context - Setting user from session:', session.user)
       // Convert NextAuth session to our User format
       const userData: User = {
         id: session.user.id || '',
@@ -43,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setUser(userData)
     } else {
+      console.log('❌ Auth context - No session, clearing user')
       setUser(null)
     }
     
@@ -51,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string): Promise<{ success: boolean; user?: User }> => {
     try {
+      console.log('🔐 Auth context - Login attempt for:', email)
       setIsLoading(true)
       
       const result = await signIn('credentials', {
@@ -59,15 +65,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         redirect: false
       })
 
+      console.log('🔐 Auth context - SignIn result:', result)
+
       if (result?.ok) {
-        // The session will be updated automatically by NextAuth
-        return { success: true }
+        console.log('✅ Auth context - Login successful, waiting for session update...')
+        
+        // Wait for the session to update
+        return new Promise((resolve) => {
+          const checkSession = () => {
+            if (session?.user) {
+              console.log('✅ Session updated, resolving login')
+              resolve({ success: true })
+            } else {
+              console.log('⏳ Session not yet updated, waiting...')
+              setTimeout(checkSession, 100)
+            }
+          }
+          
+          // Start checking after a short delay
+          setTimeout(checkSession, 200)
+        })
       } else {
-        console.error('Login failed:', result?.error)
+        console.error('❌ Auth context - Login failed:', result?.error)
         return { success: false, user: undefined }
       }
     } catch (error) {
-      console.error('Login error:', error)
+      console.error('❌ Auth context - Login error:', error)
       return { success: false, user: undefined }
     } finally {
       setIsLoading(false)
@@ -109,6 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = () => {
+    console.log('🚪 Auth context - Logging out user')
     signOut({ redirect: false })
   }
 

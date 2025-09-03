@@ -81,12 +81,24 @@ export async function PATCH(
   { params }: { params: { id: string; imageId: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session || session.user.role !== 'ADMIN') {
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Authorization header required' },
         { status: 401 }
+      )
+    }
+
+    const userEmail = authHeader.replace('Bearer ', '')
+    const user = await db.user.findUnique({
+      where: { email: userEmail },
+      select: { role: true }
+    })
+
+    if (!user || user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Admin access required' },
+        { status: 403 }
       )
     }
     const { isPrimary, altText, sortOrder } = await request.json()
