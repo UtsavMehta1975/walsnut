@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
+// ⚠️ DANGEROUS ROUTE - HIDDEN FROM ADMIN PANEL
+// This route clears ALL products and related data
+// Only accessible via direct API calls (hidden from UI for safety)
 export async function DELETE(request: NextRequest) {
   try {
     // Check authorization header
@@ -26,6 +29,15 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json(
         { error: 'Admin access required' },
         { status: 403 }
+      )
+    }
+
+    // EXTRA SAFETY CHECK - Require confirmation in request body
+    const body = await request.json().catch(() => ({}))
+    if (!body.confirmClearAll || body.confirmClearAll !== 'YES_I_AM_SURE_DELETE_EVERYTHING') {
+      return NextResponse.json(
+        { error: 'Confirmation required. Set confirmClearAll to YES_I_AM_SURE_DELETE_EVERYTHING' },
+        { status: 400 }
       )
     }
 

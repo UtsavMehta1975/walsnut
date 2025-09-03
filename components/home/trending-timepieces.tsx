@@ -24,8 +24,6 @@ interface Product {
   badge?: string
 }
 
-const trendingProducts: Product[] = []
-
 export function TrendingTimepieces() {
   const { addToCart } = useCart()
   const router = useRouter()
@@ -49,26 +47,46 @@ export function TrendingTimepieces() {
     const fetchLatest = async () => {
       try {
         const res = await fetch('/api/products?limit=8&sortBy=createdAt&sortOrder=desc')
-        if (!res.ok) return
+        if (!res.ok) {
+          console.error('Failed to fetch products')
+          return
+        }
         const json = await res.json()
+        console.log('API Response:', json) // Debug log
+        
         const data = Array.isArray(json?.data) ? json.data : json
+        console.log('Data to map:', data) // Debug log
+        
         const mapped: Product[] = data.map((p: any) => {
+          // Get the primary image or first available image
           const primary = p.images?.find((img: any) => img.isPrimary) || p.images?.[0]
+          const imageUrl = primary?.imageUrl || p.imageUrl || '/web-banner.png'
+          
+          console.log(`Product ${p.brand} ${p.model}:`, { 
+            hasImages: !!p.images, 
+            imageCount: p.images?.length || 0,
+            primaryImage: primary?.imageUrl,
+            finalImage: imageUrl
+          }) // Debug log
+          
           return {
             id: p.id,
             name: `${p.brand} ${p.model}`,
             brand: p.brand,
             price: Number(p.price) || 0,
             originalPrice: p.previousPrice ? Number(p.previousPrice) : Number(p.price) || 0,
-            image: primary?.imageUrl || '/web-banner.png',
+            image: imageUrl,
             rating: 4.5,
             reviews: 0,
             category: 'Premium',
+            badge: 'NEW'
           }
         })
+        
+        console.log('Mapped products:', mapped) // Debug log
         setProducts(mapped)
-      } catch {
-        // ignore
+      } catch (error) {
+        console.error('Error fetching trending products:', error)
       }
     }
     fetchLatest()
@@ -89,146 +107,42 @@ export function TrendingTimepieces() {
   }
 
   return (
-    <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-black py-16 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)]"></div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 relative z-10">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-4">
-            <TrendingUp className="h-8 w-8 text-yellow-400 mr-3" />
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
-              Trending Timepieces
-            </h2>
-            <Sparkles className="h-8 w-8 text-yellow-400 ml-3" />
-          </div>
-          <p className="text-gray-300 max-w-2xl mx-auto text-lg">
-            Discover the most popular and highly-rated timepieces that our customers love
-          </p>
-          <div className="flex items-center justify-center mt-4 space-x-4">
-            <div className="flex items-center text-yellow-400">
-              <Star className="h-5 w-5 fill-current mr-1" />
-              <span className="text-sm">4.8 Average Rating</span>
-            </div>
-            <div className="flex items-center text-gray-400">
-              <Clock className="h-5 w-5 mr-1" />
-              <span className="text-sm">Updated Daily</span>
-            </div>
-          </div>
+    <section className="bg-white py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4">
+        {/* Header - Minimal */}
+        <div className="text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-light text-black mb-2">
+            Trending Timepieces
+          </h2>
         </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        {/* Sharp, Minimal Product Grid - Mobile First */}
+        <div className="grid grid-cols-2 gap-1 sm:gap-2 md:gap-3 lg:gap-4 mb-8">
           {products.map((product) => (
             <div 
               key={product.id} 
-              className="group cursor-pointer"
+              className="aspect-square cursor-pointer bg-white hover:opacity-90 transition-opacity duration-200"
               onClick={() => handleProductClick(product.id)}
             >
-              <div className="bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                {/* Product Image */}
-                <div className="relative aspect-square">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                  
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-                  
-                  {/* Badges */}
-                  <div className="absolute top-3 left-3 flex flex-col space-y-2">
-                    {product.badge && (
-                      <span className={`px-2 py-1 rounded-full text-xs font-bold ${getBadgeColor(product.badge)}`}>
-                        {product.badge}
-                      </span>
-                    )}
-                    {product.isBestseller && (
-                      <span className="bg-yellow-400 text-black px-2 py-1 rounded-full text-xs font-bold">
-                        BESTSELLER
-                      </span>
-                    )}
-                    {product.discount && (
-                      <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                        {product.discount}% OFF
-                      </span>
-                    )}
-                  </div>
-                  
-                  {/* Category Badge */}
-                  <div className="absolute top-3 right-3">
-                    <span className="bg-black/70 text-white px-2 py-1 rounded-full text-xs font-medium">
-                      {product.category}
-                    </span>
-                  </div>
-                  
-                  {/* Wishlist Button */}
-                  <button 
-                    className="absolute top-3 right-3 bg-white/90 p-2 rounded-full shadow-md hover:bg-white transition-colors opacity-0 group-hover:opacity-100"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Heart className="h-4 w-4 text-gray-600" />
-                  </button>
-                </div>
-
-                {/* Product Info */}
-                <div className="p-6">
-                  <div className="text-sm text-gray-500 mb-2 font-medium">{product.brand}</div>
-                  <h3 className="font-bold text-gray-900 mb-3 text-sm line-clamp-2 leading-tight">
-                    {product.name}
-                  </h3>
-                  
-                  {/* Rating */}
-                  <div className="flex items-center mb-3">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star 
-                          key={i} 
-                          className={`h-3 w-3 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-                        />
-                      ))}
-                    </div>
-                    <span className="text-xs text-gray-600 ml-2">({product.reviews})</span>
-                  </div>
-
-                  {/* Price */}
-                  <div className="mb-4">
-                    <span className="text-xl font-bold text-black">
-                      {formatPrice(product.price)}
-                    </span>
-                    {product.originalPrice > product.price && (
-                      <span className="text-sm text-gray-500 line-through ml-2">
-                        {formatPrice(product.originalPrice)}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Add to Cart Button */}
-                  <Button 
-                    onClick={(e) => handleAddToCart(e, product)}
-                    className="w-full bg-black text-white hover:bg-gray-800 font-semibold transition-colors"
-                    size="sm"
-                  >
-                    <ShoppingCart className="h-4 w-4 mr-2" />
-                    Add To Cart
-                  </Button>
-                </div>
+              {/* Product Image - Sharp corners, no rounded edges */}
+              <div className="relative w-full h-full">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                />
               </div>
             </div>
           ))}
         </div>
 
-        {/* Call to Action */}
+        {/* Call to Action - Minimal */}
         <div className="text-center">
           <Link href="/watches">
-            <Button size="lg" className="bg-yellow-400 text-black hover:bg-yellow-500 font-bold text-lg px-8 py-4">
+            <Button size="lg" className="bg-black text-white hover:bg-gray-800 font-light text-lg px-6 py-3">
               View All Timepieces
-              <TrendingUp className="ml-2 h-5 w-5" />
             </Button>
           </Link>
         </div>

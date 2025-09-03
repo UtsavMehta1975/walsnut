@@ -5,6 +5,7 @@ import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { ProductTile } from '@/components/ui/product-tile'
 import { formatPrice } from '@/lib/utils'
+import Image from 'next/image'
 
 interface Product {
   id: string
@@ -102,46 +103,47 @@ export default function SalePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Navbar />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white py-8 px-6 rounded-lg mb-8">
-            <h1 className="text-4xl font-bold mb-4">
-              🎉 SALE COLLECTION
+      <main className="py-4">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4">
+          {/* Header - Minimal */}
+          <div className="mb-6">
+            <h1 className="text-2xl md:text-3xl font-light text-black text-center">
+              Sale Collection
             </h1>
-            <p className="text-xl opacity-90">
-              Limited Time Offers - Premium Watches at Unbeatable Prices
-            </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div className="text-center p-6 bg-yellow-50 rounded-lg">
-              <h3 className="text-2xl font-bold text-yellow-800 mb-2">₹1,499</h3>
-              <p className="text-yellow-700">Entry Level Collection</p>
-            </div>
-            <div className="text-center p-6 bg-orange-50 rounded-lg">
-              <h3 className="text-2xl font-bold text-orange-800 mb-2">₹1,999</h3>
-              <p className="text-orange-700">Premium Collection</p>
-            </div>
-          </div>
-        </div>
 
-        {/* Products Grid */}
-        {products.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <ProductTile key={product.id} product={product} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No sale products found</h3>
-            <p className="text-gray-600">Check back soon for amazing deals!</p>
-          </div>
-        )}
+          {/* Sharp, Minimal Product Grid - Mobile First */}
+          {products.length > 0 ? (
+            <div className="grid grid-cols-2 gap-1 sm:gap-2 md:gap-3 lg:gap-4">
+              {products.map((product) => (
+                <div 
+                  key={product.id} 
+                  className="aspect-square cursor-pointer bg-white hover:opacity-90 transition-opacity duration-200"
+                  onClick={() => window.location.href = `/watches/${product.id}`}
+                >
+                  {/* Product Image - Sharp corners, no rounded edges */}
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={product.imageUrl}
+                      alt={`${product.brand} ${product.model}`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No sale products found</h3>
+              <p className="text-gray-600">Check back soon for amazing deals!</p>
+            </div>
+          )}
+        </div>
       </main>
 
       <Footer />

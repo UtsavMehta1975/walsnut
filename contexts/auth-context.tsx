@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { useSession, signIn, signOut } from 'next-auth/react'
 
 interface User {
   id: string
@@ -21,45 +22,48 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const { data: session, status } = useSession()
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [mounted, setMounted] = useState(false)
 
-  // Check for existing session on mount
+  // Sync NextAuth session with our user state
   useEffect(() => {
-    setMounted(true)
-    const savedUser = localStorage.getItem('walnut_user')
-    if (savedUser) {
-      try {
-        const parsedUser = JSON.parse(savedUser)
-        setUser(parsedUser)
-      } catch (error) {
-        localStorage.removeItem('walnut_user')
-      }
+    if (status === 'loading') {
+      setIsLoading(true)
+      return
     }
+
+    if (session?.user) {
+      // Convert NextAuth session to our User format
+      const userData: User = {
+        id: session.user.id || '',
+        email: session.user.email || '',
+        name: session.user.name || '',
+        role: (session.user.role as 'CUSTOMER' | 'ADMIN') || 'CUSTOMER'
+      }
+      setUser(userData)
+    } else {
+      setUser(null)
+    }
+    
     setIsLoading(false)
-  }, [])
+  }, [session, status])
 
   const login = async (email: string, password: string): Promise<{ success: boolean; user?: User }> => {
     try {
       setIsLoading(true)
       
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false
       })
 
-      if (response.ok) {
-        const userData = await response.json()
-        setUser(userData)
-        localStorage.setItem('walnut_user', JSON.stringify(userData))
-        return { success: true, user: userData }
+      if (result?.ok) {
+        // The session will be updated automatically by NextAuth
+        return { success: true }
       } else {
-        const error = await response.json()
-        console.error('Login failed:', error.message)
+        console.error('Login failed:', result?.error)
         return { success: false, user: undefined }
       }
     } catch (error) {
@@ -83,10 +87,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
 
       if (response.ok) {
-        const userData = await response.json()
-        setUser(userData)
-        localStorage.setItem('walnut_user', JSON.stringify(userData))
-        return true
+        // After successful signup, sign in automatically
+        const loginResult = await signIn('credentials', {
+          email,
+          password,
+          redirect: false
+        })
+        
+        return loginResult?.ok || false
       } else {
         const error = await response.json()
         console.error('Signup failed:', error.message)
@@ -101,21 +109,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = () => {
-    setUser(null)
-    localStorage.removeItem('walnut_user')
-    // Clear cart and other user data
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('walnut_cart')
-    }
+    signOut({ redirect: false })
   }
 
-  const value = {
-    user: user, // Remove the mounted check here - let components handle it
+  const value: AuthContextType = {
+    user,
     isAuthenticated: !!user,
     isLoading,
     login,
     signup,
-    logout,
+    logout
   }
 
   return (

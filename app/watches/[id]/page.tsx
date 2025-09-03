@@ -9,7 +9,29 @@ import { Button } from '@/components/ui/button'
 import { useCart } from '@/store/cart-store'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
-import { ShoppingCart, Heart, ArrowLeft, Clock } from 'lucide-react'
+import { ShoppingCart, Heart, ArrowLeft, Clock, Sparkles, TrendingUp } from 'lucide-react'
+
+interface ProductImage {
+  id: string
+  imageUrl: string
+  isPrimary: boolean
+  sortOrder: number
+}
+
+interface RelatedProduct {
+  id: string
+  brand: string
+  model: string
+  referenceNumber?: string
+  price: number
+  previousPrice?: number
+  condition: string
+  year: number
+  imageUrl: string
+  images?: ProductImage[]
+  stockQuantity: number
+  description: string
+}
 
 interface Product {
   id: string
@@ -50,6 +72,8 @@ interface Product {
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const { id: productId } = params
   const [product, setProduct] = useState<Product | null>(null)
+  const [relatedProducts, setRelatedProducts] = useState<RelatedProduct[]>([])
+  const [isLoadingRelated, setIsLoadingRelated] = useState(false)
   const [selectedColor, setSelectedColor] = useState('BLACK')
   const [quantity, setQuantity] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
@@ -94,6 +118,9 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           authenticity: p.authenticity
         }
         setProduct(mapped)
+        
+        // Fetch related products after main product is loaded
+        fetchRelatedProducts(p.brand, p.price, p.id)
       } catch {
         setProduct(null)
       } finally {
@@ -102,6 +129,66 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     }
     fetchProduct()
   }, [productId])
+
+  const fetchRelatedProducts = async (brand: string, price: number, excludeId: string) => {
+    try {
+      setIsLoadingRelated(true)
+      
+      // Fetch products from the same brand, similar price range, or premium featured products
+      const res = await fetch(`/api/products?limit=8&sortBy=createdAt&sortOrder=desc`)
+      if (!res.ok) return
+      
+      const json = await res.json()
+      const data = Array.isArray(json?.data) ? json.data : json
+      
+      // Filter and prioritize related products
+      const filtered = data
+        .filter((p: any) => p.id !== excludeId) // Exclude current product
+        .sort((a: any, b: any) => {
+          // Priority 1: Same brand
+          if (a.brand === brand && b.brand !== brand) return -1
+          if (b.brand === brand && a.brand !== brand) return 1
+          
+          // Priority 2: Similar price range (±30%)
+          const aPriceDiff = Math.abs(Number(a.price) - price) / price
+          const bPriceDiff = Math.abs(Number(b.price) - price) / price
+          if (aPriceDiff < 0.3 && bPriceDiff >= 0.3) return -1
+          if (bPriceDiff < 0.3 && aPriceDiff >= 0.3) return 1
+          
+          // Priority 3: Featured products
+          if (a.isFeatured && !b.isFeatured) return -1
+          if (b.isFeatured && !a.isFeatured) return 1
+          
+          // Priority 4: Newest first
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        })
+        .slice(0, 4) // Take top 4
+      
+      const mapped: RelatedProduct[] = filtered.map((p: any) => {
+        const primary = p.images?.find((img: any) => img.isPrimary) || p.images?.[0]
+        return {
+          id: p.id,
+          brand: p.brand,
+          model: p.model,
+          referenceNumber: p.referenceNumber,
+          price: Number(p.price) || 0,
+          previousPrice: p.previousPrice ? Number(p.previousPrice) : null,
+          condition: p.condition || 'NEW',
+          year: p.year || 2024,
+          imageUrl: primary?.imageUrl ? getOptimizedImageUrl(primary.imageUrl) : '/web-banner.png',
+          images: p.images || [],
+          stockQuantity: p.stockQuantity || 0,
+          description: p.description || ''
+        }
+      })
+      
+      setRelatedProducts(mapped)
+    } catch (error) {
+      console.error('Error fetching related products:', error)
+    } finally {
+      setIsLoadingRelated(false)
+    }
+  }
 
   const handleAddToCart = () => {
     if (product) {
@@ -124,6 +211,19 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
       })
       window.location.href = '/checkout'
     }
+  }
+
+  const handleRelatedProductClick = (productId: string) => {
+    window.location.href = `/watches/${productId}`
+  }
+
+  const handleRelatedProductAddToCart = (relatedProduct: RelatedProduct) => {
+    addToCart({
+      id: relatedProduct.id,
+      name: `${relatedProduct.brand} ${relatedProduct.model}`,
+      price: relatedProduct.price,
+      image: relatedProduct.imageUrl
+    })
   }
 
   if (isLoading) {
@@ -161,57 +261,57 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     <div className="min-h-screen bg-white">
       <Navbar />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Breadcrumb */}
-        <nav className="flex mb-8" aria-label="Breadcrumb">
-          <ol className="inline-flex items-center space-x-1 md:space-x-3">
-            <li className="inline-flex items-center">
-              <Link href="/" className="text-gray-700 hover:text-yellow-400">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Minimal Breadcrumb */}
+        <nav className="flex mb-6" aria-label="Breadcrumb">
+          <ol className="inline-flex items-center space-x-2 text-sm">
+            <li>
+              <Link href="/" className="text-gray-500 hover:text-black transition-colors">
                 Home
               </Link>
             </li>
             <li>
-              <div className="flex items-center">
-                <span className="mx-2 text-gray-400">/</span>
-                <Link href="/watches" className="text-gray-700 hover:text-yellow-400">
-                  Men Watch
-                </Link>
-              </div>
+              <span className="text-gray-300">/</span>
             </li>
             <li>
-              <div className="flex items-center">
-                <span className="mx-2 text-gray-400">/</span>
-                <span className="text-gray-500">{product.name}</span>
-              </div>
+              <Link href="/watches" className="text-gray-500 hover:text-black transition-colors">
+                Watches
+              </Link>
+            </li>
+            <li>
+              <span className="text-gray-300">/</span>
+            </li>
+            <li>
+              <span className="text-black font-medium">{product.name}</span>
             </li>
           </ol>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Product Images */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+          {/* Product Images - Minimal Gallery */}
           <div className="space-y-4">
-            {/* Main Image */}
-            <div className="aspect-square overflow-hidden rounded-lg border border-gray-200 bg-white">
+            {/* Main Image - Sharp corners, no borders */}
+            <div className="aspect-square overflow-hidden bg-white">
               <Image
                 src={product.images[selectedImageIndex]}
                 alt={product.name}
                 width={800}
                 height={800}
-                className="w-full h-full object-cover cursor-pointer"
+                className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
                 onClick={() => setShowImageModal(true)}
               />
             </div>
             
-            {/* Image Gallery */}
+            {/* Image Gallery - All images visible, minimal design */}
             {product.images.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
-                {product.images.slice(0, 4).map((imageUrl, index) => (
+              <div className="grid grid-cols-4 gap-3">
+                {product.images.map((imageUrl, index) => (
                   <div 
                     key={index} 
-                    className={`aspect-square overflow-hidden rounded-lg border-2 cursor-pointer transition-all ${
+                    className={`aspect-square overflow-hidden cursor-pointer transition-all ${
                       selectedImageIndex === index 
-                        ? 'border-yellow-400 bg-yellow-50' 
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'ring-2 ring-black' 
+                        : 'hover:opacity-80'
                     }`}
                     onClick={() => setSelectedImageIndex(index)}
                   >
@@ -220,7 +320,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                       alt={`${product.name} - View ${index + 1}`}
                       width={200}
                       height={200}
-                      className="w-full h-full object-cover hover:opacity-75 transition-opacity"
+                      className="w-full h-full object-cover"
                     />
                   </div>
                 ))}
@@ -228,260 +328,288 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             )}
           </div>
 
-          {/* Product Details */}
+          {/* Product Details - Minimal, Clean */}
           <div className="space-y-6">
-            {/* Product Name */}
+            {/* Product Name - Clean typography */}
             <div>
-              <h1 className="text-3xl font-bold text-black mb-2">
+              <h1 className="text-2xl lg:text-3xl font-light text-black leading-tight">
                 {product.name}
               </h1>
             </div>
 
-            {/* Price */}
+            {/* Price - Minimal display */}
             <div className="space-y-2">
               <div className="flex items-center space-x-3">
-                <span className="text-3xl font-bold text-black">
+                <span className="text-2xl lg:text-3xl font-light text-black">
                   {formatPrice(product.price)}
                 </span>
-                <span className="text-xl text-gray-500 line-through">
-                  {formatPrice(product.originalPrice)}
-                </span>
+                {product.discount > 0 && (
+                  <span className="text-lg text-gray-400 line-through">
+                    {formatPrice(product.originalPrice)}
+                  </span>
+                )}
               </div>
-              <div className="bg-red-500 text-white px-2 py-1 rounded text-sm font-bold inline-block">
-                {product.discount}% off
-              </div>
+              {product.discount > 0 && (
+                <div className="inline-block">
+                  <span className="text-sm text-red-600 font-medium">
+                    {product.discount}% OFF
+                  </span>
+                </div>
+              )}
             </div>
 
-            {/* SKU */}
-            <div className="text-sm text-gray-600">
-              <strong>SKU:</strong> {product.sku}
+            {/* SKU - Subtle */}
+            <div className="text-xs text-gray-400 uppercase tracking-wide">
+              SKU: {product.sku}
             </div>
 
-            {/* Color Options */}
-            <div>
-              <h3 className="text-lg font-semibold text-black mb-3">COLOR: {selectedColor}</h3>
-              <div className="flex flex-wrap gap-2">
-                {product.colors.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      selectedColor === color
-                        ? 'bg-yellow-400 text-black'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {color}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Quantity */}
-            <div>
-              <h3 className="text-lg font-semibold text-black mb-3">Quantity</h3>
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center border border-gray-300 rounded-lg">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3 py-2 text-gray-600 hover:bg-gray-100"
-                  >
-                    -
-                  </button>
-                  <span className="px-4 py-2 border-x border-gray-300">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="px-3 py-2 text-gray-600 hover:bg-gray-100"
-                  >
-                    +
-                  </button>
+            {/* Color Options - Clean buttons */}
+            {product.colors.length > 0 && (
+              <div>
+                <h3 className="text-sm font-medium text-black mb-3 uppercase tracking-wide">Color</h3>
+                <div className="flex flex-wrap gap-2">
+                  {product.colors.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setSelectedColor(color)}
+                      className={`px-4 py-2 text-sm font-medium transition-all rounded-none ${
+                        selectedColor === color
+                          ? 'bg-black text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {color}
+                    </button>
+                  ))}
                 </div>
               </div>
+            )}
+
+            {/* Quantity - Minimal selector */}
+            <div>
+              <h3 className="text-sm font-medium text-black mb-3 uppercase tracking-wide">Quantity</h3>
+              <div className="flex items-center border border-gray-200 rounded-none">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-50 transition-colors rounded-none"
+                >
+                  -
+                </button>
+                <span className="px-6 py-2 border-x border-gray-200 text-center min-w-[60px]">
+                  {quantity}
+                </span>
+                <button
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-50 transition-colors rounded-none"
+                >
+                  +
+                </button>
+              </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="space-y-3">
+            {/* Action Buttons - Aesthetic, minimal */}
+            <div className="space-y-3 pt-4">
               <Button 
                 onClick={handleAddToCart}
-                className="w-full bg-black text-white hover:bg-gray-800"
+                className="w-full bg-black text-white hover:bg-gray-800 transition-colors py-3 text-sm font-medium uppercase tracking-wide rounded-none"
               >
-                <ShoppingCart className="h-4 w-4 mr-2" />
                 Add to cart
               </Button>
               <Button 
                 onClick={handleBuyNow}
-                className="w-full bg-yellow-400 text-black hover:bg-yellow-500 font-bold"
+                className="w-full bg-white text-black border border-black hover:bg-gray-50 transition-colors py-3 text-sm font-medium uppercase tracking-wide rounded-none"
               >
-                Buy it now
+                Buy now
               </Button>
             </div>
 
-            {/* Sale Ending Timer */}
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <div className="flex items-center justify-center space-x-2">
-                <Clock className="h-5 w-5 text-red-600" />
-                <p className="text-red-600 font-semibold">
-                  Sale Ending In: 24:59:45
-                </p>
+            {/* Stock Status - Clean info */}
+            <div className="pt-4 border-t border-gray-100">
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className={`w-2 h-2 rounded-full ${product.stockQuantity > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span>
+                  {product.stockQuantity > 0 
+                    ? `${product.stockQuantity} in stock` 
+                    : 'Out of stock'
+                  }
+                </span>
               </div>
-            </div>
-
-            {/* Pickup Availability */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-gray-600 text-center">Couldn't load pickup availability</p>
-              <Button variant="outline" className="w-full mt-2">
-                Refresh
-              </Button>
             </div>
           </div>
         </div>
 
-        {/* Product Specifications */}
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold text-black mb-6">Product Specifications</h2>
-          <div className="bg-gray-50 rounded-lg p-6">
-            {/* Product Description */}
-            <div className="prose max-w-none mb-8">
-              <div className="text-gray-700 leading-relaxed">
-                {product.description ? (
-                  <div dangerouslySetInnerHTML={{ 
-                    __html: product.description
-                      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                      .replace(/\n/g, '<br>')
-                  }} />
-                ) : (
-                  <p>No detailed description available for this product.</p>
-                )}
+        {/* Product Description - Clean, minimal */}
+        <div className="mt-16 pt-8 border-t border-gray-100">
+          <h2 className="text-lg font-medium text-black mb-6 uppercase tracking-wide">Description</h2>
+          <div className="prose max-w-none">
+            <div className="text-gray-700 leading-relaxed text-sm">
+              {product.description ? (
+                <div dangerouslySetInnerHTML={{ 
+                  __html: product.description
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n/g, '<br>')
+                }} />
+              ) : (
+                <p>No detailed description available for this product.</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Product Specifications - Minimal grid */}
+        <div className="mt-12 pt-8 border-t border-gray-100">
+          <h2 className="text-lg font-medium text-black mb-6 uppercase tracking-wide">Specifications</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <div>
+                <h4 className="text-sm font-medium text-black mb-3 uppercase tracking-wide">Basic Information</h4>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <div className="flex justify-between">
+                    <span>Brand</span>
+                    <span className="font-medium">{product.brand}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Model</span>
+                    <span className="font-medium">{product.model}</span>
+                  </div>
+                  {product.referenceNumber && (
+                    <div className="flex justify-between">
+                      <span>Reference</span>
+                      <span className="font-medium">{product.referenceNumber}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span>Condition</span>
+                    <span className="font-medium">{product.condition}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Year</span>
+                    <span className="font-medium">{product.year}</span>
+                  </div>
+                </div>
               </div>
             </div>
             
-            {/* Technical Specifications */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {product.specifications && (
               <div className="space-y-4">
-                <div>
-                  <h4 className="font-semibold text-black">Basic Information:</h4>
-                  <ul className="list-none space-y-2 text-gray-600">
-                    <li><strong>Brand:</strong> {product.brand}</li>
-                    <li><strong>Model:</strong> {product.model}</li>
-                    {product.referenceNumber && (
-                      <li><strong>Reference:</strong> {product.referenceNumber}</li>
-                    )}
-                    <li><strong>Condition:</strong> {product.condition}</li>
-                    <li><strong>Year:</strong> {product.year}</li>
-                    <li><strong>Stock:</strong> {product.stockQuantity} available</li>
-                  </ul>
-                </div>
-                
-                {product.specifications && (
-                  <div>
-                    <h4 className="font-semibold text-black">Technical Details:</h4>
-                    <ul className="list-none space-y-2 text-gray-600">
-                      {product.specifications.movement && (
-                        <li><strong>Movement:</strong> {product.specifications.movement}</li>
-                      )}
-                      {product.specifications.case && (
-                        <li><strong>Case:</strong> {product.specifications.case}</li>
-                      )}
-                      {product.specifications.dial && (
-                        <li><strong>Dial:</strong> {product.specifications.dial}</li>
-                      )}
-                      {product.specifications.bracelet && (
-                        <li><strong>Bracelet:</strong> {product.specifications.bracelet}</li>
-                      )}
-                      {product.specifications.waterResistance && (
-                        <li><strong>Water Resistance:</strong> {product.specifications.waterResistance}</li>
-                      )}
-                      {product.specifications.powerReserve && (
-                        <li><strong>Power Reserve:</strong> {product.specifications.powerReserve}</li>
-                      )}
-                      {product.specifications.diameter && (
-                        <li><strong>Diameter:</strong> {product.specifications.diameter}</li>
-                      )}
-                      {product.specifications.thickness && (
-                        <li><strong>Thickness:</strong> {product.specifications.thickness}</li>
-                      )}
-                    </ul>
-                  </div>
-                )}
-              </div>
-              
-              <div className="space-y-4">
-                {product.authenticity && (
-                  <div>
-                    <h4 className="font-semibold text-black">Authenticity & Warranty:</h4>
-                    <ul className="list-none space-y-2 text-gray-600">
-                      <li>
-                        <strong>Guaranteed:</strong> 
-                        <span className={product.authenticity.guaranteed ? 'text-green-600' : 'text-red-600'}>
-                          {product.authenticity.guaranteed ? ' ✓ Yes' : ' ✗ No'}
-                        </span>
-                      </li>
-                      <li>
-                        <strong>Certificate:</strong> 
-                        <span className={product.authenticity.certificate ? 'text-green-600' : 'text-red-600'}>
-                          {product.authenticity.certificate ? ' ✓ Yes' : ' ✗ No'}
-                        </span>
-                      </li>
-                      <li>
-                        <strong>Service History:</strong> 
-                        <span className={product.authenticity.serviceHistory ? 'text-green-600' : 'text-red-600'}>
-                          {product.authenticity.serviceHistory ? ' ✓ Yes' : ' ✗ No'}
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-                )}
-                
-                <div>
-                  <h4 className="font-semibold text-black">Features:</h4>
-                  <ul className="list-disc list-inside text-gray-600 space-y-1">
-                    <li>Premium Swiss/Japanese craftsmanship</li>
-                    <li>High-quality materials and finishing</li>
-                    <li>Precision timekeeping</li>
-                    <li>Elegant design suitable for all occasions</li>
-                  </ul>
+                <h4 className="text-sm font-medium text-black mb-3 uppercase tracking-wide">Technical Details</h4>
+                <div className="space-y-2 text-sm text-gray-600">
+                  {product.specifications.movement && (
+                    <div className="flex justify-between">
+                      <span>Movement</span>
+                      <span className="font-medium">{product.specifications.movement}</span>
+                    </div>
+                  )}
+                  {product.specifications.case && (
+                    <div className="flex justify-between">
+                      <span>Case</span>
+                      <span className="font-medium">{product.specifications.case}</span>
+                    </div>
+                  )}
+                  {product.specifications.dial && (
+                    <div className="flex justify-between">
+                      <span>Dial</span>
+                      <span className="font-medium">{product.specifications.dial}</span>
+                    </div>
+                  )}
+                  {product.specifications.bracelet && (
+                    <div className="flex justify-between">
+                      <span>Bracelet</span>
+                      <span className="font-medium">{product.specifications.bracelet}</span>
+                    </div>
+                  )}
+                  {product.specifications.waterResistance && (
+                    <div className="flex justify-between">
+                      <span>Water Resistance</span>
+                      <span className="font-medium">{product.specifications.waterResistance}</span>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* Related Products Section */}
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold text-black mb-6">Recently Viewed Products</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((index) => (
-              <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="aspect-square overflow-hidden">
-                  <Image
-                    src={product.image}
-                    alt={`Related Product ${index}`}
-                    width={300}
-                    height={300}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-4">
-                  <h3 className="font-semibold text-black mb-2">Related Watch {index}</h3>
-                  <p className="text-gray-600 text-sm mb-2">BLACK - Rs. 2,299.00</p>
-                  <p className="text-gray-600 text-sm mb-3">BLUE - Rs. 2,299.00</p>
-                  <Button className="w-full bg-black text-white hover:bg-gray-800">
-                    Add to cart
-                  </Button>
-                </div>
-              </div>
-            ))}
+        {/* Other Products You May Like Section - Kept as requested */}
+        <div className="mt-16 pt-8 border-t border-gray-100">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-lg font-medium text-black uppercase tracking-wide">Other Products You May Like</h2>
+            <Link href="/watches">
+              <Button variant="outline" className="text-black border-black hover:bg-black hover:text-white transition-colors text-sm font-medium uppercase tracking-wide rounded-none">
+                View All
+              </Button>
+            </Link>
           </div>
+          
+          {isLoadingRelated ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((index) => (
+                <div key={index} className="bg-gray-100 animate-pulse">
+                  <div className="aspect-square bg-gray-200"></div>
+                  <div className="p-3 space-y-2">
+                    <div className="h-3 bg-gray-200 rounded"></div>
+                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                  </div>
                 </div>
+              ))}
+            </div>
+          ) : relatedProducts.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {relatedProducts.map((relatedProduct) => (
+                <div 
+                  key={relatedProduct.id} 
+                  className="group cursor-pointer"
+                  onClick={() => handleRelatedProductClick(relatedProduct.id)}
+                >
+                  <div className="relative aspect-square overflow-hidden mb-3">
+                    <Image
+                      src={relatedProduct.imageUrl}
+                      alt={`${relatedProduct.brand} ${relatedProduct.model}`}
+                      width={300}
+                      height={300}
+                      className="w-full h-full object-cover group-hover:opacity-80 transition-opacity"
+                    />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-medium text-black group-hover:text-gray-600 transition-colors">
+                      {relatedProduct.brand} {relatedProduct.model}
+                    </h3>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-black">
+                        {formatPrice(relatedProduct.price)}
+                      </span>
+                      {relatedProduct.previousPrice && (
+                        <span className="text-xs text-gray-400 line-through">
+                          {formatPrice(relatedProduct.previousPrice)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Discover More Premium Watches</h3>
+              <p className="text-gray-600 mb-4 text-sm">Explore our complete collection of luxury timepieces</p>
+              <Link href="/watches">
+                <Button className="bg-black text-white hover:bg-gray-800 transition-colors text-sm font-medium uppercase tracking-wide rounded-none">
+                  Browse Collection
+                </Button>
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Image Modal */}
+      {/* Image Modal - Minimal */}
       {showImageModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center p-4">
           <div className="relative max-w-4xl max-h-full">
             <button
               onClick={() => setShowImageModal(false)}
-              className="absolute top-4 right-4 text-white hover:text-gray-300 text-4xl font-bold z-10"
+              className="absolute top-4 right-4 text-white hover:text-gray-300 text-3xl font-light z-10 w-8 h-8 flex items-center justify-center"
             >
               ×
             </button>
@@ -495,15 +623,15 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               />
             </div>
             {product.images.length > 1 && (
-              <div className="flex justify-center mt-4 space-x-2">
+              <div className="flex justify-center mt-6 space-x-3">
                 {product.images.map((imageUrl, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImageIndex(index)}
-                    className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                    className={`w-16 h-16 overflow-hidden transition-all ${
                       selectedImageIndex === index 
-                        ? 'border-yellow-400' 
-                        : 'border-gray-400 hover:border-gray-300'
+                        ? 'ring-2 ring-white' 
+                        : 'opacity-60 hover:opacity-100'
                     }`}
                   >
                     <Image

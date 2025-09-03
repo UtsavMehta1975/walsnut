@@ -78,8 +78,13 @@ export default function AdminPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   
+  // State for real data from database
   const [products, setProducts] = useState<Product[]>([])
+  const [orders, setOrders] = useState<Order[]>([])
+  const [customers, setCustomers] = useState<Customer[]>([])
   const [isLoadingProducts, setIsLoadingProducts] = useState(true)
+  const [isLoadingOrders, setIsLoadingOrders] = useState(true)
+  const [isLoadingCustomers, setIsLoadingCustomers] = useState(true)
 
   // Check authentication and admin role
   useEffect(() => {
@@ -136,62 +141,6 @@ export default function AdminPage() {
     console.log('✅ Admin access granted, fetching products')
     fetchProducts()
   }, [user, isAuthenticated, isLoading, router])
-
-  const [orders, setOrders] = useState<Order[]>([
-    {
-      id: '1',
-      customerName: 'John Doe',
-      customerEmail: 'john@example.com',
-      total: 12500,
-      status: 'PENDING',
-      date: '2024-01-15',
-      items: [
-        {
-          productId: '1',
-          productName: 'Luxury AAA Submariner',
-          quantity: 1,
-          price: 12500
-        }
-      ]
-    },
-    {
-      id: '2',
-      customerName: 'Jane Smith',
-      customerEmail: 'jane@example.com',
-      total: 45000,
-      status: 'SHIPPED',
-      date: '2024-01-14',
-      items: [
-        {
-          productId: '2',
-          productName: 'Luxury Premium Nautilus',
-          quantity: 1,
-          price: 45000
-        }
-      ]
-    }
-  ])
-
-  const [customers, setCustomers] = useState<Customer[]>([
-    {
-      id: '1',
-      name: 'John Doe',
-      email: 'john@example.com',
-      joinDate: '2024-01-01',
-      totalOrders: 3,
-      totalSpent: 25000,
-      status: 'ACTIVE'
-    },
-    {
-      id: '2',
-      name: 'Jane Smith',
-      email: 'jane@example.com',
-      joinDate: '2024-01-05',
-      totalOrders: 1,
-      totalSpent: 45000,
-      status: 'ACTIVE'
-    }
-  ])
 
   const [newProduct, setNewProduct] = useState({
     brand: '',
@@ -1163,3 +1112,4 @@ export default function AdminPage() {
     </div>
   )
 }
+

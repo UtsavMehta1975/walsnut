@@ -5,6 +5,7 @@ import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { ProductTile } from '@/components/ui/product-tile'
 import { formatPrice } from '@/lib/utils'
+import Image from 'next/image'
 
 interface Product {
   id: string
@@ -102,34 +103,47 @@ export default function ForHerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Navbar />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            For Her Collection
-          </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Discover elegant timepieces designed specifically for women. From classic elegance to modern sophistication, 
-            find the perfect watch that complements your style and celebrates your achievements.
-          </p>
-        </div>
+      <main className="py-4">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4">
+          {/* Header - Minimal */}
+          <div className="mb-6">
+            <h1 className="text-2xl md:text-3xl font-light text-black text-center">
+              For Her
+            </h1>
+          </div>
 
-        {/* Products Grid */}
-        {products.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <ProductTile key={product.id} product={product} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
-            <p className="text-gray-600">We're currently updating our collection. Please check back soon!</p>
-          </div>
-        )}
+          {/* Sharp, Minimal Product Grid - Mobile First */}
+          {products.length > 0 ? (
+            <div className="grid grid-cols-2 gap-1 sm:gap-2 md:gap-3 lg:gap-4">
+              {products.map((product) => (
+                <div 
+                  key={product.id} 
+                  className="aspect-square cursor-pointer bg-white hover:opacity-90 transition-opacity duration-200"
+                  onClick={() => window.location.href = `/watches/${product.id}`}
+                >
+                  {/* Product Image - Sharp corners, no rounded edges */}
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={product.imageUrl}
+                      alt={`${product.brand} ${product.model}`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
+              <p className="text-gray-600">We're currently updating our collection. Please check back soon!</p>
+            </div>
+          )}
+        </div>
       </main>
 
       <Footer />

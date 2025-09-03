@@ -69,11 +69,11 @@ export async function PUT(
     
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Admin access required' },
         { status: 401 }
       )
     }
-
+    
     const body = await request.json()
     
     // Update product

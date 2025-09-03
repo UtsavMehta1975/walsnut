@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/contexts/auth-context'
 import { StickyWhatsApp } from '@/components/ui/sticky-whatsapp'
+import AuthSessionProvider from '@/components/providers/session-provider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,10 +20,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
-        <AuthProvider>
-          {children}
-          <StickyWhatsApp />
-        </AuthProvider>
+        <AuthSessionProvider>
+          <AuthProvider>
+            {children}
+            <StickyWhatsApp />
+          </AuthProvider>
+        </AuthSessionProvider>
       </body>
     </html>
   )

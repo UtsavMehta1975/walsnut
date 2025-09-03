@@ -1,17 +1,19 @@
 'use client'
 
-import { useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
-import { ArrowLeft, CreditCard, Truck, Shield } from 'lucide-react'
+import { ArrowLeft, CreditCard, Truck, Shield, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { formatPrice } from '@/lib/utils'
 import Image from 'next/image'
+import { useCart } from '@/store/cart-store'
+import { useAuth } from '@/contexts/auth-context'
 
 interface CartItem {
   id: string
@@ -19,11 +21,13 @@ interface CartItem {
   price: number
   quantity: number
   image: string
-  collection: string
 }
 
 export default function CheckoutPage() {
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const { user, isAuthenticated, isLoading } = useAuth()
+  const { items, clearCart } = useCart()
   const [isProcessing, setIsProcessing] = useState(false)
   
   // Get product details from URL params (for Buy Now)
@@ -49,20 +53,27 @@ export default function CheckoutPage() {
     cardName: ''
   })
 
-  // Mock product data for Buy Now
-  const product: CartItem = {
-    id: productId || '1',
-    name: brand || 'Walnut',
-    price: parseFloat(price || '125000'),
-    image: imageUrl || 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=400&h=400&fit=crop',
-    quantity: 1,
-    collection: model || 'Apex Diver'
-  }
+  // Determine if this is a Buy Now or Cart checkout
+  const isBuyNow = productId && brand && model && price
+  const checkoutItems = isBuyNow ? [{
+    id: productId!,
+    name: `${brand} ${model}`,
+    price: parseFloat(price!),
+    image: imageUrl || '/web-banner.png',
+    quantity: 1
+  }] : items
 
-  const subtotal = product.price * product.quantity
+  const subtotal = checkoutItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
   const shipping = 0 // Free shipping for luxury items
   const tax = subtotal * 0.18 // 18% GST (Indian tax rate)
   const total = subtotal + shipping + tax
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated && !isLoading) {
+      router.push('/auth/signin?redirect=/checkout')
+    }
+  }, [isAuthenticated, isLoading, router])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -73,16 +84,88 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!isAuthenticated) {
+      toast.error('Please sign in to complete your order')
+      router.push('/auth/signin?redirect=/checkout')
+      return
+    }
+
     setIsProcessing(true)
 
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    try {
+      // Prepare order data
+      const orderData = {
+        items: checkoutItems.map(item => ({
+          productId: item.id,
+          quantity: item.quantity,
+          price: item.price
+        })),
+        shippingAddress: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}, ${formData.country}`,
+        totalAmount: total
+      }
 
-    toast.success('Order placed successfully! You will receive a confirmation email shortly.')
-    setIsProcessing(false)
-    
-    // Redirect to order confirmation
-    // In a real app, you would redirect to an order confirmation page
+      // Create order
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData)
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create order')
+      }
+
+      const result = await response.json()
+      
+      toast.success('Order placed successfully! You will receive a confirmation email shortly.')
+      
+      // Clear cart if this was a cart checkout
+      if (!isBuyNow) {
+        clearCart()
+      }
+      
+      // Redirect to order confirmation
+      router.push(`/orders?orderId=${result.order.id}`)
+      
+    } catch (error) {
+      console.error('Checkout error:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to place order')
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  // Show loading if checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show login prompt if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Please Sign In</h2>
+          <p className="text-gray-600 mb-6">You need to be signed in to complete your purchase</p>
+          <Link href="/auth/signin?redirect=/checkout">
+            <Button className="bg-yellow-400 text-black hover:bg-yellow-500">
+              Sign In
+            </Button>
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -93,7 +176,7 @@ export default function CheckoutPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center space-x-4">
-            <Link href="/watches" className="text-gray-600 hover:text-gray-900">
+            <Link href={isBuyNow ? "/watches" : "/cart"} className="text-gray-600 hover:text-gray-900">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
@@ -112,26 +195,33 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Checkout Form */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Product Summary */}
+            {/* Order Summary */}
             <Card>
               <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
+                <CardTitle className="flex items-center">
+                  <ShoppingCart className="h-5 w-5 mr-2" />
+                  Order Summary
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center space-x-4">
-                  <div className="relative w-20 h-20">
-                    <Image
-                      src={product.image}
-                      alt={`${product.name} ${product.collection}`}
-                      fill
-                      className="object-cover rounded"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{product.name} {product.collection}</h3>
-                    <p className="text-sm text-gray-600">Quantity: {product.quantity}</p>
-                    <p className="text-lg font-bold">{formatPrice(product.price)}</p>
-                  </div>
+                <div className="space-y-4">
+                  {checkoutItems.map((item) => (
+                    <div key={item.id} className="flex items-center space-x-4">
+                      <div className="relative w-20 h-20">
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          className="object-cover rounded"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold">{item.name}</h3>
+                        <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                        <p className="text-lg font-bold">{formatPrice(item.price * item.quantity)}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -170,20 +260,19 @@ export default function CheckoutPage() {
                   />
                   <Input
                     name="phone"
-                    placeholder="Phone"
+                    placeholder="Phone Number"
                     value={formData.phone}
                     onChange={handleInputChange}
                     required
                   />
-                  <div className="md:col-span-2">
-                    <Input
-                      name="address"
-                      placeholder="Address"
-                      value={formData.address}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
+                  <Input
+                    name="address"
+                    placeholder="Street Address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    required
+                    className="md:col-span-2"
+                  />
                   <Input
                     name="city"
                     placeholder="City"
@@ -226,24 +315,22 @@ export default function CheckoutPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <Input
-                      name="cardName"
-                      placeholder="Name on Card"
-                      value={formData.cardName}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <Input
-                      name="cardNumber"
-                      placeholder="Card Number"
-                      value={formData.cardNumber}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
+                  <Input
+                    name="cardName"
+                    placeholder="Cardholder Name"
+                    value={formData.cardName}
+                    onChange={handleInputChange}
+                    required
+                    className="md:col-span-2"
+                  />
+                  <Input
+                    name="cardNumber"
+                    placeholder="Card Number"
+                    value={formData.cardNumber}
+                    onChange={handleInputChange}
+                    required
+                    className="md:col-span-2"
+                  />
                   <Input
                     name="expiryDate"
                     placeholder="MM/YY"
@@ -263,14 +350,14 @@ export default function CheckoutPage() {
             </Card>
           </div>
 
-          {/* Order Summary */}
-          <div className="lg:col-span-1">
-            <Card className="sticky top-8">
+          {/* Order Summary Sidebar */}
+          <div className="space-y-6">
+            <Card>
               <CardHeader>
-                <CardTitle>Order Total</CardTitle>
+                <CardTitle>Order Summary</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
                     <span>{formatPrice(subtotal)}</span>
@@ -280,29 +367,40 @@ export default function CheckoutPage() {
                     <span className="text-green-600">Free</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Tax</span>
+                    <span>Tax (18% GST)</span>
                     <span>{formatPrice(tax)}</span>
                   </div>
-                  <div className="border-t pt-4">
+                  <div className="border-t pt-3">
                     <div className="flex justify-between font-bold text-lg">
                       <span>Total</span>
                       <span>{formatPrice(total)}</span>
                     </div>
                   </div>
+                </div>
+                
+                <Button 
+                  onClick={handleSubmit}
+                  disabled={isProcessing}
+                  className="w-full mt-6 bg-yellow-400 text-black hover:bg-yellow-500 disabled:opacity-50"
+                >
+                  {isProcessing ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black mr-2"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    'Place Order'
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
 
-                  <Button
-                    onClick={handleSubmit}
-                    disabled={isProcessing}
-                    className="w-full"
-                    size="lg"
-                  >
-                    {isProcessing ? 'Processing...' : `Pay ${formatPrice(total)}`}
-                  </Button>
-
-                  <div className="flex items-center justify-center text-sm text-gray-600">
-                    <Shield className="h-4 w-4 mr-2" />
-                    Secure checkout powered by Stripe
-                  </div>
+            {/* Security Notice */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <Shield className="h-4 w-4" />
+                  <span>Your payment information is secure and encrypted</span>
                 </div>
               </CardContent>
             </Card>

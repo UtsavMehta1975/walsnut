@@ -12,7 +12,7 @@ import toast from 'react-hot-toast'
 
 export default function SignInPage() {
   const router = useRouter()
-  const { login } = useAuth()
+  const { login, user } = useAuth()
   const [email, setEmail] = useState('admin@walnut.com')
   const [password, setPassword] = useState('password123')
   const [isLoading, setIsLoading] = useState(false)
@@ -23,21 +23,29 @@ export default function SignInPage() {
 
     try {
       const result = await login(email, password)
+      
       if (result.success) {
         toast.success('Login successful!')
         
-        // Check user role and redirect accordingly
-        if (result.user?.role?.toUpperCase() === 'ADMIN') {
-          console.log('Admin user detected, redirecting to admin panel...')
-          router.push('/admin')
-        } else {
-          console.log('Regular user detected, redirecting to store...')
-          router.push('/')
+        // Wait for the session to update and then redirect
+        const checkAndRedirect = () => {
+          if (user?.role?.toUpperCase() === 'ADMIN') {
+            router.push('/admin')
+          } else if (user?.role?.toUpperCase() === 'CUSTOMER') {
+            router.push('/')
+          } else {
+            // If user role is not yet available, wait a bit more
+            setTimeout(checkAndRedirect, 200)
+          }
         }
+        
+        // Start checking after a short delay
+        setTimeout(checkAndRedirect, 100)
       } else {
         toast.error('Invalid email or password')
       }
     } catch (error) {
+      console.error('Login error:', error)
       toast.error('Login failed. Please try again.')
     } finally {
       setIsLoading(false)
