@@ -116,8 +116,8 @@ export function TrendingTimepieces() {
           </h2>
         </div>
 
-        {/* Sharp, Minimal Product Grid - Mobile First */}
-        <div className="grid grid-cols-2 gap-1 sm:gap-2 md:gap-3 lg:gap-4 mb-8">
+        {/* Sharp, Minimal Product Grid - Responsive with more columns on desktop */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-0 w-full mb-8">
           {products.map((product) => (
             <div 
               key={product.id} 
@@ -131,7 +131,8 @@ export function TrendingTimepieces() {
                   alt={product.name}
                   fill
                   className="object-cover"
-                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16vw"
+                  priority={false}
                 />
               </div>
             </div>

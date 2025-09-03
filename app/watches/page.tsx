@@ -91,8 +91,8 @@ export default function WatchesPage() {
           </h1>
         </div>
 
-        {/* Sharp, Minimal Product Grid - Mobile First - Zero Spacing - Full Width */}
-        <div className="grid grid-cols-2 gap-0 w-full">
+        {/* Sharp, Minimal Product Grid - Responsive with more columns on desktop */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-0 w-full">
           {products.map((product) => (
             <div 
               key={product.id} 
@@ -101,13 +101,14 @@ export default function WatchesPage() {
             >
               {/* Product Image - Sharp corners, no rounded edges, no spacing */}
               <div className="relative w-full h-full">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                />
+                                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16vw"
+                    priority={false}
+                  />
               </div>
             </div>
           ))}

@@ -115,9 +115,9 @@ export default function ForHerPage() {
             </h1>
           </div>
 
-          {/* Sharp, Minimal Product Grid - Mobile First */}
+          {/* Sharp, Minimal Product Grid - Responsive with more columns on desktop */}
           {products.length > 0 ? (
-            <div className="grid grid-cols-2 gap-1 sm:gap-2 md:gap-3 lg:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-0 w-full">
               {products.map((product) => (
                 <div 
                   key={product.id} 
@@ -131,7 +131,8 @@ export default function ForHerPage() {
                       alt={`${product.brand} ${product.model}`}
                       fill
                       className="object-cover"
-                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16vw"
+                      priority={false}
                     />
                   </div>
                 </div>
