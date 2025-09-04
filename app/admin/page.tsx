@@ -86,6 +86,15 @@ export default function AdminPage() {
   const [isLoadingOrders, setIsLoadingOrders] = useState(true)
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true)
 
+  // Fetch all data from database
+  const fetchAllData = async () => {
+    await Promise.all([
+      fetchProducts(),
+      fetchOrders(),
+      fetchCustomers()
+    ])
+  }
+
   // Check authentication and admin role
   useEffect(() => {
     const fetchProducts = async () => {
@@ -141,7 +150,7 @@ export default function AdminPage() {
     
     console.log('✅ Admin access granted, fetching data')
     fetchAllData()
-  }, [user, isAuthenticated, isLoading, router])
+  }, [user, isAuthenticated, isLoading, router, fetchAllData])
 
   // Fetch products from database
   const fetchProducts = async () => {
@@ -163,15 +172,6 @@ export default function AdminPage() {
     } finally {
       setIsLoadingProducts(false)
     }
-  }
-
-  // Fetch all data from database
-  const fetchAllData = async () => {
-    await Promise.all([
-      fetchProducts(),
-      fetchOrders(),
-      fetchCustomers()
-    ])
   }
 
   // Fetch orders from database

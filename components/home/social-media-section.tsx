@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -31,54 +31,54 @@ export function SocialMediaSection() {
     { category: 'new-arrivals', product: null, isLoading: true }
   ])
 
-  useEffect(() => {
-    const fetchCategoryProducts = async () => {
-      try {
-        // Fetch one product from each category
-        const promises = categoryProducts.map(async (cat, index) => {
-          try {
-            const response = await fetch(`/api/products?category=${cat.category}&limit=1&sortBy=createdAt&sortOrder=desc`)
-            if (response.ok) {
-              const data = await response.json()
-              const products = Array.isArray(data?.data) ? data.data : data
+  const fetchCategoryProducts = useCallback(async () => {
+    try {
+      // Fetch one product from each category
+      const promises = categoryProducts.map(async (cat, index) => {
+        try {
+          const response = await fetch(`/api/products?category=${cat.category}&limit=1&sortBy=createdAt&sortOrder=desc`)
+          if (response.ok) {
+            const data = await response.json()
+            const products = Array.isArray(data?.data) ? data.data : data
+            
+            if (products.length > 0) {
+              const product = products[0]
+              const primary = product.images?.find((img: any) => img.isPrimary) || product.images?.[0]
               
-              if (products.length > 0) {
-                const product = products[0]
-                const primary = product.images?.find((img: any) => img.isPrimary) || product.images?.[0]
-                
-                return {
-                  ...cat,
-                  product: {
-                    id: product.id,
-                    brand: product.brand,
-                    model: product.model,
-                    price: Number(product.price) || 0,
-                    previousPrice: product.previousPrice ? Number(product.previousPrice) : undefined,
-                    imageUrl: primary?.imageUrl || '/web-banner.png',
-                    category: cat.category
-                  },
-                  isLoading: false
-                }
+              return {
+                ...cat,
+                product: {
+                  id: product.id,
+                  brand: product.brand,
+                  model: product.model,
+                  price: Number(product.price) || 0,
+                  previousPrice: product.previousPrice ? Number(product.previousPrice) : undefined,
+                  imageUrl: primary?.imageUrl || '/web-banner.png',
+                  category: cat.category
+                },
+                isLoading: false
               }
             }
-          } catch (error) {
-            console.error(`Error fetching ${cat.category} product:`, error)
           }
-          
-          return { ...cat, isLoading: false }
-        })
+        } catch (error) {
+          console.error(`Error fetching ${cat.category} product:`, error)
+        }
+        
+        return { ...cat, isLoading: false }
+      })
 
-        const results = await Promise.all(promises)
-        setCategoryProducts(results)
-      } catch (error) {
-        console.error('Error fetching category products:', error)
-        // Set all to not loading if there's an error
-        setCategoryProducts(prev => prev.map(cat => ({ ...cat, isLoading: false })))
-      }
+      const results = await Promise.all(promises)
+      setCategoryProducts(results)
+    } catch (error) {
+      console.error('Error fetching category products:', error)
+      // Set all to not loading if there's an error
+      setCategoryProducts(prev => prev.map(cat => ({ ...cat, isLoading: false })))
     }
+  }, [categoryProducts])
 
+  useEffect(() => {
     fetchCategoryProducts()
-  }, [])
+  }, [fetchCategoryProducts])
 
   const getCategoryDisplayName = (category: string) => {
     switch (category) {

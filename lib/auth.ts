@@ -100,9 +100,6 @@ export const authOptions: NextAuthOptions = {
     },
     async signOut({ session, token }) {
       console.log('🚪 User signed out:', session?.user?.email || token?.email)
-    },
-    async error({ error }) {
-      console.error('❌ NextAuth error:', error)
     }
   }
 }
