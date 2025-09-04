@@ -90,7 +90,7 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
     >
       <CardContent className="p-0">
         {/* Product Image */}
-        <div className="relative aspect-square overflow-hidden rounded-t-lg">
+        <div className="relative aspect-square overflow-hidden rounded-none">
           <Image
             src={imageUrl}
             alt={`${product.brand} ${product.model}`}
