@@ -135,21 +135,23 @@ export function ProductTile({ product, variant = 'default' }: ProductTileProps) 
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 sm:gap-2">
             <Button 
               onClick={handleAddToCart}
               disabled={product.stockQuantity === 0}
-              className="flex-1 btn-highlight"
-              size="sm"
+              className="flex-1 btn-highlight min-h-[44px] text-sm sm:text-sm font-semibold"
+              size="default"
             >
-              <ShoppingCart className="h-4 w-4 mr-1" />
-              Add to Cart
+              <ShoppingCart className="h-4 w-4 mr-1 sm:mr-1" />
+              <span className="hidden sm:inline">Add to Cart</span>
+              <span className="sm:hidden">Add</span>
             </Button>
             <Button 
               onClick={handleBuyNow}
               disabled={product.stockQuantity === 0}
               variant="outline"
-              size="sm"
+              className="min-h-[44px] px-3 sm:px-3"
+              size="default"
             >
               <Eye className="h-4 w-4" />
             </Button>
