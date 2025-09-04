@@ -1,10 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
+import { CleanProductCard } from '@/components/ui/clean-product-card'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart, Heart, Star, Clock, TrendingUp, Sparkles } from 'lucide-react'
 import { useCart } from '@/store/cart-store'
 import { useRouter } from 'next/navigation'
 import { formatPrice } from '@/lib/utils'
@@ -14,6 +13,7 @@ interface Product {
   id: string
   name: string
   brand: string
+  model: string
   price: number
   originalPrice: number
   image: string
@@ -23,6 +23,7 @@ interface Product {
   discount?: number
   category: string
   badge?: string
+  referenceNumber?: string
 }
 
 export function TrendingTimepieces() {
@@ -140,27 +141,21 @@ export function TrendingTimepieces() {
           <p className="text-gray-600">Showing {products.length} premium timepieces</p>
         </div>
 
-        {/* Sharp, Minimal Product Grid - Responsive with more columns on desktop */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-0 w-full mb-8">
+        {/* Clean Product Grid - Skartgripir Style */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-8">
           {products.map((product) => (
-            <div 
-              key={product.id} 
-              className="aspect-square cursor-pointer bg-white hover:opacity-90 transition-opacity duration-200"
-              onClick={() => handleProductClick(product.id)}
-            >
-              {/* Product Image - Sharp corners, no rounded edges */}
-              <div className="relative w-full h-full">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16vw"
-                  priority={false}
-                  unoptimized={product.image.includes('drive.google.com')}
-                />
-              </div>
-            </div>
+            <CleanProductCard
+              key={product.id}
+              product={{
+                id: product.id,
+                brand: product.brand || 'Brand',
+                model: product.model || 'Model',
+                price: product.price,
+                previousPrice: product.originalPrice,
+                imageUrl: product.image,
+                referenceNumber: product.referenceNumber
+              }}
+            />
           ))}
         </div>
 

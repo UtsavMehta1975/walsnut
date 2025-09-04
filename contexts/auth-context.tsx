@@ -30,9 +30,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     console.log('🔄 Auth context - Session status:', status)
     console.log('🔄 Auth context - Session data:', session)
+    console.log('🔄 Auth context - Session user:', session?.user)
+    console.log('🔄 Auth context - Session user role:', session?.user?.role)
+    console.log('🔄 Auth context - Session user id:', session?.user?.id)
     
     if (status === 'loading') {
+      console.log('⏳ Auth context - Session loading...')
       setIsLoading(true)
+      return
+    }
+
+    if (status === 'unauthenticated') {
+      console.log('❌ Auth context - No session, clearing user')
+      setUser(null)
+      setIsLoading(false)
       return
     }
 
@@ -45,13 +56,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name: session.user.name || '',
         role: (session.user.role as 'CUSTOMER' | 'ADMIN') || 'CUSTOMER'
       }
+      console.log('✅ Auth context - User data set:', userData)
       setUser(userData)
+      setIsLoading(false)
     } else {
-      console.log('❌ Auth context - No session, clearing user')
+      console.log('❌ Auth context - No session user, clearing user')
       setUser(null)
+      setIsLoading(false)
     }
-    
-    setIsLoading(false)
   }, [session, status])
 
   const login = async (email: string, password: string): Promise<{ success: boolean; user?: User }> => {
@@ -68,32 +80,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('🔐 Auth context - SignIn result:', result)
 
       if (result?.ok) {
-        console.log('✅ Auth context - Login successful, waiting for session update...')
+        console.log('✅ Auth context - Login successful')
         
-        // Wait for the session to update
-        return new Promise((resolve) => {
-          const checkSession = () => {
-            if (session?.user) {
-              console.log('✅ Session updated, resolving login')
-              resolve({ success: true })
-            } else {
-              console.log('⏳ Session not yet updated, waiting...')
-              setTimeout(checkSession, 100)
-            }
-          }
-          
-          // Start checking after a short delay
-          setTimeout(checkSession, 200)
-        })
+        // Wait for NextAuth to process the login
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        // Force a page reload to ensure session is established
+        if (typeof window !== 'undefined') {
+          console.log('🔄 Auth context - Reloading page to establish session...')
+          window.location.reload()
+          return { success: true }
+        }
+        
+        return { success: true }
       } else {
         console.error('❌ Auth context - Login failed:', result?.error)
+        setIsLoading(false)
         return { success: false, user: undefined }
       }
     } catch (error) {
       console.error('❌ Auth context - Login error:', error)
-      return { success: false, user: undefined }
-    } finally {
       setIsLoading(false)
+      return { success: false, user: undefined }
     }
   }
 
@@ -131,9 +139,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const logout = () => {
+  const logout = async () => {
     console.log('🚪 Auth context - Logging out user')
-    signOut({ redirect: false })
+    try {
+      // Clear local state immediately for better UX
+      setUser(null)
+      setIsLoading(false)
+      
+      // Sign out from NextAuth
+      await signOut({ redirect: false })
+      
+      // Clear any localStorage data
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('walnut_user')
+        localStorage.removeItem('walnut_cart')
+      }
+      
+      console.log('✅ Auth context - Logout successful')
+      
+      // Show success message
+      if (typeof window !== 'undefined') {
+        // Import toast dynamically to avoid SSR issues
+        import('react-hot-toast').then(({ default: toast }) => {
+          toast.success('Logged out successfully!')
+        })
+      }
+      
+      // Redirect to home page
+      if (typeof window !== 'undefined') {
+        window.location.href = '/'
+      }
+    } catch (error) {
+      console.error('❌ Auth context - Logout error:', error)
+      // Even if NextAuth logout fails, clear local state and redirect
+      setUser(null)
+      setIsLoading(false)
+      if (typeof window !== 'undefined') {
+        window.location.href = '/'
+      }
+    }
   }
 
   const value: AuthContextType = {

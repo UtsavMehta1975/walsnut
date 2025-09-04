@@ -39,9 +39,10 @@ export function Navbar() {
     }
   }, [])
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    await logout()
     setIsUserMenuOpen(false)
+    // The auth context will handle the redirect
   }
 
   const handleAdminPanelClick = () => {
@@ -82,7 +83,7 @@ export function Navbar() {
             <Link href="/watches?category=for-him" className="text-gray-700 hover:text-yellow-400 transition-colors">
               For Him
             </Link>
-            <Link href="/watches?category=for-her" className="text-gray-700 hover:text-yellow-400 transition-colors">
+            <Link href="/watches/for-her" className="text-gray-700 hover:text-yellow-400 transition-colors">
               For Her
             </Link>
             <Link href="/watches" className="text-gray-700 hover:text-yellow-400 transition-colors">
@@ -100,18 +101,25 @@ export function Navbar() {
               {isSaleDropdownOpen && (
                 <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
                   <Link
+                    href="/watches/sale"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => setIsSaleDropdownOpen(false)}
+                  >
+                    All Sale Items
+                  </Link>
+                  <Link
                     href="/watches?category=sale-1499"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     onClick={() => setIsSaleDropdownOpen(false)}
                   >
-                    ₹1,499 Collection
+                    Under ₹1,499
                   </Link>
                   <Link
                     href="/watches?category=sale-1999"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     onClick={() => setIsSaleDropdownOpen(false)}
                   >
-                    ₹1,999 Collection
+                    Under ₹1,999
                   </Link>
                 </div>
               )}
@@ -214,7 +222,7 @@ export function Navbar() {
                 For Him
               </Link>
               <Link
-                href="/watches?category=for-her"
+                href="/watches/for-her"
                 className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -231,18 +239,25 @@ export function Navbar() {
                 <div className="text-gray-700 font-medium mb-2">Sale</div>
                 <div className="pl-4 space-y-1">
                   <Link
+                    href="/watches/sale"
+                    className="block text-gray-600 hover:text-yellow-400"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    All Sale Items
+                  </Link>
+                  <Link
                     href="/watches?category=sale-1499"
                     className="block text-gray-600 hover:text-yellow-400"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    ₹1,499 Collection
+                    Under ₹1,499
                   </Link>
                   <Link
                     href="/watches?category=sale-1999"
                     className="block text-gray-600 hover:text-yellow-400"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    ₹1,999 Collection
+                    Under ₹1,999
                   </Link>
                 </div>
               </div>
@@ -277,8 +292,8 @@ export function Navbar() {
                     My Orders
                   </Link>
                   <button
-                    onClick={() => {
-                      handleLogout()
+                    onClick={async () => {
+                      await handleLogout()
                       setIsMobileMenuOpen(false)
                     }}
                     className="block w-full text-left px-3 py-2 text-gray-700 hover:text-yellow-400"

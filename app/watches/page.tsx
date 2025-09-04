@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
+import { CleanProductCard } from '@/components/ui/clean-product-card'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 
 interface Product {
   id: string
@@ -17,11 +17,17 @@ interface Product {
   colors: string[]
   category: string
   inStock: boolean
+  brand: string
+  model: string
+  referenceNumber?: string
 }
 
 export default function WatchesPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [category, setCategory] = useState<string>('')
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
   const router = useRouter()
   
   useEffect(() => {
@@ -34,7 +40,7 @@ export default function WatchesPage() {
   useEffect(() => {
     const fetchLatest = async () => {
       try {
-        let apiUrl = '/api/products?limit=20&sortBy=createdAt&sortOrder=desc'
+        let apiUrl = '/api/products?limit=20&page=1&sortBy=createdAt&sortOrder=desc'
         
         // Add category filter if specified
         if (category) {
@@ -60,10 +66,15 @@ export default function WatchesPage() {
               : 0,
             colors: [],
             category: 'luxury',
-            inStock: p.stockQuantity > 0
+            inStock: p.stockQuantity > 0,
+            brand: p.brand || 'Brand',
+            model: p.model || 'Model',
+            referenceNumber: p.referenceNumber || 'N/A'
           }
         })
         setProducts(mapped)
+        setHasMore(data.length === 20) // If we get less than 20, no more products
+        setCurrentPage(1) // Reset page when category changes
       } catch (error) {
         console.error('Error fetching products:', error)
       }
@@ -71,55 +82,136 @@ export default function WatchesPage() {
     fetchLatest()
   }, [category])
 
+  const loadMoreProducts = async () => {
+    if (isLoadingMore || !hasMore) return
+    
+    setIsLoadingMore(true)
+    try {
+      const nextPage = currentPage + 1
+      let apiUrl = `/api/products?limit=20&page=${nextPage}&sortBy=createdAt&sortOrder=desc`
+      
+      // Add category filter if specified
+      if (category) {
+        apiUrl += `&category=${category}`
+      }
+      
+      const res = await fetch(apiUrl)
+      if (!res.ok) return
+      const json = await res.json()
+      const data = Array.isArray(json?.data) ? json.data : json
+      
+      const mapped: Product[] = data.map((p: any) => {
+        const primary = p.images?.find((img: any) => img.isPrimary) || p.images?.[0]
+        return {
+          id: p.id,
+          name: `${p.brand} ${p.model}`,
+          price: Number(p.price) || 0,
+          originalPrice: p.previousPrice ? Number(p.previousPrice) : Number(p.price) || 0,
+          image: primary?.imageUrl || '/web-banner.png',
+          description: p.description || '',
+          discount: p.previousPrice && Number(p.previousPrice) > Number(p.price)
+            ? Math.round(((Number(p.previousPrice) - Number(p.price)) / Number(p.previousPrice)) * 100)
+            : 0,
+          colors: [],
+          category: 'luxury',
+          inStock: p.stockQuantity > 0,
+          brand: p.brand || 'Brand',
+          model: p.model || 'Model',
+          referenceNumber: p.referenceNumber || 'N/A'
+        }
+      })
+      setProducts(prev => [...prev, ...mapped])
+      setCurrentPage(nextPage)
+      setHasMore(data.length === 20) // If we get less than 20, no more products
+    } catch (error) {
+      console.error('Error loading more products:', error)
+    } finally {
+      setIsLoadingMore(false)
+    }
+  }
+
   const handleProductClick = (productId: string) => {
     router.push(`/watches/${productId}`)
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
       
-      <main className="py-4">
-        {/* Header - Minimal */}
-        <div className="mb-6 px-4">
-          <h1 className="text-2xl md:text-3xl font-light text-black text-center">
-            {category === 'for-her' ? 'For Her' : 
-             category === 'sale-1499' ? 'Sale Collection' :
-             category === 'sale-1999' ? 'Sale Collection' :
-             category === 'for-him' ? 'For Him' :
-              'All Products'}
-          </h1>
-        </div>
+      <main className="py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              {category === 'for-her' ? 'Women\'s Watches' : 
+               category === 'sale-1499' ? 'Sale Collection' :
+               category === 'sale-1999' ? 'Sale Collection' :
+               category === 'for-him' ? 'Men\'s Watches' :
+                'All Watches'}
+            </h1>
+            <p className="text-gray-600">
+              {category === 'for-her' ? 'Elegant timepieces designed for the modern woman' :
+               category === 'for-him' ? 'Premium watches crafted for the discerning gentleman' :
+               category?.includes('sale') ? 'Discover amazing deals on premium watches' :
+               'Discover our complete collection of premium timepieces'}
+            </p>
+          </div>
 
-        {/* Sharp, Minimal Product Grid - Responsive with more columns on desktop */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-0 w-full">
-          {products.map((product) => (
-            <div 
-              key={product.id} 
-              className="aspect-square cursor-pointer bg-white hover:opacity-90 transition-opacity duration-200"
-              onClick={() => handleProductClick(product.id)}
-            >
-              {/* Product Image - Sharp corners, no rounded edges, no spacing */}
-              <div className="relative w-full h-full">
-                                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16vw"
-                    priority={false}
+          {/* Clean Product Grid - Skartgripir Style */}
+          {products.length > 0 ? (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                {products.map((product) => (
+                  <CleanProductCard
+                    key={product.id}
+                    product={{
+                      id: product.id,
+                      brand: product.brand || 'Brand',
+                      model: product.model || 'Model',
+                      price: product.price,
+                      previousPrice: product.originalPrice && product.originalPrice > product.price ? product.originalPrice : undefined,
+                      imageUrl: product.image,
+                      referenceNumber: product.referenceNumber
+                    }}
                   />
+                ))}
+              </div>
+              
+              {/* Load More Button */}
+              {hasMore && (
+                <div className="text-center mt-8">
+                  <button
+                    onClick={loadMoreProducts}
+                    disabled={isLoadingMore}
+                    className="bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium px-8 py-3 rounded-md transition-colors duration-200"
+                  >
+                    {isLoadingMore ? (
+                      <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Loading...
+                      </div>
+                    ) : (
+                      'Load More Products'
+                    )}
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-16">
+              <div className="max-w-md mx-auto">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
+                <p className="text-gray-600 mb-6">We're currently updating our collection. Please check back soon!</p>
+                <a 
+                  href="/watches" 
+                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-black hover:bg-gray-800 transition-colors duration-200"
+                >
+                  Browse All Watches
+                </a>
               </div>
             </div>
-          ))}
+          )}
         </div>
-
-        {/* No Products Message */}
-        {products.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No products found in this category.</p>
-          </div>
-        )}
       </main>
       
       <Footer />

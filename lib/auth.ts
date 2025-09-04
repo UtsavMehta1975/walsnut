@@ -59,31 +59,51 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      console.log('🔄 JWT callback - user:', user?.email, 'role:', user?.role)
+    async jwt({ token, user, account }) {
+      console.log('🔄 JWT callback - user:', user?.email, 'role:', user?.role, 'token exists:', !!token, 'account:', account?.type)
       if (user) {
         token.role = user.role
         token.id = user.id
+        console.log('✅ JWT callback - Updated token with user data:', { role: user.role, id: user.id })
       }
+      console.log('🔄 JWT callback - Final token:', { role: token.role, id: token.id })
       return token
     },
     async session({ session, token }) {
-      console.log('🔄 Session callback - token role:', token.role)
+      console.log('🔄 Session callback - token role:', token.role, 'session exists:', !!session, 'token id:', token.id)
+      console.log('🔄 Session callback - Full token:', token)
+      console.log('🔄 Session callback - Full session before update:', session)
+      
       if (token) {
         session.user.role = token.role
         session.user.id = token.id
+        console.log('✅ Session callback - Updated session with token data:', { role: token.role, id: token.id })
       }
+      console.log('🔄 Session callback - Final session:', session)
       return session
     }
   },
   pages: {
     signIn: '/auth/signin',
+    error: '/auth/error', // Custom error page
   },
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development',
   debug: process.env.NODE_ENV === 'development',
+  events: {
+    async signIn({ user, account, profile, isNewUser }) {
+      console.log('✅ User signed in:', user.email)
+    },
+    async signOut({ session, token }) {
+      console.log('🚪 User signed out:', session?.user?.email || token?.email)
+    },
+    async error({ error }) {
+      console.error('❌ NextAuth error:', error)
+    }
+  }
 }
 

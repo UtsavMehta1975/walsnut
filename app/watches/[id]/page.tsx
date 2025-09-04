@@ -52,6 +52,7 @@ interface Product {
   condition: string
   year: number
   stockQuantity: number
+  gender: string
   specifications?: {
     movement?: string
     case?: string
@@ -114,6 +115,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           condition: p.condition || 'New',
           year: p.year || 2023,
           stockQuantity: p.stockQuantity || 0,
+          gender: p.gender || 'UNISEX',
           specifications: p.specifications,
           authenticity: p.authenticity
         }
@@ -287,11 +289,11 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           </ol>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-          {/* Product Images - Minimal Gallery */}
-          <div className="space-y-4">
-            {/* Main Image - Sharp corners, no borders */}
-            <div className="aspect-square overflow-hidden bg-white">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+          {/* Product Images - Helios Style Gallery */}
+          <div className="space-y-6">
+            {/* Main Image - Professional display */}
+            <div className="aspect-square overflow-hidden bg-gray-50 border border-gray-200">
               <Image
                 src={product.images[selectedImageIndex]}
                 alt={product.name}
@@ -302,16 +304,16 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               />
             </div>
             
-            {/* Image Gallery - All images visible, minimal design */}
+            {/* Image Gallery - Thumbnail navigation */}
             {product.images.length > 1 && (
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-4 gap-4">
                 {product.images.map((imageUrl, index) => (
                   <div 
                     key={index} 
-                    className={`aspect-square overflow-hidden cursor-pointer transition-all ${
+                    className={`aspect-square overflow-hidden cursor-pointer transition-all border-2 ${
                       selectedImageIndex === index 
-                        ? 'ring-2 ring-black' 
-                        : 'hover:opacity-80'
+                        ? 'border-black' 
+                        : 'border-gray-200 hover:border-gray-400'
                     }`}
                     onClick={() => setSelectedImageIndex(index)}
                   >
@@ -328,39 +330,55 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             )}
           </div>
 
-          {/* Product Details - Minimal, Clean */}
-          <div className="space-y-6">
-            {/* Product Name - Clean typography */}
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-light text-black leading-tight">
-                {product.name}
+          {/* Product Details - Helios Style */}
+          <div className="space-y-8">
+            {/* Brand and Collection */}
+            <div className="space-y-2">
+              <div className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+                {product.brand}
+              </div>
+              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
+                {product.model}
               </h1>
+              {product.referenceNumber && (
+                <div className="text-sm text-gray-600">
+                  {product.gender === 'MENS' ? 'Men' : product.gender === 'WOMENS' ? 'Women' : product.gender} | {product.referenceNumber}
+                </div>
+              )}
             </div>
 
-            {/* Price - Minimal display */}
-            <div className="space-y-2">
-              <div className="flex items-center space-x-3">
-                <span className="text-2xl lg:text-3xl font-light text-black">
+            {/* Stock Status */}
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 rounded-full ${product.stockQuantity > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              <span className="text-sm font-medium text-gray-900">
+                {product.stockQuantity > 0 ? 'In stock' : 'Out of stock'}
+              </span>
+            </div>
+
+            {/* SKU */}
+            <div className="text-sm text-gray-600">
+              <span className="font-medium">SKU:</span> {product.sku}
+            </div>
+
+            {/* Price - Helios Style */}
+            <div className="space-y-3">
+              <div className="flex items-center space-x-4">
+                <span className="text-4xl font-bold text-gray-900">
                   {formatPrice(product.price)}
                 </span>
                 {product.discount > 0 && (
-                  <span className="text-lg text-gray-400 line-through">
+                  <span className="text-2xl text-gray-500 line-through">
                     {formatPrice(product.originalPrice)}
                   </span>
                 )}
               </div>
               {product.discount > 0 && (
                 <div className="inline-block">
-                  <span className="text-sm text-red-600 font-medium">
+                  <span className="bg-red-500 text-white text-sm font-semibold px-3 py-1 rounded">
                     {product.discount}% OFF
                   </span>
                 </div>
               )}
-            </div>
-
-            {/* SKU - Subtle */}
-            <div className="text-xs text-gray-400 uppercase tracking-wide">
-              SKU: {product.sku}
             </div>
 
             {/* Color Options - Clean buttons */}
@@ -407,197 +425,291 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               </div>
             </div>
 
-            {/* Action Buttons - Aesthetic, minimal */}
-            <div className="space-y-3 pt-4">
+            {/* Action Buttons - Helios Style */}
+            <div className="space-y-4 pt-6">
               <Button 
                 onClick={handleAddToCart}
-                className="w-full bg-black text-white hover:bg-gray-800 transition-colors py-3 text-sm font-medium uppercase tracking-wide rounded-none"
+                className="w-full bg-black text-white hover:bg-gray-800 transition-colors py-4 text-base font-semibold rounded-lg"
               >
-                Add to cart
+                Add to Cart
               </Button>
               <Button 
                 onClick={handleBuyNow}
-                className="w-full bg-white text-black border border-black hover:bg-gray-50 transition-colors py-3 text-sm font-medium uppercase tracking-wide rounded-none"
+                className="w-full bg-white text-black border-2 border-black hover:bg-gray-50 transition-colors py-4 text-base font-semibold rounded-lg"
               >
-                Buy now
+                Buy Now
               </Button>
             </div>
 
-            {/* Stock Status - Clean info */}
-            <div className="pt-4 border-t border-gray-100">
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <div className={`w-2 h-2 rounded-full ${product.stockQuantity > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                <span>
-                  {product.stockQuantity > 0 
-                    ? `${product.stockQuantity} in stock` 
-                    : 'Out of stock'
-                  }
-                </span>
+            {/* Trust Badges - Helios Style */}
+            <div className="pt-6 border-t border-gray-200">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3 text-sm text-gray-600">
+                  <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs">✓</span>
+                  </div>
+                  <span className="font-medium">100% Genuine Products</span>
+                </div>
+                <div className="flex items-center space-x-3 text-sm text-gray-600">
+                  <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs">✓</span>
+                  </div>
+                  <span className="font-medium">Buy With Trust</span>
+                </div>
+                <div className="flex items-center space-x-3 text-sm text-gray-600">
+                  <div className="w-4 h-4 bg-purple-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs">✓</span>
+                  </div>
+                  <span className="font-medium">Secure Payment</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Delivery Options */}
+            <div className="pt-6 border-t border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">Delivery Options</h3>
+              <div className="space-y-2 text-sm text-gray-600">
+                <div className="flex items-center justify-between">
+                  <span>Standard Delivery</span>
+                  <span className="font-medium">Available at 25000+ Pincode</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Free delivery and returns</span>
+                  <span className="font-medium text-green-600">✓</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Product Description - Clean, minimal */}
-        <div className="mt-16 pt-8 border-t border-gray-100">
-          <h2 className="text-lg font-medium text-black mb-6 uppercase tracking-wide">Description</h2>
-          <div className="prose max-w-none">
-            <div className="text-gray-700 leading-relaxed text-sm">
-              {product.description ? (
-                <div dangerouslySetInnerHTML={{ 
-                  __html: product.description
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\n/g, '<br>')
-                }} />
-              ) : (
-                <p>No detailed description available for this product.</p>
-              )}
+        {/* Product Description - Helios Style */}
+        <div className="mt-20 pt-8 border-t border-gray-200">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            {/* Description */}
+            <div className="lg:col-span-2">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Description</h2>
+              <div className="prose max-w-none">
+                <div className="text-gray-700 leading-relaxed">
+                  {product.description ? (
+                    <div dangerouslySetInnerHTML={{ 
+                      __html: product.description
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\n/g, '<br>')
+                    }} />
+                  ) : (
+                    <p>Introducing {product.brand} {product.model}, a premium timepiece from the {product.brand} collection. This brand hailing from Italy, this time piece exemplifies the quality found across {product.brand} watches, featuring {product.specifications?.movement || 'Quartz'} movement and a durable case. Its distinctive design adds a modern touch, while offering water resistance and premium materials. The elegant dial ensures timeless sophistication, backed by our warranty for your peace of mind.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Key Features */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Features</h3>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <span className="text-sm text-gray-700">Premium {product.specifications?.movement || 'Quartz'} Movement</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <span className="text-sm text-gray-700">{product.specifications?.case || 'Stainless Steel'} Case</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <span className="text-sm text-gray-700">Water Resistant</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <span className="text-sm text-gray-700">Authentic {product.brand} Design</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <span className="text-sm text-gray-700">Warranty Included</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Product Specifications - Minimal grid */}
-        <div className="mt-12 pt-8 border-t border-gray-100">
-          <h2 className="text-lg font-medium text-black mb-6 uppercase tracking-wide">Specifications</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-4">
-              <div>
-                <h4 className="text-sm font-medium text-black mb-3 uppercase tracking-wide">Basic Information</h4>
-                <div className="space-y-2 text-sm text-gray-600">
-                  <div className="flex justify-between">
-                    <span>Brand</span>
-                    <span className="font-medium">{product.brand}</span>
+        {/* Product Specifications - Helios Style */}
+        <div className="mt-16 pt-8 border-t border-gray-200">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8">More Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Basic Information */}
+            <div>
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h4>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Brand</span>
+                  <span className="font-medium text-gray-900">{product.brand}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Model</span>
+                  <span className="font-medium text-gray-900">{product.model}</span>
+                </div>
+                {product.referenceNumber && (
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-600">Reference</span>
+                    <span className="font-medium text-gray-900">{product.referenceNumber}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Model</span>
-                    <span className="font-medium">{product.model}</span>
-                  </div>
-                  {product.referenceNumber && (
-                    <div className="flex justify-between">
-                      <span>Reference</span>
-                      <span className="font-medium">{product.referenceNumber}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span>Condition</span>
-                    <span className="font-medium">{product.condition}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Year</span>
-                    <span className="font-medium">{product.year}</span>
-                  </div>
+                )}
+                <div className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Gender</span>
+                  <span className="font-medium text-gray-900">{product.gender === 'MENS' ? 'Men' : product.gender === 'WOMENS' ? 'Women' : product.gender}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Condition</span>
+                  <span className="font-medium text-gray-900">{product.condition}</span>
+                </div>
+                <div className="flex justify-between py-2">
+                  <span className="text-gray-600">Year</span>
+                  <span className="font-medium text-gray-900">{product.year}</span>
                 </div>
               </div>
             </div>
             
-            {product.specifications && (
-              <div className="space-y-4">
-                <h4 className="text-sm font-medium text-black mb-3 uppercase tracking-wide">Technical Details</h4>
-                <div className="space-y-2 text-sm text-gray-600">
-                  {product.specifications.movement && (
-                    <div className="flex justify-between">
-                      <span>Movement</span>
-                      <span className="font-medium">{product.specifications.movement}</span>
-                    </div>
-                  )}
-                  {product.specifications.case && (
-                    <div className="flex justify-between">
-                      <span>Case</span>
-                      <span className="font-medium">{product.specifications.case}</span>
-                    </div>
-                  )}
-                  {product.specifications.dial && (
-                    <div className="flex justify-between">
-                      <span>Dial</span>
-                      <span className="font-medium">{product.specifications.dial}</span>
-                    </div>
-                  )}
-                  {product.specifications.bracelet && (
-                    <div className="flex justify-between">
-                      <span>Bracelet</span>
-                      <span className="font-medium">{product.specifications.bracelet}</span>
-                    </div>
-                  )}
-                  {product.specifications.waterResistance && (
-                    <div className="flex justify-between">
-                      <span>Water Resistance</span>
-                      <span className="font-medium">{product.specifications.waterResistance}</span>
-                    </div>
-                  )}
+            {/* Dial & Case */}
+            <div>
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Dial & Case</h4>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Case Shape</span>
+                  <span className="font-medium text-gray-900">Round</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Case Material</span>
+                  <span className="font-medium text-gray-900">{product.specifications?.case || 'Stainless Steel'}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Dial Type</span>
+                  <span className="font-medium text-gray-900">Analog</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Movement</span>
+                  <span className="font-medium text-gray-900">{product.specifications?.movement || 'Quartz'}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Water Resistance</span>
+                  <span className="font-medium text-gray-900">{product.specifications?.waterResistance || '50 m'}</span>
+                </div>
+                <div className="flex justify-between py-2">
+                  <span className="text-gray-600">Warranty</span>
+                  <span className="font-medium text-gray-900">2+24 Months</span>
                 </div>
               </div>
-            )}
+            </div>
+
+            {/* Strap */}
+            <div>
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Strap</h4>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Strap Material</span>
+                  <span className="font-medium text-gray-900">{product.specifications?.bracelet || 'Stainless Steel'}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Strap Type</span>
+                  <span className="font-medium text-gray-900">Bracelet</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Strap Width</span>
+                  <span className="font-medium text-gray-900">20 MM</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Case Size</span>
+                  <span className="font-medium text-gray-900">{product.specifications?.diameter || '42 MM'}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Case Thickness</span>
+                  <span className="font-medium text-gray-900">{product.specifications?.thickness || '12 mm'}</span>
+                </div>
+                <div className="flex justify-between py-2">
+                  <span className="text-gray-600">Brand's Country</span>
+                  <span className="font-medium text-gray-900">Italy</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Other Products You May Like Section - Kept as requested */}
-        <div className="mt-16 pt-8 border-t border-gray-100">
+        {/* More from Brand Section - Helios Style */}
+        <div className="mt-20 pt-8 border-t border-gray-200">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-lg font-medium text-black uppercase tracking-wide">Other Products You May Like</h2>
+            <h2 className="text-2xl font-bold text-gray-900">More from {product.brand}</h2>
             <Link href="/watches">
-              <Button variant="outline" className="text-black border-black hover:bg-black hover:text-white transition-colors text-sm font-medium uppercase tracking-wide rounded-none">
+              <Button variant="outline" className="text-gray-900 border-gray-300 hover:bg-gray-900 hover:text-white transition-colors text-sm font-medium rounded-lg">
                 View All
               </Button>
             </Link>
           </div>
           
           {isLoadingRelated ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {[1, 2, 3, 4].map((index) => (
-                <div key={index} className="bg-gray-100 animate-pulse">
+                <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden animate-pulse">
                   <div className="aspect-square bg-gray-200"></div>
-                  <div className="p-3 space-y-2">
-                    <div className="h-3 bg-gray-200 rounded"></div>
-                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                  <div className="p-4 space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                    <div className="h-5 bg-gray-200 rounded w-1/3"></div>
                   </div>
                 </div>
               ))}
             </div>
           ) : relatedProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {relatedProducts.map((relatedProduct) => (
                 <div 
                   key={relatedProduct.id} 
                   className="group cursor-pointer"
                   onClick={() => handleRelatedProductClick(relatedProduct.id)}
                 >
-                  <div className="relative aspect-square overflow-hidden mb-3">
-                    <Image
-                      src={relatedProduct.imageUrl}
-                      alt={`${relatedProduct.brand} ${relatedProduct.model}`}
-                      width={300}
-                      height={300}
-                      className="w-full h-full object-cover group-hover:opacity-80 transition-opacity"
-                    />
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <h3 className="text-sm font-medium text-black group-hover:text-gray-600 transition-colors">
-                      {relatedProduct.brand} {relatedProduct.model}
-                    </h3>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-black">
-                        {formatPrice(relatedProduct.price)}
-                      </span>
-                      {relatedProduct.previousPrice && (
-                        <span className="text-xs text-gray-400 line-through">
-                          {formatPrice(relatedProduct.previousPrice)}
+                  <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-gray-300">
+                    {/* Product Image */}
+                    <div className="relative aspect-square overflow-hidden bg-gray-50">
+                      <Image
+                        src={relatedProduct.imageUrl}
+                        alt={`${relatedProduct.brand} ${relatedProduct.model}`}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    
+                    {/* Product Info */}
+                    <div className="p-4">
+                      <div className="text-sm font-semibold text-gray-900 mb-1">
+                        {relatedProduct.brand}
+                      </div>
+                      <div className="text-sm text-gray-600 mb-2 line-clamp-2">
+                        {relatedProduct.model}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold text-gray-900">
+                          {formatPrice(relatedProduct.price)}
                         </span>
-                      )}
+                        {relatedProduct.previousPrice && (
+                          <span className="text-sm text-gray-500 line-through">
+                            {formatPrice(relatedProduct.previousPrice)}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Discover More Premium Watches</h3>
-              <p className="text-gray-600 mb-4 text-sm">Explore our complete collection of luxury timepieces</p>
-              <Link href="/watches">
-                <Button className="bg-black text-white hover:bg-gray-800 transition-colors text-sm font-medium uppercase tracking-wide rounded-none">
-                  Browse Collection
-                </Button>
-              </Link>
+            <div className="text-center py-16">
+              <div className="max-w-md mx-auto">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Discover More Premium Watches</h3>
+                <p className="text-gray-600 mb-6">Explore our complete collection of luxury timepieces from {product.brand} and other premium brands.</p>
+                <Link href="/watches">
+                  <Button className="bg-black text-white hover:bg-gray-800 transition-colors px-8 py-3 text-base font-semibold rounded-lg">
+                    Browse Collection
+                  </Button>
+                </Link>
+              </div>
             </div>
           )}
         </div>

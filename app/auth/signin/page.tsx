@@ -19,7 +19,7 @@ export default function SignInPage() {
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (isAuthenticated && user && !isLoading) {
       console.log('🔄 Already authenticated, redirecting...', user.role)
       if (user.role?.toUpperCase() === 'ADMIN') {
         router.push('/admin')
@@ -27,7 +27,7 @@ export default function SignInPage() {
         router.push('/')
       }
     }
-  }, [isAuthenticated, user, router])
+  }, [isAuthenticated, user, router, isLoading])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,18 +39,11 @@ export default function SignInPage() {
       
       if (result.success) {
         toast.success('Login successful!')
-        console.log('✅ Login successful, checking user role...')
+        console.log('✅ Login successful, redirecting...')
         
-        // Wait a bit for the session to fully update
-        setTimeout(() => {
-          if (user?.role?.toUpperCase() === 'ADMIN') {
-            console.log('🔄 Redirecting to admin panel...')
-            router.push('/admin')
-          } else {
-            console.log('🔄 Redirecting to home...')
-            router.push('/')
-          }
-        }, 500)
+        // The auth context will handle the page reload, so we don't need to redirect here
+        // Just show success message and let the page reload handle the redirect
+        console.log('🔄 Login successful, page will reload to establish session...')
       } else {
         toast.error('Invalid email or password')
         console.log('❌ Login failed')

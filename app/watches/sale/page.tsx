@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
-import { ProductTile } from '@/components/ui/product-tile'
+import { CleanProductCard } from '@/components/ui/clean-product-card'
 import { formatPrice } from '@/lib/utils'
-import Image from 'next/image'
 
 interface Product {
   id: string
@@ -41,12 +40,15 @@ interface Product {
 export default function SalePage() {
   const [products, setProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [hasMore, setHasMore] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('/api/products?category=sale&limit=50')
+        const response = await fetch('/api/products?category=sale&limit=20&page=1')
         if (response.ok) {
           const data = await response.json()
           const products = Array.isArray(data?.data) ? data.data : data
@@ -54,11 +56,14 @@ export default function SalePage() {
             const primary = p.images?.find((img: any) => img.isPrimary) || p.images?.[0]
             return {
               ...p,
+              brand: p.brand || 'Brand',
+              model: p.model || 'Model',
               imageUrl: primary?.imageUrl || '/web-banner.png',
               referenceNumber: p.referenceNumber || 'N/A'
             }
           })
           setProducts(mappedProducts)
+          setHasMore(products.length === 20) // If we get less than 20, no more products
         } else {
           setError('Failed to fetch products')
         }
@@ -71,6 +76,37 @@ export default function SalePage() {
 
     fetchProducts()
   }, [])
+
+  const loadMoreProducts = async () => {
+    if (isLoadingMore || !hasMore) return
+    
+    setIsLoadingMore(true)
+    try {
+      const nextPage = currentPage + 1
+      const response = await fetch(`/api/products?category=sale&limit=20&page=${nextPage}`)
+      if (response.ok) {
+        const data = await response.json()
+        const products = Array.isArray(data?.data) ? data.data : data
+        const mappedProducts = products.map((p: any) => {
+          const primary = p.images?.find((img: any) => img.isPrimary) || p.images?.[0]
+          return {
+            ...p,
+            brand: p.brand || 'Brand',
+            model: p.model || 'Model',
+            imageUrl: primary?.imageUrl || '/web-banner.png',
+            referenceNumber: p.referenceNumber || 'N/A'
+          }
+        })
+        setProducts(prev => [...prev, ...mappedProducts])
+        setCurrentPage(nextPage)
+        setHasMore(products.length === 20) // If we get less than 20, no more products
+      }
+    } catch (err) {
+      console.error('Error loading more products:', err)
+    } finally {
+      setIsLoadingMore(false)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -102,46 +138,84 @@ export default function SalePage() {
     )
   }
 
+  const handleAddToWishlist = (productId: string) => {
+    // TODO: Implement wishlist functionality
+    console.log('Add to wishlist:', productId)
+  }
+
+  const handleAddToCart = async (productId: string) => {
+    // TODO: Implement add to cart functionality
+    console.log('Add to cart:', productId)
+  }
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
       
-      <main className="py-4">
-        <div className="max-w-7xl mx-auto px-2 sm:px-4">
-          {/* Header - Minimal */}
-          <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-light text-black text-center">
+      <main className="py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Sale Collection
             </h1>
+            <p className="text-gray-600">
+              Discover amazing deals on premium watches
+            </p>
           </div>
 
-          {/* Sharp, Minimal Product Grid - Responsive with more columns on desktop */}
+          {/* Clean Product Grid - Skartgripir Style */}
           {products.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-0 w-full">
-              {products.map((product) => (
-                <div 
-                  key={product.id} 
-                  className="aspect-square cursor-pointer bg-white hover:opacity-90 transition-opacity duration-200"
-                  onClick={() => window.location.href = `/watches/${product.id}`}
-                >
-                  {/* Product Image - Sharp corners, no rounded edges */}
-                  <div className="relative w-full h-full">
-                    <Image
-                      src={product.imageUrl}
-                      alt={`${product.brand} ${product.model}`}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16vw"
-                      priority={false}
-                    />
-                  </div>
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                {products.map((product) => (
+                  <CleanProductCard
+                    key={product.id}
+                    product={{
+                      id: product.id,
+                      brand: product.brand,
+                      model: product.model,
+                      price: product.price,
+                      previousPrice: product.previousPrice && product.previousPrice > product.price ? product.previousPrice : undefined,
+                      imageUrl: product.imageUrl,
+                      referenceNumber: product.referenceNumber
+                    }}
+                  />
+                ))}
+              </div>
+              
+              {/* Load More Button */}
+              {hasMore && (
+                <div className="text-center mt-8">
+                  <button
+                    onClick={loadMoreProducts}
+                    disabled={isLoadingMore}
+                    className="bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium px-8 py-3 rounded-md transition-colors duration-200"
+                  >
+                    {isLoadingMore ? (
+                      <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Loading...
+                      </div>
+                    ) : (
+                      'Load More Products'
+                    )}
+                  </button>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           ) : (
-            <div className="text-center py-12">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No sale products found</h3>
-              <p className="text-gray-600">Check back soon for amazing deals!</p>
+            <div className="text-center py-16">
+              <div className="max-w-md mx-auto">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No sale products found</h3>
+                <p className="text-gray-600 mb-6">Check back soon for amazing deals on premium watches!</p>
+                <a 
+                  href="/watches" 
+                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-black hover:bg-gray-800 transition-colors duration-200"
+                >
+                  Browse All Watches
+                </a>
+              </div>
             </div>
           )}
         </div>

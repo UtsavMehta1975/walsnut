@@ -72,7 +72,7 @@ interface Customer {
 
 export default function AdminPage() {
   const router = useRouter()
-  const { user, isAuthenticated, isLoading } = useAuth()
+  const { user, isAuthenticated, isLoading, logout } = useAuth()
   const [activeTab, setActiveTab] = useState('dashboard')
   const [isAddingProduct, setIsAddingProduct] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
@@ -116,12 +116,13 @@ export default function AdminPage() {
     console.log('user?.role.toUpperCase() === "ADMIN":', user?.role?.toUpperCase() === 'ADMIN')
     
     if (isLoading) {
-      console.log('Still loading...')
+      console.log('⏳ Still loading authentication...')
       return
     }
     
-    if (!isAuthenticated) {
-      console.log('❌ Not authenticated, redirecting to signin')
+    // Check authentication status - only redirect if we're sure we're not authenticated
+    if (!isAuthenticated && !isLoading) {
+      console.log('❌ Not authenticated and not loading, redirecting to signin')
       router.push('/auth/signin')
       return
     }
@@ -513,6 +514,18 @@ export default function AdminPage() {
     { id: 'customers', label: 'Customers', icon: Users }
   ]
 
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading authentication...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -528,6 +541,22 @@ export default function AdminPage() {
               <p className="text-gray-600 mt-1">
                 Manage products, orders, customers, and analytics
               </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-600">
+                Welcome, {user?.name || user?.email}
+              </span>
+              <Button
+                onClick={async () => {
+                  await logout()
+                  // The auth context will handle the redirect
+                }}
+                variant="outline"
+                size="sm"
+                className="text-gray-600 hover:text-gray-900"
+              >
+                Logout
+              </Button>
             </div>
             {/* Mobile menu button */}
             <button

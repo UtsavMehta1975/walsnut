@@ -67,14 +67,27 @@ export async function GET(request: NextRequest) {
       where.isFeatured = true
     }
 
-    // TODO: Category filtering will be implemented after database schema update
-    // For now, we'll filter by gender which is already in the database
+    // Category filtering implementation
     if (category === 'for-him') {
       where.gender = 'MENS'
     } else if (category === 'for-her') {
       where.gender = 'WOMENS'
+    } else if (category === 'sale' || category === 'sale-1499' || category === 'sale-1999') {
+      // Filter products that have a previousPrice (indicating they're on sale)
+      where.previousPrice = { not: null }
+      
+      // For specific sale price ranges
+      if (category === 'sale-1499') {
+        where.price = { lte: 1499 }
+      } else if (category === 'sale-1999') {
+        where.price = { lte: 1999 }
+      }
+    } else if (category === 'new-arrivals') {
+      // Filter for recently added products (last 30 days)
+      const thirtyDaysAgo = new Date()
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+      where.createdAt = { gte: thirtyDaysAgo }
     }
-    // Sale categories will be implemented after schema update
 
     // Build order by clause
     const orderBy: any = {}

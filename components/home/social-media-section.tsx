@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Instagram, Camera, Heart, Package } from 'lucide-react'
+import { InstagramPosts } from './instagram-posts'
 
 interface Product {
   id: string
@@ -26,10 +27,8 @@ export function SocialMediaSection() {
   const [categoryProducts, setCategoryProducts] = useState<CategoryProduct[]>([
     { category: 'for-him', product: null, isLoading: true },
     { category: 'for-her', product: null, isLoading: true },
-    { category: 'sale-1499', product: null, isLoading: true },
-    { category: 'sale-1999', product: null, isLoading: true },
-    { category: 'premium', product: null, isLoading: true },
-    { category: 'classic', product: null, isLoading: true }
+    { category: 'sale', product: null, isLoading: true },
+    { category: 'new-arrivals', product: null, isLoading: true }
   ])
 
   useEffect(() => {
@@ -85,10 +84,8 @@ export function SocialMediaSection() {
     switch (category) {
       case 'for-him': return 'For Him'
       case 'for-her': return 'For Her'
-      case 'sale-1499': return 'Sale - ₹1,499'
-      case 'sale-1999': return 'Sale - ₹1,999'
-      case 'premium': return 'Premium'
-      case 'classic': return 'Classic'
+      case 'sale': return 'Sale'
+      case 'new-arrivals': return 'New Arrivals'
       default: return category
     }
   }
@@ -96,11 +93,9 @@ export function SocialMediaSection() {
   const getCategoryLink = (category: string) => {
     switch (category) {
       case 'for-him': return '/watches?category=for-him'
-      case 'for-her': return '/watches?category=for-her'
-      case 'sale-1499': return '/watches?category=sale-1499'
-      case 'sale-1999': return '/watches?category=sale-1999'
-      case 'premium': return '/watches?category=premium'
-      case 'classic': return '/watches?category=classic'
+      case 'for-her': return '/watches/for-her'
+      case 'sale': return '/watches/sale'
+      case 'new-arrivals': return '/watches?category=new-arrivals'
       default: return '/watches'
     }
   }
@@ -113,10 +108,14 @@ export function SocialMediaSection() {
             Spotted with Walnut
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto mb-6">
-            Discover our curated collections. One stunning piece from each category to inspire your style.
+            Follow our journey on Instagram and discover our curated collections. See how our timepieces come to life in the real world.
           </p>
           
           <div className="flex items-center justify-center space-x-4 mb-8">
+            <div className="flex items-center space-x-2">
+              <Instagram className="h-5 w-5 text-pink-500" />
+              <span className="text-sm font-medium">Instagram Feed</span>
+            </div>
             <div className="flex items-center space-x-2">
               <Package className="h-5 w-5 text-yellow-600" />
               <span className="text-sm font-medium">Curated Collections</span>
@@ -128,7 +127,32 @@ export function SocialMediaSection() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        {/* Instagram Posts Section */}
+        <div className="mb-12">
+          <div className="text-center mb-6">
+            <h3 className="text-xl font-semibold text-black mb-2">
+              Latest from Instagram
+            </h3>
+            <p className="text-gray-600 text-sm">
+              Follow us <a href="https://instagram.com/thewalnutstore.in" target="_blank" rel="noopener noreferrer" className="text-pink-500 hover:underline">@thewalnutstore.in</a> for daily inspiration
+            </p>
+          </div>
+          <InstagramPosts />
+        </div>
+
+        {/* Product Categories Section */}
+        <div className="mb-8">
+          <div className="text-center mb-6">
+            <h3 className="text-xl font-semibold text-black mb-2">
+              Shop by Category
+            </h3>
+            <p className="text-gray-600 text-sm">
+              Discover our curated collections. One stunning piece from each category to inspire your style.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {categoryProducts.map((cat, index) => (
             <Link key={cat.category} href={getCategoryLink(cat.category)} className="group cursor-pointer">
               <div className="relative aspect-square overflow-hidden rounded-lg">

@@ -38,9 +38,9 @@ export default function CheckoutPage() {
   const imageUrl = searchParams.get('imageUrl')
 
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
+    firstName: user?.name?.split(' ')[0] || '',
+    lastName: user?.name?.split(' ').slice(1).join(' ') || '',
+    email: user?.email || '',
     phone: '',
     address: '',
     city: '',
@@ -91,17 +91,58 @@ export default function CheckoutPage() {
       return
     }
 
+    // Form validation
+    const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'state', 'zipCode']
+    const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData])
+    
+    if (missingFields.length > 0) {
+      toast.error(`Please fill in all required fields: ${missingFields.join(', ')}`)
+      return
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(formData.email)) {
+      toast.error('Please enter a valid email address')
+      return
+    }
+
+    // Phone validation (basic)
+    if (formData.phone.length < 10) {
+      toast.error('Please enter a valid phone number')
+      return
+    }
+
     setIsProcessing(true)
 
     try {
-      // Prepare order data
+      // Prepare comprehensive order data
       const orderData = {
         items: checkoutItems.map(item => ({
           productId: item.id,
           quantity: item.quantity,
           price: item.price
         })),
-        shippingAddress: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}, ${formData.country}`,
+        customerInfo: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone
+        },
+        shippingAddress: {
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode,
+          country: formData.country,
+          fullAddress: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}, ${formData.country}`
+        },
+        orderSummary: {
+          subtotal: subtotal,
+          shipping: shipping,
+          tax: tax,
+          total: total
+        },
         totalAmount: total
       }
 
@@ -111,7 +152,11 @@ export default function CheckoutPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(orderData)
+        body: JSON.stringify({
+          items: orderData.items,
+          shippingAddress: orderData.shippingAddress.fullAddress,
+          totalAmount: orderData.totalAmount
+        })
       })
 
       if (!response.ok) {
