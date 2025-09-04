@@ -114,7 +114,7 @@ export default function WatchAdvisorPage() {
               {Object.entries(lifestyleRecommendations).map(([key, lifestyle]) => (
                 <Card 
                   key={key}
-                  className="cursor-pointer hover:shadow-lg transition-shadow duration-300"
+                  className="cursor-pointer hover:shadow-lg transition-shadow duration-300 rounded-none"
                   onClick={() => handleLifestyleSelect(key)}
                 >
                   <CardContent className="p-6">
@@ -160,7 +160,7 @@ export default function WatchAdvisorPage() {
             {lifestyleRecommendations[selectedLifestyle as keyof typeof lifestyleRecommendations].recommendations.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {lifestyleRecommendations[selectedLifestyle as keyof typeof lifestyleRecommendations].recommendations.map((recommendation) => (
-                  <Card key={recommendation.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                  <Card key={recommendation.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300 rounded-none">
                     <div className="aspect-square relative">
                       <Image
                         src={recommendation.image}

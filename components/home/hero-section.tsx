@@ -99,7 +99,7 @@ export function HeroSection() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             {/* Left side - Image */}
             <div className="relative">
-              <div className="aspect-square rounded-lg overflow-hidden shadow-lg">
+              <div className="aspect-square rounded-none overflow-hidden shadow-lg">
                 <Image 
                   src="/gift-image.jpg"
                   alt="Luxury Watch Gifting Guide"

@@ -21,7 +21,7 @@ export function WatchAdvisor() {
         <div className="grid md:grid-cols-2 gap-8 items-center">
           {/* Left side - Image */}
           <div className="relative">
-            <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
+            <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-none flex items-center justify-center">
               <div className="text-center">
                 <Gift className="h-24 w-24 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-500">Gifting Guide Image</p>

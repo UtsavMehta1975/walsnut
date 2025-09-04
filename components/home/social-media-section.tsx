@@ -155,7 +155,7 @@ export function SocialMediaSection() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {categoryProducts.map((cat, index) => (
             <Link key={cat.category} href={getCategoryLink(cat.category)} className="group cursor-pointer">
-              <div className="relative aspect-square overflow-hidden rounded-lg">
+              <div className="relative aspect-square overflow-hidden rounded-none">
                 {cat.isLoading ? (
                   // Loading skeleton
                   <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
