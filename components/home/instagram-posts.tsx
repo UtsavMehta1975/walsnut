@@ -62,7 +62,7 @@ export function InstagramPosts() {
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {Array.from({ length: 6 }).map((_, index) => (
-          <div key={index} className="aspect-square bg-gray-200 animate-pulse rounded-lg flex items-center justify-center">
+          <div key={index} className="aspect-square bg-gray-200 animate-pulse rounded-none flex items-center justify-center">
             <Instagram className="h-8 w-8 text-gray-400" />
           </div>
         ))}

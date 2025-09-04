@@ -196,14 +196,14 @@ export const LoadingSkeleton = memo(({ count = 3 }: { count?: number }) => {
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {skeletons.map((i) => (
         <Card key={i} className="animate-pulse">
-          <div className="h-48 bg-gray-200 rounded-t-lg" />
+          <div className="h-48 bg-gray-200 rounded-none" />
           <CardContent className="p-4 space-y-3">
-            <div className="h-4 bg-gray-200 rounded w-3/4" />
-            <div className="h-3 bg-gray-200 rounded w-1/2" />
-            <div className="h-4 bg-gray-200 rounded w-1/3" />
+            <div className="h-4 bg-gray-200 rounded-none w-3/4" />
+            <div className="h-3 bg-gray-200 rounded-none w-1/2" />
+            <div className="h-4 bg-gray-200 rounded-none w-1/3" />
             <div className="flex gap-2 pt-2">
-              <div className="h-8 bg-gray-200 rounded flex-1" />
-              <div className="h-8 bg-gray-200 rounded w-12" />
+              <div className="h-8 bg-gray-200 rounded-none flex-1" />
+              <div className="h-8 bg-gray-200 rounded-none w-12" />
             </div>
           </CardContent>
         </Card>

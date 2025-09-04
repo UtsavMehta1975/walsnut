@@ -89,7 +89,7 @@ export function OptimizedImage({
       {/* Loading skeleton */}
       {isLoading && (
         <div 
-          className="absolute inset-0 bg-gray-200 animate-pulse rounded"
+          className="absolute inset-0 bg-gray-200 animate-pulse rounded-none"
           style={{ width: fill ? '100%' : width, height: fill ? '100%' : height }}
         />
       )}

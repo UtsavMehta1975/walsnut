@@ -624,7 +624,7 @@ export default function AdminPage() {
                       <p className="text-sm font-medium text-gray-600">Total Products</p>
                       <p className="text-xl lg:text-2xl font-bold text-gray-900">
                         {isLoadingProducts ? (
-                          <span className="animate-pulse bg-gray-200 h-8 w-16 rounded"></span>
+                          <span className="animate-pulse bg-gray-200 h-8 w-16 rounded-none"></span>
                         ) : (
                           totalProducts
                         )}
@@ -644,7 +644,7 @@ export default function AdminPage() {
                       <p className="text-sm font-medium text-gray-600">Total Customers</p>
                       <p className="text-xl lg:text-2xl font-bold text-gray-900">
                         {isLoadingCustomers ? (
-                          <span className="animate-pulse bg-gray-200 h-8 w-16 rounded"></span>
+                          <span className="animate-pulse bg-gray-200 h-8 w-16 rounded-none"></span>
                         ) : (
                           totalCustomers
                         )}
@@ -664,7 +664,7 @@ export default function AdminPage() {
                       <p className="text-sm font-medium text-gray-600">Total Orders</p>
                       <p className="text-xl lg:text-2xl font-bold text-gray-900">
                         {isLoadingOrders ? (
-                          <span className="animate-pulse bg-gray-200 h-8 w-16 rounded"></span>
+                          <span className="animate-pulse bg-gray-200 h-8 w-16 rounded-none"></span>
                         ) : (
                           totalOrders
                         )}
@@ -750,15 +750,15 @@ export default function AdminPage() {
                   {isLoadingOrders ? (
                     // Loading skeleton for orders
                     Array.from({ length: 5 }).map((_, index) => (
-                      <div key={index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-gray-200 rounded-lg">
+                      <div key={index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-gray-200 rounded-none">
                         <div className="mb-3 sm:mb-0 space-y-2">
-                          <div className="animate-pulse bg-gray-200 h-4 w-32 rounded"></div>
-                          <div className="animate-pulse bg-gray-200 h-3 w-24 rounded"></div>
-                          <div className="animate-pulse bg-gray-200 h-3 w-20 rounded"></div>
+                          <div className="animate-pulse bg-gray-200 h-4 w-32 rounded-none"></div>
+                          <div className="animate-pulse bg-gray-200 h-3 w-24 rounded-none"></div>
+                          <div className="animate-pulse bg-gray-200 h-3 w-20 rounded-none"></div>
                         </div>
                         <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
-                          <div className="animate-pulse bg-gray-200 h-6 w-20 rounded-full"></div>
-                          <div className="animate-pulse bg-gray-200 h-3 w-16 rounded"></div>
+                          <div className="animate-pulse bg-gray-200 h-6 w-20 rounded-none"></div>
+                          <div className="animate-pulse bg-gray-200 h-3 w-16 rounded-none"></div>
                         </div>
                       </div>
                     ))
@@ -1224,21 +1224,21 @@ export default function AdminPage() {
                   {isLoadingOrders ? (
                     // Loading skeleton for orders
                     Array.from({ length: 3 }).map((_, index) => (
-                      <div key={index} className="border border-gray-200 rounded-lg p-4 lg:p-6">
+                      <div key={index} className="border border-gray-200 rounded-none p-4 lg:p-6">
                         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
                           <div className="mb-4 lg:mb-0 space-y-2">
-                            <div className="animate-pulse bg-gray-200 h-4 w-32 rounded"></div>
-                            <div className="animate-pulse bg-gray-200 h-3 w-48 rounded"></div>
-                            <div className="animate-pulse bg-gray-200 h-3 w-24 rounded"></div>
+                            <div className="animate-pulse bg-gray-200 h-4 w-32 rounded-none"></div>
+                            <div className="animate-pulse bg-gray-200 h-3 w-48 rounded-none"></div>
+                            <div className="animate-pulse bg-gray-200 h-3 w-24 rounded-none"></div>
                           </div>
                           <div className="text-left lg:text-right space-y-2">
-                            <div className="animate-pulse bg-gray-200 h-6 w-20 rounded"></div>
-                            <div className="animate-pulse bg-gray-200 h-10 w-32 rounded"></div>
+                            <div className="animate-pulse bg-gray-200 h-6 w-20 rounded-none"></div>
+                            <div className="animate-pulse bg-gray-200 h-10 w-32 rounded-none"></div>
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <div className="animate-pulse bg-gray-200 h-3 w-full rounded"></div>
-                          <div className="animate-pulse bg-gray-200 h-3 w-3/4 rounded"></div>
+                          <div className="animate-pulse bg-gray-200 h-3 w-full rounded-none"></div>
+                          <div className="animate-pulse bg-gray-200 h-3 w-3/4 rounded-none"></div>
                         </div>
                       </div>
                     ))
@@ -1314,16 +1314,16 @@ export default function AdminPage() {
                   {isLoadingCustomers ? (
                     // Loading skeleton for customers
                     Array.from({ length: 3 }).map((_, index) => (
-                      <div key={index} className="flex flex-col lg:flex-row lg:items-center lg:justify-between p-4 lg:p-6 border border-gray-200 rounded-lg">
+                      <div key={index} className="flex flex-col lg:flex-row lg:items-center lg:justify-between p-4 lg:p-6 border border-gray-200 rounded-none">
                         <div className="mb-4 lg:mb-0 space-y-2">
-                          <div className="animate-pulse bg-gray-200 h-4 w-32 rounded"></div>
-                          <div className="animate-pulse bg-gray-200 h-3 w-48 rounded"></div>
-                          <div className="animate-pulse bg-gray-200 h-3 w-24 rounded"></div>
+                          <div className="animate-pulse bg-gray-200 h-4 w-32 rounded-none"></div>
+                          <div className="animate-pulse bg-gray-200 h-3 w-48 rounded-none"></div>
+                          <div className="animate-pulse bg-gray-200 h-3 w-24 rounded-none"></div>
                         </div>
                         <div className="text-left lg:text-right space-y-2">
-                          <div className="animate-pulse bg-gray-200 h-3 w-20 rounded"></div>
-                          <div className="animate-pulse bg-gray-200 h-3 w-24 rounded"></div>
-                          <div className="animate-pulse bg-gray-200 h-6 w-16 rounded-full"></div>
+                          <div className="animate-pulse bg-gray-200 h-3 w-20 rounded-none"></div>
+                          <div className="animate-pulse bg-gray-200 h-3 w-24 rounded-none"></div>
+                          <div className="animate-pulse bg-gray-200 h-6 w-16 rounded-none"></div>
                         </div>
                       </div>
                     ))
