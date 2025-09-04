@@ -139,7 +139,7 @@ export function ProductTile({ product, variant = 'default' }: ProductTileProps) 
             <Button 
               onClick={handleAddToCart}
               disabled={product.stockQuantity === 0}
-              className="flex-1 btn-highlight min-h-[44px] text-sm sm:text-sm font-semibold"
+              className="flex-1 btn-highlight min-h-[44px] text-sm sm:text-sm font-semibold rounded-none"
               size="default"
             >
               <ShoppingCart className="h-4 w-4 mr-1 sm:mr-1" />
@@ -150,7 +150,7 @@ export function ProductTile({ product, variant = 'default' }: ProductTileProps) 
               onClick={handleBuyNow}
               disabled={product.stockQuantity === 0}
               variant="outline"
-              className="min-h-[44px] px-3 sm:px-3"
+              className="min-h-[44px] px-3 sm:px-3 rounded-none"
               size="default"
             >
               <Eye className="h-4 w-4" />

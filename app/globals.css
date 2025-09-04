@@ -121,7 +121,7 @@
     color: black;
     font-weight: 600;
     transition: all 0.3s;
-    border-radius: 0.75rem;
+    border-radius: 0;
   }
   
   .btn-highlight:hover {
@@ -134,7 +134,7 @@
     background-color: white;
     font-weight: 600;
     transition: all 0.3s;
-    border-radius: 0.75rem;
+    border-radius: 0;
   }
   
   .btn-highlight-outline:hover {
