@@ -181,18 +181,17 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
             <Button 
               onClick={handleAddToCart}
               disabled={product.stockQuantity === 0}
-              className="flex-1 btn-highlight min-h-[44px] text-sm sm:text-sm font-semibold rounded-none"
+              className="flex-1 btn-highlight h-[44px] w-[44px] sm:h-[44px] sm:w-auto sm:flex-1 text-sm sm:text-sm font-semibold rounded-none flex items-center justify-center"
               size="default"
             >
-              <ShoppingCart className="h-4 w-4 mr-1 sm:mr-1" />
-              <span className="hidden sm:inline">Add to Cart</span>
-              <span className="sm:hidden">Add</span>
+              <ShoppingCart className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline ml-1">Add to Cart</span>
             </Button>
             <Button 
               onClick={handleCardClick}
               disabled={product.stockQuantity === 0}
               variant="outline"
-              className="min-h-[44px] px-3 sm:px-3 rounded-none"
+              className="h-[44px] w-[44px] rounded-none flex items-center justify-center"
               size="default"
             >
               <Eye className="h-4 w-4" />

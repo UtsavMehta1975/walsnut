@@ -86,37 +86,8 @@ export default function AdminPage() {
   const [isLoadingOrders, setIsLoadingOrders] = useState(true)
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true)
 
-  // Fetch all data from database
-  const fetchAllData = async () => {
-    await Promise.all([
-      fetchProducts(),
-      fetchOrders(),
-      fetchCustomers()
-    ])
-  }
-
   // Check authentication and admin role
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch('/api/products?admin=true', {
-          headers: {
-            'Authorization': `Bearer ${user?.email}`,
-          },
-        })
-        if (response.ok) {
-          const data = await response.json()
-          setProducts(data)
-        } else {
-          toast.error('Failed to fetch products')
-        }
-      } catch (error) {
-        toast.error('Failed to fetch products')
-      } finally {
-        setIsLoadingProducts(false)
-      }
-    }
-
     console.log('=== ADMIN PAGE AUTH CHECK ===')
     console.log('isLoading:', isLoading)
     console.log('isAuthenticated:', isAuthenticated)
@@ -149,8 +120,27 @@ export default function AdminPage() {
     }
     
     console.log('✅ Admin access granted, fetching data')
+    
+    // Fetch data only once when admin access is confirmed
+    const fetchAllData = async () => {
+      await Promise.all([
+        fetchProducts(),
+        fetchOrders(),
+        fetchCustomers()
+      ])
+    }
+    
     fetchAllData()
-  }, [user, isAuthenticated, isLoading, router, fetchAllData])
+  }, [user, isAuthenticated, isLoading, router])
+
+  // Fetch all data from database (for manual refresh)
+  const fetchAllData = async () => {
+    await Promise.all([
+      fetchProducts(),
+      fetchOrders(),
+      fetchCustomers()
+    ])
+  }
 
   // Fetch products from database
   const fetchProducts = async () => {
