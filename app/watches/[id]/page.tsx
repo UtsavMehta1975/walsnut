@@ -80,6 +80,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const [isLoading, setIsLoading] = useState(true)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [showImageModal, setShowImageModal] = useState(false)
+  const [isImageLoading, setIsImageLoading] = useState(true)
   const { addToCart } = useCart()
 
   useEffect(() => {
@@ -120,6 +121,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           authenticity: p.authenticity
         }
         setProduct(mapped)
+        setIsImageLoading(true) // Reset image loading state when product changes
         
         // Fetch related products after main product is loaded
         fetchRelatedProducts(p.brand, p.price, p.id)
@@ -228,6 +230,14 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     })
   }
 
+  const handleImageLoad = () => {
+    setIsImageLoading(false)
+  }
+
+  const handleImageError = () => {
+    setIsImageLoading(false)
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -293,7 +303,17 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           {/* Product Images - Helios Style Gallery */}
           <div className="space-y-6">
             {/* Main Image - Professional display */}
-            <div className="aspect-square overflow-hidden bg-gray-50 border border-gray-200">
+            <div className="aspect-square overflow-hidden bg-gray-50 border border-gray-200 relative">
+              {/* Image Loader */}
+              {isImageLoading && (
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+                    <p className="text-sm text-gray-600">Loading image...</p>
+                  </div>
+                </div>
+              )}
+              
               <Image
                 src={product.images[selectedImageIndex]}
                 alt={product.name}
@@ -301,6 +321,8 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 height={800}
                 className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
                 onClick={() => setShowImageModal(true)}
+                onLoad={handleImageLoad}
+                onError={handleImageError}
               />
             </div>
             
@@ -315,7 +337,10 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                         ? 'border-black' 
                         : 'border-gray-200 hover:border-gray-400'
                     }`}
-                    onClick={() => setSelectedImageIndex(index)}
+                    onClick={() => {
+                      setSelectedImageIndex(index)
+                      setIsImageLoading(true) // Show loader when switching images
+                    }}
                   >
                     <Image
                       src={imageUrl}

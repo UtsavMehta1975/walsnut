@@ -78,7 +78,7 @@ export function Navbar() {
               alt="Walnut Logo"
               width={200}
               height={80}
-              className="h-20 w-auto sm:h-18 md:h-20 object-contain hover:opacity-80 transition-opacity duration-200"
+              className="h-20 w-auto sm:h-18 md:h-20 object-contain hover:opacity-80 transition-opacity duration-200 border-0 outline-none"
               priority
             />
           </Link>
