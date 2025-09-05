@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart, Menu, X, User, Search, ChevronDown } from 'lucide-react'
@@ -70,9 +71,16 @@ export function Navbar() {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo with border */}
-          <Link href="/" className="text-2xl font-bold text-black border-2 border-black px-3 py-1 rounded hover:bg-black hover:text-white transition-colors">
-            WALNUT
+          {/* Logo */}
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logo.png"
+              alt="Walnut Logo"
+              width={120}
+              height={40}
+              className="h-8 w-auto sm:h-10 md:h-12 object-contain hover:opacity-80 transition-opacity duration-200"
+              priority
+            />
           </Link>
 
           {/* Desktop Navigation */}
