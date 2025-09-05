@@ -25,7 +25,7 @@ export function CleanProductCard({ product }: CleanProductCardProps) {
 
   return (
     <Link href={`/watches/${product.id}`} className="group block">
-      <div className="bg-white hover:shadow-sm transition-shadow duration-200">
+      <div className="bg-white/95 hover:shadow-sm transition-shadow duration-200">
         {/* Product Image */}
         <div className="relative aspect-square overflow-hidden bg-gray-50">
           <Image

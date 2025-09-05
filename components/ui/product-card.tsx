@@ -83,7 +83,7 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
 
   return (
     <Card 
-      className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
+      className={`cursor-pointer transition-all duration-300 hover:shadow-lg bg-white/95 ${
         variant === 'featured' ? 'featured-product-card' : 'product-card'
       }`}
       onClick={handleCardClick}

@@ -31,6 +31,7 @@ export function TrendingTimepieces() {
   const router = useRouter()
   const [products, setProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [visibleProducts, setVisibleProducts] = useState(20) // Show 20 products initially (4 rows x 5 columns)
 
   const handleProductClick = (productId: string) => {
     router.push(`/watches/${productId}`)
@@ -44,6 +45,10 @@ export function TrendingTimepieces() {
       price: product.price,
       image: product.image
     })
+  }
+
+  const handleShowMore = () => {
+    setVisibleProducts(prev => prev + 20) // Show 20 more products (4 more rows)
   }
 
   useEffect(() => {
@@ -120,8 +125,8 @@ export function TrendingTimepieces() {
               Trending Timepieces
             </h2>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-0 w-full mb-8">
-            {[...Array(12)].map((_, i) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 w-full mb-8">
+            {[...Array(20)].map((_, i) => (
               <div key={i} className="aspect-square bg-gray-200 animate-pulse"></div>
             ))}
           </div>
@@ -141,9 +146,9 @@ export function TrendingTimepieces() {
           <p className="text-gray-600">Showing {products.length} premium timepieces</p>
         </div>
 
-        {/* Clean Product Grid - Skartgripir Style */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-8">
-          {products.map((product) => (
+        {/* Clean Product Grid - 4 rows x 5 columns */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
+          {products.slice(0, visibleProducts).map((product) => (
             <CleanProductCard
               key={product.id}
               product={{
@@ -163,7 +168,7 @@ export function TrendingTimepieces() {
         <div className="text-center">
           <Link href="/watches">
             <Button size="lg" className="bg-black text-white hover:bg-gray-800 font-light text-lg px-6 py-3">
-              View All Timepieces ({products.length})
+              View All Timepieces
             </Button>
           </Link>
         </div>
