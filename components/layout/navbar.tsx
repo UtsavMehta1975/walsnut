@@ -71,8 +71,8 @@ export function Navbar() {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center">
+          {/* Desktop Logo */}
+          <Link href="/" className="hidden md:flex items-center">
             <Image
               src="/logo.png"
               alt="Walnut Logo"
@@ -82,6 +82,49 @@ export function Navbar() {
               priority
             />
           </Link>
+
+          {/* Mobile Header Layout */}
+          <div className="md:hidden flex items-center justify-between w-full">
+            {/* Left side: Hamburger + Logo */}
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="text-gray-700"
+              >
+                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+              <Link href="/" className="flex items-center">
+                <Image
+                  src="/logo.png"
+                  alt="Walnut Logo"
+                  width={120}
+                  height={48}
+                  className="h-12 w-auto object-contain hover:opacity-80 transition-opacity duration-200"
+                  priority
+                />
+              </Link>
+            </div>
+
+            {/* Center: WALNUT Text */}
+            <div className="flex-1 flex justify-center">
+              <h1 className="text-xl font-bold text-black">WALNUT</h1>
+            </div>
+
+            {/* Right side: Search + Cart */}
+            <div className="flex items-center space-x-3">
+              <button className="text-gray-700 hover:text-yellow-400 transition-colors">
+                <Search className="h-5 w-5" />
+              </button>
+              <Link href="/cart" className="relative text-gray-700 hover:text-yellow-400 transition-colors">
+                <ShoppingCart className="h-5 w-5" />
+                {mounted && cartItemCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartItemCount}
+                  </span>
+                )}
+              </Link>
+            </div>
+          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
@@ -192,23 +235,6 @@ export function Navbar() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center space-x-4">
-            <Link href="/cart" className="relative text-gray-700">
-              <ShoppingCart className="h-5 w-5" />
-              {mounted && cartItemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartItemCount}
-                </span>
-              )}
-            </Link>
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-gray-700"
-            >
-              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
-          </div>
         </div>
 
         {/* Mobile Menu */}
