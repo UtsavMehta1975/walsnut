@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
-import { Plus, Edit, Trash2, Package, Users, TrendingUp, ShoppingCart, Eye, FileText, Settings, BarChart3, Menu, X } from 'lucide-react'
+import { Plus, Edit, Trash2, Package, Users, TrendingUp, ShoppingCart, Eye, FileText, Settings, BarChart3, Menu, X, Search } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import toast from 'react-hot-toast'
 import AdminImageManager from '@/components/ui/admin-image-manager'
@@ -85,6 +85,25 @@ export default function AdminPage() {
   const [isLoadingProducts, setIsLoadingProducts] = useState(true)
   const [isLoadingOrders, setIsLoadingOrders] = useState(true)
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true)
+  
+  // Search functionality
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
+
+  // Filter products based on search query
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredProducts(products)
+    } else {
+      const filtered = products.filter(product => 
+        product.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.referenceNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      setFilteredProducts(filtered)
+    }
+  }, [products, searchQuery])
 
   // Check authentication and admin role
   useEffect(() => {
@@ -119,7 +138,7 @@ export default function AdminPage() {
       return
     }
     
-    console.log('✅ Admin access granted, fetching data')
+    
     
     // Fetch data only once when admin access is confirmed
     const fetchAllData = async () => {
@@ -234,6 +253,7 @@ export default function AdminPage() {
       movement: '',
       case: '',
       dial: '',
+      
       bracelet: '',
       waterResistance: '',
       powerReserve: '',
@@ -1146,19 +1166,50 @@ export default function AdminPage() {
                   </div>
                 )}
 
+                {/* Search Bar */}
+                <div className="mb-6">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input
+                      placeholder="Search products by brand, model, reference number, or description..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 pr-10"
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  {searchQuery && (
+                    <p className="text-sm text-gray-600 mt-2">
+                      Showing {filteredProducts.length} of {products.length} products
+                    </p>
+                  )}
+                </div>
+
                 {/* Products List */}
                 <div className="space-y-4">
                   {isLoadingProducts ? (
                     <div className="flex items-center justify-center p-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
                     </div>
-                  ) : (!Array.isArray(products) || products.length === 0) ? (
+                  ) : (!Array.isArray(filteredProducts) || filteredProducts.length === 0) ? (
                     <div className="text-center p-8 text-gray-500">
                       <Package className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                      <p>No products found. Create your first product to get started.</p>
+                      <p>
+                        {searchQuery 
+                          ? `No products found matching "${searchQuery}". Try a different search term.`
+                          : "No products found. Create your first product to get started."
+                        }
+                      </p>
                     </div>
                   ) : (
-                    (Array.isArray(products) ? products : []).map((product) => (
+                    (Array.isArray(filteredProducts) ? filteredProducts : []).map((product) => (
                       <div key={product.id} className="border border-gray-200 rounded-lg p-4 lg:p-6 hover:shadow-md transition-shadow">
                         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
                           <div className="flex items-start space-x-4 mb-4 lg:mb-0">

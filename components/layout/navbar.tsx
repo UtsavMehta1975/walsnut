@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { ShoppingCart, Menu, X, User, Search, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/contexts/auth-context'
 import { useCart } from '@/store/cart-store'
+import { SearchBar } from '@/components/ui/search-bar'
 
 export function Navbar() {
   const router = useRouter()
@@ -112,9 +113,9 @@ export function Navbar() {
 
             {/* Right side: Search + Cart */}
             <div className="flex items-center space-x-3">
-              <button className="text-gray-700 hover:text-yellow-400 transition-colors">
-                <Search className="h-5 w-5" />
-              </button>
+              <div className="w-32">
+                <SearchBar placeholder="Search..." />
+              </div>
               <Link href="/cart" className="relative text-gray-700 hover:text-yellow-400 transition-colors">
                 <ShoppingCart className="h-5 w-5" />
                 {mounted && cartItemCount > 0 && (
@@ -186,9 +187,9 @@ export function Navbar() {
           {/* Desktop Right Side */}
           <div className="hidden md:flex items-center space-x-4">
             {/* Search */}
-            <button className="text-gray-700 hover:text-yellow-400 transition-colors">
-              <Search className="h-5 w-5" />
-            </button>
+            <div className="w-64">
+              <SearchBar placeholder="Search watches..." />
+            </div>
 
             {/* Cart */}
             <Link href="/cart" className="relative text-gray-700 hover:text-yellow-400 transition-colors">
