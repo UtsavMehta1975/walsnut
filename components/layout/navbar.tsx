@@ -86,7 +86,7 @@ export function Navbar() {
 
           {/* Mobile Header Layout */}
           <div className="md:hidden flex items-center justify-between w-full">
-            {/* Left side: Hamburger + Logo */}
+            {/* Left side: Hamburger + Logo + Text */}
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -94,7 +94,7 @@ export function Navbar() {
               >
                 {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
-              <Link href="/" className="flex items-center">
+              <Link href="/" className="flex items-center space-x-1">
                 <Image
                   src="/logo.png"
                   alt="Walnut Logo"
@@ -103,12 +103,12 @@ export function Navbar() {
                   className="h-12 w-auto object-contain hover:opacity-80 transition-opacity duration-200"
                   priority
                 />
+                <h1 className="text-xs font-light text-gray-500 italic">thewalnutstore.in</h1>
               </Link>
             </div>
 
-            {/* Center: WALNUT Text */}
+            {/* Center: Empty space */}
             <div className="flex-1 flex justify-center">
-              <h1 className="text-xl font-bold text-black">WALNUT</h1>
             </div>
 
             {/* Right side: Search + Cart */}
