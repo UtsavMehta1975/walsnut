@@ -131,6 +131,7 @@ export default function AdminPage() {
     }
     
     fetchAllData()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isAuthenticated, isLoading, router])
 
   // Fetch all data from database (for manual refresh)
