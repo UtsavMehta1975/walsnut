@@ -8,7 +8,7 @@ import AuthSessionProvider from '@/components/providers/session-provider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Walnut - Premium Inspired Timepieces',
+  title: 'The Walnut Store - Premium Inspired Timepieces',
   description: 'Premium inspired timepieces for the discerning collector. Quality craftsmanship meets timeless elegance.',
   icons: {
     icon: '/favicon.ico',

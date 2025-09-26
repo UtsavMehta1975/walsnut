@@ -10,7 +10,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="lg:col-span-1">
-            <h3 className="text-yellow-400 text-xl font-bold mb-4">WALNUT</h3>
+            <h3 className="text-yellow-400 text-2xl font-abril font-bold mb-4">TheWalnutStore.in</h3>
             <p className="text-gray-300 mb-4">
               Premium inspired timepieces for the discerning collector. Quality craftsmanship meets timeless elegance.
             </p>
@@ -49,27 +49,32 @@ export function Footer() {
                 </li>
                 <li>
                   <Link href="/watches" className="text-gray-300 hover:text-yellow-400 transition-colors">
-                    For Him
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/watches?category=for-her" className="text-gray-300 hover:text-yellow-400 transition-colors">
-                    For Her
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/watches" className="text-gray-300 hover:text-yellow-400 transition-colors">
                     All Products
                   </Link>
                 </li>
                 <li>
-                  <Link href="/watches?category=sale-1499" className="text-gray-300 hover:text-yellow-400 transition-colors">
-                    Sale - ₹1,499
+                  <Link href="/watches?category=for-him" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    For Him
                   </Link>
                 </li>
                 <li>
-                  <Link href="/watches?category=sale-1999" className="text-gray-300 hover:text-yellow-400 transition-colors">
-                    Sale - ₹1,999
+                  <Link href="/watches/for-her" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    For Her
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/sunglasses" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    Signature Eyewear
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/speakers" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    Elite Speakers
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/earbuds" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    True Wireless Earbuds
                   </Link>
                 </li>
                 <li>
@@ -151,7 +156,7 @@ export function Footer() {
         <div className="border-t border-gray-700 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-300 text-sm">
-              © {currentYear} Walnut Store. All Rights Reserved.
+              © {currentYear} The Walnut Store. All Rights Reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link href="/privacy-policy" className="text-gray-300 hover:text-yellow-400 text-sm transition-colors">

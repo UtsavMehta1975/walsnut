@@ -3,6 +3,76 @@
 @tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Doughnuts+Are+Forever&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=RoxboroughCF:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Monckeberg+Alt+Normal:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Belinda:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Arbo:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap');
+
+/* Add numbers to pagination buttons by CSS */
+.splide__pagination {
+  counter-reset: pagination-num;
+}
+
+.splide__pagination__page:before {
+  counter-increment: pagination-num;
+  content: counter(pagination-num);
+}
+
+/* Custom carousel styling */
+.splide__arrow {
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.splide__arrow:hover {
+  background: rgba(0, 0, 0, 0.9);
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.splide__arrow svg {
+  fill: white;
+  width: 20px;
+  height: 20px;
+}
+
+.splide__arrow--prev {
+  left: 10px;
+}
+
+.splide__arrow--next {
+  right: 10px;
+}
+
+.splide__pagination {
+  bottom: -40px;
+}
+
+.splide__pagination__page {
+  background: #e5e7eb;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  margin: 0 4px;
+  transition: all 0.3s ease;
+}
+
+.splide__pagination__page.is-active {
+  background: #000;
+  transform: scale(1.2);
+}
+
+.splide__pagination__page:hover {
+  background: #9ca3af;
+}
 
 @layer base {
   :root {

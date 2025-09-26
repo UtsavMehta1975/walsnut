@@ -73,7 +73,14 @@ module.exports = {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         serif: ['Inter', 'sans-serif'],
-        mono: ['Inter', 'monospace']
+        mono: ['Inter', 'monospace'],
+        lato: ['Lato', 'sans-serif'],
+        doughnuts: ['Doughnuts Are Forever', 'cursive'],
+        roxborough: ['RoxboroughCF', 'sans-serif'],
+        monckeberg: ['Monckeberg Alt Normal', 'sans-serif'],
+        belinda: ['Belinda', 'cursive'],
+        arbo: ['Arbo', 'sans-serif'],
+        abril: ['Abril Fatface', 'cursive']
       }
     }
   },

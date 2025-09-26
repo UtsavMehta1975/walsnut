@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { ShoppingCart, Menu, X, User, Search, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/contexts/auth-context'
 import { useCart } from '@/store/cart-store'
-import { SearchBar } from '@/components/ui/search-bar'
+import { SearchModal } from '@/components/ui/search-modal'
 
 export function Navbar() {
   const router = useRouter()
@@ -16,10 +16,12 @@ export function Navbar() {
   const { getItemCount } = useCart()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
-  const [isSaleDropdownOpen, setIsSaleDropdownOpen] = useState(false)
+  const [isTrendingDropdownOpen, setIsTrendingDropdownOpen] = useState(false)
+  const [isMobilePremiumDropdownOpen, setIsMobilePremiumDropdownOpen] = useState(false)
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
-  const saleDropdownRef = useRef<HTMLDivElement>(null)
+  const trendingDropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -30,8 +32,8 @@ export function Navbar() {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false)
       }
-      if (saleDropdownRef.current && !saleDropdownRef.current.contains(event.target as Node)) {
-        setIsSaleDropdownOpen(false)
+      if (trendingDropdownRef.current && !trendingDropdownRef.current.contains(event.target as Node)) {
+        setIsTrendingDropdownOpen(false)
       }
     }
 
@@ -86,7 +88,7 @@ export function Navbar() {
 
           {/* Mobile Header Layout */}
           <div className="md:hidden flex items-center justify-between w-full">
-            {/* Left side: Hamburger + Logo + Text */}
+            {/* Left side: Hamburger + Logo */}
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -94,28 +96,33 @@ export function Navbar() {
               >
                 {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
-              <Link href="/" className="flex items-center space-x-1">
+              <Link href="/" className="flex items-center">
                 <Image
                   src="/logo.png"
                   alt="Walnut Logo"
-                  width={120}
-                  height={48}
-                  className="h-12 w-auto object-contain hover:opacity-80 transition-opacity duration-200"
+                  width={150}
+                  height={60}
+                  className="h-16 w-auto object-contain hover:opacity-80 transition-opacity duration-200"
                   priority
                 />
-                <h1 className="text-xs font-light text-gray-500 italic">thewalnutstore.in</h1>
               </Link>
             </div>
 
-            {/* Center: Empty space */}
+            {/* Center: TheWalnutStore.in Text */}
             <div className="flex-1 flex justify-center">
+              <h1 className="text-2xl font-abril font-bold text-black">TheWalnutStore.in</h1>
             </div>
 
             {/* Right side: Search + Cart */}
             <div className="flex items-center space-x-3">
-              <div className="w-32">
-                <SearchBar placeholder="Search..." />
-              </div>
+              <button 
+                onClick={() => setIsSearchModalOpen(true)}
+                className="text-gray-700 hover:text-yellow-400 transition-colors p-1 rounded-md hover:bg-gray-100"
+                aria-label="Search watches"
+                title="Search watches"
+              >
+                <Search className="h-5 w-5" />
+              </button>
               <Link href="/cart" className="relative text-gray-700 hover:text-yellow-400 transition-colors">
                 <ShoppingCart className="h-5 w-5" />
                 {mounted && cartItemCount > 0 && (
@@ -132,50 +139,57 @@ export function Navbar() {
             <Link href="/" className="text-gray-700 hover:text-yellow-400 transition-colors">
               Home
             </Link>
-            <Link href="/watches?category=for-him" className="text-gray-700 hover:text-yellow-400 transition-colors">
-              For Him
-            </Link>
-            <Link href="/watches/for-her" className="text-gray-700 hover:text-yellow-400 transition-colors">
-              For Her
-            </Link>
             <Link href="/watches" className="text-gray-700 hover:text-yellow-400 transition-colors">
               All Products
             </Link>
-            <div className="relative" ref={saleDropdownRef}>
+            <div className="relative" ref={trendingDropdownRef}>
               <button
-                onClick={() => setIsSaleDropdownOpen(!isSaleDropdownOpen)}
-                className="text-gray-700 hover:text-yellow-400 transition-colors flex items-center"
+                onClick={() => {
+                  console.log('Dropdown clicked, current state:', isTrendingDropdownOpen)
+                  setIsTrendingDropdownOpen(!isTrendingDropdownOpen)
+                }}
+                className="text-gray-700 hover:text-yellow-400 transition-colors flex items-center focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-50 rounded-md px-2 py-1"
+                aria-expanded={isTrendingDropdownOpen}
+                aria-haspopup="true"
               >
-                Sale
-                <ChevronDown className={`ml-1 h-4 w-4 transition-transform ${isSaleDropdownOpen ? 'rotate-180' : ''}`} />
+                Premium Watches
+                <ChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${isTrendingDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
               
-              {isSaleDropdownOpen && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+              {isTrendingDropdownOpen && (
+                <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-md shadow-xl py-1 z-50 border border-gray-200 animate-in slide-in-from-top-2 duration-200">
                   <Link
-                    href="/watches/sale"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setIsSaleDropdownOpen(false)}
+                    href="/watches?category=for-him"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                    onClick={() => {
+                      console.log('For Him clicked')
+                      setIsTrendingDropdownOpen(false)
+                    }}
                   >
-                    All Sale Items
+                    For Him
                   </Link>
                   <Link
-                    href="/watches?category=sale-1499"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setIsSaleDropdownOpen(false)}
+                    href="/watches/for-her"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                    onClick={() => {
+                      console.log('For Her clicked')
+                      setIsTrendingDropdownOpen(false)
+                    }}
                   >
-                    Under ₹1,499
-                  </Link>
-                  <Link
-                    href="/watches?category=sale-1999"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setIsSaleDropdownOpen(false)}
-                  >
-                    Under ₹1,999
+                    For Her
                   </Link>
                 </div>
               )}
             </div>
+            <Link href="/sunglasses" className="text-gray-700 hover:text-yellow-400 transition-colors">
+              Signature Eyewear
+            </Link>
+            <Link href="/speakers" className="text-gray-700 hover:text-yellow-400 transition-colors">
+              Elite Speakers
+            </Link>
+            <Link href="/earbuds" className="text-gray-700 hover:text-yellow-400 transition-colors">
+              True Wireless Earbuds
+            </Link>
             <Link href="/reviews" className="text-gray-700 hover:text-yellow-400 transition-colors">
               Reviews
             </Link>
@@ -187,9 +201,14 @@ export function Navbar() {
           {/* Desktop Right Side */}
           <div className="hidden md:flex items-center space-x-4">
             {/* Search */}
-            <div className="w-64">
-              <SearchBar placeholder="Search watches..." />
-            </div>
+            <button 
+              onClick={() => setIsSearchModalOpen(true)}
+              className="text-gray-700 hover:text-yellow-400 transition-colors p-2 rounded-md hover:bg-gray-100"
+              aria-label="Search watches"
+              title="Search watches"
+            >
+              <Search className="h-5 w-5" />
+            </button>
 
             {/* Cart */}
             <Link href="/cart" className="relative text-gray-700 hover:text-yellow-400 transition-colors">
@@ -250,20 +269,6 @@ export function Navbar() {
                 Home
               </Link>
               <Link
-                href="/watches?category=for-him"
-                className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                For Him
-              </Link>
-              <Link
-                href="/watches/for-her"
-                className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                For Her
-              </Link>
-              <Link
                 href="/watches"
                 className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -271,31 +276,62 @@ export function Navbar() {
                 All Products
               </Link>
               <div className="px-3 py-2">
-                <div className="text-gray-700 font-medium mb-2">Sale</div>
-                <div className="pl-4 space-y-1">
-                  <Link
-                    href="/watches/sale"
-                    className="block text-gray-600 hover:text-yellow-400"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    All Sale Items
-                  </Link>
-                  <Link
-                    href="/watches?category=sale-1499"
-                    className="block text-gray-600 hover:text-yellow-400"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Under ₹1,499
-                  </Link>
-                  <Link
-                    href="/watches?category=sale-1999"
-                    className="block text-gray-600 hover:text-yellow-400"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Under ₹1,999
-                  </Link>
-                </div>
+                <button
+                  onClick={() => {
+                    console.log('Mobile Premium Watches clicked, current state:', isMobilePremiumDropdownOpen)
+                    setIsMobilePremiumDropdownOpen(!isMobilePremiumDropdownOpen)
+                  }}
+                  className="flex items-center justify-between w-full text-gray-700 font-medium mb-2 hover:text-yellow-400 transition-colors"
+                >
+                  Premium Watches
+                  <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isMobilePremiumDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {isMobilePremiumDropdownOpen && (
+                  <div className="pl-4 space-y-1 animate-in slide-in-from-top-2 duration-200">
+                    <Link
+                      href="/watches?category=for-him"
+                      className="block text-gray-600 hover:text-yellow-400 transition-colors"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false)
+                        setIsMobilePremiumDropdownOpen(false)
+                      }}
+                    >
+                      For Him
+                    </Link>
+                    <Link
+                      href="/watches/for-her"
+                      className="block text-gray-600 hover:text-yellow-400 transition-colors"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false)
+                        setIsMobilePremiumDropdownOpen(false)
+                      }}
+                    >
+                      For Her
+                    </Link>
+                  </div>
+                )}
               </div>
+              <Link
+                href="/sunglasses"
+                className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Signature Eyewear
+              </Link>
+              <Link
+                href="/speakers"
+                className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Elite Speakers
+              </Link>
+              <Link
+                href="/earbuds"
+                className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                True Wireless Earbuds
+              </Link>
               <Link
                 href="/reviews"
                 className="block px-3 py-2 text-gray-700 hover:text-yellow-400"
@@ -349,6 +385,12 @@ export function Navbar() {
           </div>
         )}
       </div>
+      
+      {/* Search Modal */}
+      <SearchModal 
+        isOpen={isSearchModalOpen} 
+        onClose={() => setIsSearchModalOpen(false)} 
+      />
     </nav>
   )
 }

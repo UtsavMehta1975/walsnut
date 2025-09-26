@@ -25,16 +25,19 @@ interface Product {
 export default function WatchesPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [category, setCategory] = useState<string>('')
+  const [searchQuery, setSearchQuery] = useState<string>('')
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const router = useRouter()
   
   useEffect(() => {
-    // Get category from URL parameters
+    // Get category and search from URL parameters
     const urlParams = new URLSearchParams(window.location.search)
     const categoryParam = urlParams.get('category')
+    const searchParam = urlParams.get('search')
     setCategory(categoryParam || '')
+    setSearchQuery(searchParam || '')
   }, [])
 
   useEffect(() => {
@@ -45,6 +48,11 @@ export default function WatchesPage() {
         // Add category filter if specified
         if (category) {
           apiUrl += `&category=${category}`
+        }
+        
+        // Add search filter if specified
+        if (searchQuery) {
+          apiUrl += `&search=${encodeURIComponent(searchQuery)}`
         }
         
         const res = await fetch(apiUrl)
@@ -80,7 +88,7 @@ export default function WatchesPage() {
       }
     }
     fetchLatest()
-  }, [category])
+  }, [category, searchQuery])
 
   const loadMoreProducts = async () => {
     if (isLoadingMore || !hasMore) return
@@ -143,14 +151,16 @@ export default function WatchesPage() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {category === 'for-her' ? 'Women\'s Watches' : 
+              {searchQuery ? `Search Results for "${searchQuery}"` :
+               category === 'for-her' ? 'Women\'s Watches' : 
                category === 'sale-1499' ? 'Sale Collection' :
                category === 'sale-1999' ? 'Sale Collection' :
                category === 'for-him' ? 'Men\'s Watches' :
                 'All Watches'}
             </h1>
             <p className="text-gray-600">
-              {category === 'for-her' ? 'Elegant timepieces designed for the modern woman' :
+              {searchQuery ? `Found ${products.length} watch${products.length !== 1 ? 'es' : ''} matching your search` :
+               category === 'for-her' ? 'Elegant timepieces designed for the modern woman' :
                category === 'for-him' ? 'Premium watches crafted for the discerning gentleman' :
                category?.includes('sale') ? 'Discover amazing deals on premium watches' :
                'Discover our complete collection of premium timepieces'}
