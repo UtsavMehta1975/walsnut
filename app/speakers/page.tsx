@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { CleanProductCard } from '@/components/ui/clean-product-card'
-import { useRouter } from 'next/navigation'
 
 interface Product {
   id: string
@@ -19,7 +18,6 @@ interface Product {
 export default function SpeakersPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
 
   useEffect(() => {
     const fetchSpeakers = async () => {
@@ -37,9 +35,6 @@ export default function SpeakersPage() {
     fetchSpeakers()
   }, [])
 
-  const handleProductClick = (productId: string) => {
-    router.push(`/speakers/${productId}`)
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -85,7 +80,6 @@ export default function SpeakersPage() {
                 <CleanProductCard
                   key={product.id}
                   product={product}
-                  onProductClick={handleProductClick}
                 />
               ))}
             </div>
