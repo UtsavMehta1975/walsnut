@@ -8,17 +8,11 @@ import { useRouter } from 'next/navigation'
 
 interface Product {
   id: string
-  name: string
-  price: number
-  originalPrice: number
-  image: string
-  description: string
-  discount: number
-  colors: string[]
-  category: string
-  inStock: boolean
   brand: string
   model: string
+  price: number
+  previousPrice?: number
+  imageUrl: string
   referenceNumber?: string
 }
 
