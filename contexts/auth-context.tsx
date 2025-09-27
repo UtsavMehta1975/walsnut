@@ -48,15 +48,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (session?.user) {
-      // Convert NextAuth session to our User format
-      const userData: User = {
-        id: session.user.id || '',
-        email: session.user.email || '',
-        name: session.user.name || '',
-        role: (session.user.role as 'CUSTOMER' | 'ADMIN') || 'CUSTOMER'
+      try {
+        // Convert NextAuth session to our User format with safe parsing
+        const userData: User = {
+          id: String(session.user.id || ''),
+          email: String(session.user.email || ''),
+          name: String(session.user.name || ''),
+          role: (session.user.role as 'CUSTOMER' | 'ADMIN') || 'CUSTOMER'
+        }
+        setUser(userData)
+        setIsLoading(false)
+      } catch (error) {
+        console.error('Error parsing session user data:', error)
+        setUser(null)
+        setIsLoading(false)
       }
-      setUser(userData)
-      setIsLoading(false)
     } else {
       setUser(null)
       setIsLoading(false)

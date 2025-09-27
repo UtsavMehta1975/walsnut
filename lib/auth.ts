@@ -62,15 +62,17 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role
-        token.id = user.id
+        // Ensure all values are serializable
+        token.role = String(user.role)
+        token.id = String(user.id)
       }
       return token
     },
     async session({ session, token }) {
-      if (token) {
-        session.user.role = token.role
-        session.user.id = token.id
+      if (token && session.user) {
+        // Ensure all values are serializable
+        session.user.role = String(token.role)
+        session.user.id = String(token.id)
       }
       return session
     }

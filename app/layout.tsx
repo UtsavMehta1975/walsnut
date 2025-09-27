@@ -5,7 +5,7 @@ import { AuthProvider } from '@/contexts/auth-context'
 import { StickyWhatsApp } from '@/components/ui/sticky-whatsapp'
 import AuthSessionProvider from '@/components/providers/session-provider'
 
-// Force dynamic rendering to prevent SSR issues with auth context
+// Force dynamic rendering for entire app to prevent SSR issues
 export const dynamic = 'force-dynamic'
 
 const inter = Inter({ subsets: ['latin'] })

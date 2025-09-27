@@ -17,6 +17,8 @@ export const db =
     transactionOptions: {
       timeout: 10000, // 10 seconds
     },
+    // Add error formatting for better serialization
+    errorFormat: 'minimal',
   })
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db

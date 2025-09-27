@@ -69,6 +69,11 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react'],
   },
   
+  // Disable static generation for error pages to prevent Html import issues
+  generateBuildId: async () => {
+    return 'build-' + Date.now()
+  },
+  
   // Compression
   compress: true,
   
