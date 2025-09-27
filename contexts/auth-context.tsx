@@ -25,9 +25,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession()
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
+
+  // Handle client-side mounting
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Sync NextAuth session with our user state
   useEffect(() => {
+    if (!mounted) return
+    
     if (status === 'loading') {
       setIsLoading(true)
       return
@@ -53,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       setIsLoading(false)
     }
-  }, [session, status])
+  }, [session, status, mounted])
 
   const login = async (email: string, password: string): Promise<{ success: boolean; user?: User }> => {
     try {
@@ -169,9 +177,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const value: AuthContextType = {
-    user,
-    isAuthenticated: !!user,
-    isLoading,
+    user: mounted ? user : null,
+    isAuthenticated: mounted ? !!user : false,
+    isLoading: mounted ? isLoading : true,
     login,
     signup,
     logout
@@ -187,6 +195,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext)
   if (context === undefined) {
+    // During SSR/build time, return a default context to prevent errors
+    if (typeof window === 'undefined') {
+      return {
+        user: null,
+        isAuthenticated: false,
+        isLoading: true,
+        login: async () => ({ success: false }),
+        signup: async () => false,
+        logout: () => {}
+      }
+    }
     throw new Error('useAuth must be used within an AuthProvider')
   }
   return context

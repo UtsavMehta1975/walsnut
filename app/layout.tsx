@@ -5,6 +5,9 @@ import { AuthProvider } from '@/contexts/auth-context'
 import { StickyWhatsApp } from '@/components/ui/sticky-whatsapp'
 import AuthSessionProvider from '@/components/providers/session-provider'
 
+// Force dynamic rendering to prevent SSR issues with auth context
+export const dynamic = 'force-dynamic'
+
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {

@@ -42,11 +42,16 @@ class MemoryCache {
   // Clean expired items
   cleanup() {
     const now = Date.now()
-    for (const [key, item] of this.cache.entries()) {
+    this.cache.forEach((item, key) => {
       if (now - item.timestamp > item.ttl) {
         this.cache.delete(key)
       }
-    }
+    })
+  }
+
+  // Get all keys for cache invalidation
+  getKeys(): string[] {
+    return Array.from(this.cache.keys())
   }
 }
 
@@ -122,11 +127,11 @@ export const invalidateCache = {
   products: () => {
     cache.delete(cacheKeys.featuredProducts())
     // Clear all product list caches
-    for (const key of cache.cache.keys()) {
+    cache.getKeys().forEach(key => {
       if (key.startsWith('products:')) {
         cache.delete(key)
       }
-    }
+    })
   },
   
   product: (id: string) => {
