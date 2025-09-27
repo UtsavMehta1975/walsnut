@@ -1,0 +1,32 @@
+# Database - Local MySQL
+MYSQL_URL="mysql://utsav:YourStrongPassword@localhost:3306/walnut_db"
+
+# NextAuth.js
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-nextauth-secret-key-here"
+
+# App
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+# Development
+NODE_ENV="development"
+
+# Cloudinary (for image uploads)
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your-cloud-name"
+CLOUDINARY_API_KEY="your-api-key"
+CLOUDINARY_API_SECRET="your-api-secret"
+
+# Stripe (for payments)
+STRIPE_SECRET_KEY="sk_test_your-stripe-secret-key"
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_your-stripe-publishable-key"
+STRIPE_WEBHOOK_SECRET="whsec_your-webhook-secret"
+
+# Email (Resend or similar)
+RESEND_API_KEY="your-resend-api-key"
+EMAIL_FROM="noreply@chronovault.com"
+
+# Instagram Basic Display API
+INSTAGRAM_APP_ID="your-instagram-app-id"
+INSTAGRAM_APP_SECRET="your-instagram-app-secret"
+INSTAGRAM_ACCESS_TOKEN="your-instagram-access-token"
+INSTAGRAM_USER_ID="your-instagram-user-id"

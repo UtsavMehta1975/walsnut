@@ -41,10 +41,12 @@ export default function SignUpPage() {
       const success = await signup(name, email, password)
       
       if (success) {
-        toast.success('Account created successfully!')
-        // Signup typically creates regular users, so redirect to store
-        console.log('New user account created, redirecting to store...')
-        router.push('/')
+        toast.success('Account created successfully! Welcome to The Walnut Store!')
+        // Signup typically creates regular users, so redirect to dashboard
+        console.log('New user account created, redirecting to dashboard...')
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 1500)
       } else {
         toast.error('Failed to create account. Please try again.')
       }
@@ -154,6 +156,22 @@ export default function SignUpPage() {
               </Button>
             </div>
           </form>
+
+          {/* Test Credentials */}
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg text-sm">
+            <p className="font-medium text-blue-800 mb-2">Already have an account?</p>
+            <div className="space-y-1 text-blue-700">
+              <p><strong>Admin:</strong> admin@walnut.com / admin123</p>
+              <p><strong>User:</strong> user@walnut.com / user123</p>
+            </div>
+            <div className="mt-3">
+              <Link href="/auth/signin">
+                <Button variant="outline" size="sm">
+                  Sign In Instead
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
       

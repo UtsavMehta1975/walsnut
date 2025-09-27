@@ -3,7 +3,7 @@
 # Contabo Server Connection Script for nachgine
 # Server: vmi12803069 (185.196.21.112)
 # Username: root
-# Password: 456321@QWSAzx or 456321QWSAzx
+# Password: gCQ3qj8p67SR
 
 echo "🔗 Connecting to nachgine server (vmi12803069)..."
 echo "Server IP: 185.196.21.112"

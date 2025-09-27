@@ -8,24 +8,34 @@ import { Input } from '@/components/ui/input'
 import { useAuth } from '@/contexts/auth-context'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
+import { getSmartRedirectUrl } from '@/lib/navigation'
 import toast from 'react-hot-toast'
 
 export default function SignInPage() {
   const router = useRouter()
   const { login, user, isAuthenticated } = useAuth()
   const [email, setEmail] = useState('admin@walnut.com')
-  const [password, setPassword] = useState('password123')
+  const [password, setPassword] = useState('admin123')
   const [isLoading, setIsLoading] = useState(false)
+
+  // Get redirect URL from query params
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const redirect = urlParams.get('redirect')
+      if (redirect) {
+        setRedirectUrl(redirect)
+      }
+    }
+  }, [])
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && user && !isLoading) {
-      console.log('🔄 Already authenticated, redirecting...', user.role)
-      if (user.role?.toUpperCase() === 'ADMIN') {
-        router.push('/admin')
-      } else {
-        router.push('/')
-      }
+      const redirectUrl = getSmartRedirectUrl(user.role)
+      router.push(redirectUrl)
     }
   }, [isAuthenticated, user, router, isLoading])
 
@@ -39,19 +49,18 @@ export default function SignInPage() {
       
       if (result.success) {
         toast.success('Login successful!')
-        console.log('✅ Login successful, redirecting...')
         
-        // The auth context will handle the page reload, so we don't need to redirect here
-        // Just show success message and let the page reload handle the redirect
-        console.log('🔄 Login successful, page will reload to establish session...')
+        // Use redirect URL from query params or smart redirect
+        const finalRedirectUrl = redirectUrl || getSmartRedirectUrl(user?.role || 'CUSTOMER')
+        router.push(finalRedirectUrl)
       } else {
         toast.error('Invalid email or password')
         console.log('❌ Login failed')
+        setIsLoading(false)
       }
     } catch (error) {
       console.error('Login error:', error)
       toast.error('Login failed. Please try again.')
-    } finally {
       setIsLoading(false)
     }
   }
@@ -127,6 +136,15 @@ export default function SignInPage() {
               </Link>
             </div>
           </form>
+
+          {/* Test Credentials */}
+          <div className="mt-4 p-4 bg-blue-50 rounded-lg text-sm">
+            <p className="font-medium text-blue-800 mb-2">Test Credentials:</p>
+            <div className="space-y-1 text-blue-700">
+              <p><strong>Admin:</strong> admin@walnut.com / admin123</p>
+              <p><strong>User:</strong> user@walnut.com / user123</p>
+            </div>
+          </div>
 
           {/* Debug info */}
           <div className="mt-4 p-4 bg-gray-100 rounded-lg text-xs text-gray-600">
