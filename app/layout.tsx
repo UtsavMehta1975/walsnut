@@ -4,6 +4,7 @@ import './globals.css'
 import { AuthProvider } from '@/contexts/auth-context'
 import { StickyWhatsApp } from '@/components/ui/sticky-whatsapp'
 import AuthSessionProvider from '@/components/providers/session-provider'
+import { Toaster } from 'react-hot-toast'
 
 // Force dynamic rendering for entire app to prevent SSR issues
 export const dynamic = 'force-dynamic'
@@ -32,6 +33,30 @@ export default function RootLayout({
           <AuthProvider>
             {children}
             <StickyWhatsApp />
+            <Toaster 
+              position="top-right"
+              toastOptions={{
+                duration: 3000,
+                style: {
+                  background: '#363636',
+                  color: '#fff',
+                },
+                success: {
+                  duration: 3000,
+                  iconTheme: {
+                    primary: '#4ade80',
+                    secondary: '#fff',
+                  },
+                },
+                error: {
+                  duration: 4000,
+                  iconTheme: {
+                    primary: '#ef4444',
+                    secondary: '#fff',
+                  },
+                },
+              }}
+            />
           </AuthProvider>
         </AuthSessionProvider>
       </body>

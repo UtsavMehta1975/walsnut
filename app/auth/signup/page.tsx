@@ -44,9 +44,7 @@ export default function SignUpPage() {
         toast.success('Account created successfully! Welcome to The Walnut Store!')
         // Signup typically creates regular users, so redirect to dashboard
         console.log('New user account created, redirecting to dashboard...')
-        setTimeout(() => {
-          router.push('/dashboard')
-        }, 1500)
+        router.push('/dashboard')
       } else {
         toast.error('Failed to create account. Please try again.')
       }

@@ -114,8 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         })
         
         if (loginResult?.ok) {
-          // Wait a moment for the session to be established
-          await new Promise(resolve => setTimeout(resolve, 500))
+          // Session established immediately
           return true
         }
         
