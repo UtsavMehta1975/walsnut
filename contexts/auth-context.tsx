@@ -73,15 +73,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true)
       
-      const result = await signIn('credentials', {
-        email: email.toLowerCase().trim(),
-        password,
-        redirect: false
+      // First, try direct API call for faster response
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          email: email.toLowerCase().trim(), 
+          password 
+        }),
       })
 
-      if (result?.ok) {
-        // Quick session update without delay
-        return { success: true }
+      if (response.ok) {
+        const userData = await response.json()
+        
+        // Optimistically update user state immediately
+        setUser(userData)
+        setIsLoading(false)
+        
+        // Then sign in with NextAuth in background
+        signIn('credentials', {
+          email: email.toLowerCase().trim(),
+          password,
+          redirect: false
+        }).catch(console.error)
+        
+        return { success: true, user: userData }
       } else {
         setIsLoading(false)
         return { success: false }
