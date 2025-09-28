@@ -20,10 +20,62 @@ export async function GET(request: NextRequest) {
   try {
     // Check if Instagram credentials are configured
     if (!INSTAGRAM_ACCESS_TOKEN || !INSTAGRAM_USER_ID) {
+      // Return mock data when credentials are not configured
+      const mockPosts: InstagramPost[] = [
+        {
+          id: 'mock1',
+          media_type: 'IMAGE',
+          media_url: '/product/rolex-submariner-hulk-1.jpg',
+          permalink: 'https://instagram.com/thewalnutstore.in',
+          caption: 'Discover our latest collection of premium timepieces. This Rolex Submariner Hulk is a true masterpiece of horology.',
+          timestamp: new Date(Date.now() - 86400000).toISOString() // 1 day ago
+        },
+        {
+          id: 'mock2',
+          media_type: 'IMAGE',
+          media_url: '/product/rolex-submariner-hulk-2.jpg',
+          permalink: 'https://instagram.com/thewalnutstore.in',
+          caption: 'Timeless elegance meets modern craftsmanship. Every watch tells a story of precision and luxury.',
+          timestamp: new Date(Date.now() - 172800000).toISOString() // 2 days ago
+        },
+        {
+          id: 'mock3',
+          media_type: 'IMAGE',
+          media_url: '/product/rolex-submariner-hulk-3.jpg',
+          permalink: 'https://instagram.com/thewalnutstore.in',
+          caption: 'Spotted with Walnut - Customer showcase. Our clients love sharing their timepiece moments with us.',
+          timestamp: new Date(Date.now() - 259200000).toISOString() // 3 days ago
+        },
+        {
+          id: 'mock4',
+          media_type: 'IMAGE',
+          media_url: '/product/rolex-submariner-hulk-4.jpg',
+          permalink: 'https://instagram.com/thewalnutstore.in',
+          caption: 'Behind the scenes of our watchmaking process. Every detail matters in creating perfection.',
+          timestamp: new Date(Date.now() - 345600000).toISOString() // 4 days ago
+        },
+        {
+          id: 'mock5',
+          media_type: 'IMAGE',
+          media_url: '/web-banner.png',
+          permalink: 'https://instagram.com/thewalnutstore.in',
+          caption: 'New arrivals in our boutique. Fresh collection of luxury timepieces just arrived.',
+          timestamp: new Date(Date.now() - 432000000).toISOString() // 5 days ago
+        },
+        {
+          id: 'mock6',
+          media_type: 'IMAGE',
+          media_url: '/mobile-banner.png',
+          permalink: 'https://instagram.com/thewalnutstore.in',
+          caption: 'Customer stories and testimonials. Hear what our clients say about their Walnut experience.',
+          timestamp: new Date(Date.now() - 518400000).toISOString() // 6 days ago
+        }
+      ]
+      
       return NextResponse.json({
         success: false,
-        message: 'Instagram integration not configured',
-        posts: []
+        message: 'Instagram integration not configured - showing demo content',
+        posts: mockPosts
       })
     }
 
@@ -62,50 +114,50 @@ export async function GET(request: NextRequest) {
       {
         id: 'mock1',
         media_type: 'IMAGE',
-        media_url: '/web-banner.png',
-        permalink: '#',
-        caption: 'Discover our latest collection of premium timepieces',
-        timestamp: new Date().toISOString()
+        media_url: '/product/rolex-submariner-hulk-1.jpg',
+        permalink: 'https://instagram.com/thewalnutstore.in',
+        caption: 'Discover our latest collection of premium timepieces. This Rolex Submariner Hulk is a true masterpiece of horology.',
+        timestamp: new Date(Date.now() - 86400000).toISOString() // 1 day ago
       },
       {
         id: 'mock2',
         media_type: 'IMAGE',
-        media_url: '/web-banner.png',
-        permalink: '#',
-        caption: 'Timeless elegance meets modern craftsmanship',
-        timestamp: new Date().toISOString()
+        media_url: '/product/rolex-submariner-hulk-2.jpg',
+        permalink: 'https://instagram.com/thewalnutstore.in',
+        caption: 'Timeless elegance meets modern craftsmanship. Every watch tells a story of precision and luxury.',
+        timestamp: new Date(Date.now() - 172800000).toISOString() // 2 days ago
       },
       {
         id: 'mock3',
         media_type: 'IMAGE',
-        media_url: '/web-banner.png',
-        permalink: '#',
-        caption: 'Spotted with Walnut - Customer showcase',
-        timestamp: new Date().toISOString()
+        media_url: '/product/rolex-submariner-hulk-3.jpg',
+        permalink: 'https://instagram.com/thewalnutstore.in',
+        caption: 'Spotted with Walnut - Customer showcase. Our clients love sharing their timepiece moments with us.',
+        timestamp: new Date(Date.now() - 259200000).toISOString() // 3 days ago
       },
       {
         id: 'mock4',
         media_type: 'IMAGE',
-        media_url: '/web-banner.png',
-        permalink: '#',
-        caption: 'Behind the scenes of our watchmaking process',
-        timestamp: new Date().toISOString()
+        media_url: '/product/rolex-submariner-hulk-4.jpg',
+        permalink: 'https://instagram.com/thewalnutstore.in',
+        caption: 'Behind the scenes of our watchmaking process. Every detail matters in creating perfection.',
+        timestamp: new Date(Date.now() - 345600000).toISOString() // 4 days ago
       },
       {
         id: 'mock5',
         media_type: 'IMAGE',
         media_url: '/web-banner.png',
-        permalink: '#',
-        caption: 'New arrivals in our boutique',
-        timestamp: new Date().toISOString()
+        permalink: 'https://instagram.com/thewalnutstore.in',
+        caption: 'New arrivals in our boutique. Fresh collection of luxury timepieces just arrived.',
+        timestamp: new Date(Date.now() - 432000000).toISOString() // 5 days ago
       },
       {
         id: 'mock6',
         media_type: 'IMAGE',
-        media_url: '/web-banner.png',
-        permalink: '#',
-        caption: 'Customer stories and testimonials',
-        timestamp: new Date().toISOString()
+        media_url: '/mobile-banner.png',
+        permalink: 'https://instagram.com/thewalnutstore.in',
+        caption: 'Customer stories and testimonials. Hear what our clients say about their Walnut experience.',
+        timestamp: new Date(Date.now() - 518400000).toISOString() // 6 days ago
       }
     ]
 

@@ -1,13 +1,14 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { ChevronRight } from 'lucide-react'
 
 interface Category {
   id: string
   name: string
   href: string
-  icon: string
+  image: string
   color: string
 }
 
@@ -16,42 +17,42 @@ const categories: Category[] = [
     id: 'premium-watches',
     name: 'Premium Watches',
     href: '/watches?category=for-him',
-    icon: '💎',
+    image: '/shopbycategorypremiumwatch.avif',
     color: 'bg-purple-100 hover:bg-purple-200'
   },
   {
     id: 'signature-eyewear',
     name: 'Signature Eyewear',
     href: '/sunglasses',
-    icon: '🕶️',
+    image: '/shopbycategorysignatureeyewear.avif',
     color: 'bg-gray-100 hover:bg-gray-200'
   },
   {
     id: 'elite-speakers',
     name: 'Elite Speakers',
     href: '/speakers',
-    icon: '🔊',
+    image: '/shopbycategoryelitespeakers.avif',
     color: 'bg-green-100 hover:bg-green-200'
   },
   {
     id: 'true-wireless-earbuds',
     name: 'True Wireless Earbuds',
     href: '/earbuds',
-    icon: '🎧',
+    image: '/shopbycategorytruewirelessearbuds.avif',
     color: 'bg-blue-100 hover:bg-blue-200'
   },
   {
     id: 'all-products',
     name: 'All Products',
     href: '/watches',
-    icon: '🛍️',
+    image: '/shopbycategoryallproducts.avif',
     color: 'bg-purple-100 hover:bg-purple-200'
   },
   {
     id: 'new-arrivals',
     name: 'New Arrivals',
     href: '/watches?category=new-arrivals',
-    icon: '✨',
+    image: '/shopbycategorynewarrivals.avif',
     color: 'bg-yellow-100 hover:bg-yellow-200'
   }
 ]
@@ -81,7 +82,7 @@ export function CategorySection() {
                 className="flex-shrink-0 group"
               >
                 <div className="flex flex-col items-center space-y-3">
-                  {/* Circular Category Icon */}
+                  {/* Circular Category Image */}
                   <div className={`
                     w-20 h-20 md:w-24 md:h-24 
                     rounded-full 
@@ -90,10 +91,15 @@ export function CategorySection() {
                     group-hover:scale-105 
                     group-hover:shadow-lg
                     ${category.color}
+                    overflow-hidden
                   `}>
-                    <span className="text-2xl md:text-3xl">
-                      {category.icon}
-                    </span>
+                    <Image
+                      src={category.image}
+                      alt={category.name}
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-contain p-2"
+                    />
                   </div>
                   
                   {/* Category Name */}
