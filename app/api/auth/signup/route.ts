@@ -4,7 +4,7 @@ import { db } from '@/lib/db'
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password } = await request.json()
+    const { name, email, password, phone } = await request.json()
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
         name,
         email: email.toLowerCase(),
         hashedPassword,
+        phone: phone || null, // Store phone if provided
         role: 'CUSTOMER', // Default role
       }
     })
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest) {
       id: user.id,
       email: user.email,
       name: user.name,
+      phone: user.phone,
       role: user.role,
     }
 

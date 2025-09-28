@@ -13,6 +13,7 @@ import toast from 'react-hot-toast'
 export default function SignUpPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -37,8 +38,18 @@ export default function SignUpPage() {
       return
     }
 
+    // Validate phone number (optional but if provided, should be valid)
+    if (phone && phone.length > 0) {
+      const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/
+      if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+        toast.error('Please enter a valid phone number')
+        setIsLoading(false)
+        return
+      }
+    }
+
     try {
-      const success = await signup(name, email, password)
+      const success = await signup(name, email, password, phone)
       
       if (success) {
         toast.success('Account created successfully! Welcome to The Walnut Store!')
@@ -107,6 +118,25 @@ export default function SignUpPage() {
                   className="mt-1"
                   placeholder="Enter your email"
                 />
+              </div>
+              
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                  Phone Number <span className="text-gray-500 text-sm">(Optional)</span>
+                </label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="mt-1"
+                  placeholder="Enter your phone number"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  We'll use this to send you order updates and important notifications
+                </p>
               </div>
               
               <div>

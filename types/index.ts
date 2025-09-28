@@ -86,6 +86,7 @@ export interface PaginatedResponse<T> {
 export interface SignUpFormData {
   name: string
   email: string
+  phone?: string
   password: string
   confirmPassword: string
 }
@@ -229,6 +230,7 @@ declare module "next-auth" {
       id: string
       email: string
       name?: string | null
+      phone?: string | null
       role: string
     }
   }
@@ -237,6 +239,7 @@ declare module "next-auth" {
     id: string
     email: string
     name?: string | null
+    phone?: string | null
     role: string
   }
 }
