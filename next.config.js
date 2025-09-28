@@ -74,6 +74,24 @@ const nextConfig = {
     return 'build-' + Date.now()
   },
   
+  // Skip static generation for error pages
+  async rewrites() {
+    return {
+      beforeFiles: [],
+      afterFiles: [],
+      fallback: [
+        {
+          source: '/404',
+          destination: '/api/not-found',
+        },
+        {
+          source: '/500',
+          destination: '/api/server-error',
+        },
+      ],
+    }
+  },
+  
   // Compression
   compress: true,
   

@@ -51,8 +51,8 @@ export default function SignInPage() {
         // Show success toast immediately
         toast.success('Login successful!')
         
-        // Get redirect URL based on user role
-        const userRole = result.user?.role || 'CUSTOMER'
+        // Get redirect URL based on user role (use user from context if available)
+        const userRole = (result as any).user?.role || user?.role || 'CUSTOMER'
         const finalRedirectUrl = redirectUrl || getSmartRedirectUrl(userRole)
         
         // Immediate redirect for better UX

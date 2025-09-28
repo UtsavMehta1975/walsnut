@@ -7,6 +7,7 @@ interface User {
   id: string
   email: string
   name: string
+  phone?: string | null
   role: 'CUSTOMER' | 'ADMIN'
 }
 
@@ -15,7 +16,7 @@ interface AuthContextType {
   isAuthenticated: boolean
   isLoading: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; user?: User }>
-  signup: (name: string, email: string, password: string) => Promise<boolean>
+  signup: (name: string, email: string, password: string, phone?: string) => Promise<boolean>
   logout: () => void
 }
 
