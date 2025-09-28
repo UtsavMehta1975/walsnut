@@ -66,11 +66,11 @@
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.3.3",
     "zod": "^3.22.4",
-    "zustand": "^4.4.7"
+    "zustand": "^4.4.7",
+    "autoprefixer": "^10.4.16"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
-    "autoprefixer": "^10.4.16",
     "eslint-config-prettier": "^9.1.0",
     "postcss": "^8.4.32",
     "prettier": "^3.1.1",
