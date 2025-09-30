@@ -24,21 +24,21 @@ const categories: Category[] = [
     id: 'signature-eyewear',
     name: 'Signature Eyewear',
     href: '/sunglasses',
-    image: '/sunglasseshopbycategory.jpg',
+    image: '/glass.png',
     color: 'bg-gray-100 hover:bg-gray-200'
   },
   {
     id: 'elite-speakers',
     name: 'Elite Speakers',
     href: '/speakers',
-    image: '/speakersshopbycategory.png',
+    image: '/speaker.png',
     color: 'bg-green-100 hover:bg-green-200'
   },
   {
     id: 'true-wireless-earbuds',
     name: 'True Wireless Earbuds',
     href: '/earbuds',
-    image: '/earbudsshopbycategory.png',
+    image: '/airbuds.png',
     color: 'bg-blue-100 hover:bg-blue-200'
   },
   {
