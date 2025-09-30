@@ -45,8 +45,8 @@ const categories: Category[] = [
     id: 'all-products',
     name: 'All Products',
     href: '/watches',
-    image: '/all_prod.png',
-    color: 'bg-gray-200 hover:bg-gray-300'
+    image: '/WhatsApp Image 2025-09-30 at 20.14.22.jpeg',
+    color: 'bg-gray-400 hover:bg-gray-500'
   },
   {
     id: 'new-arrivals',
