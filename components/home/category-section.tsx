@@ -99,6 +99,12 @@ export function CategorySection() {
                       width={80}
                       height={80}
                       className="w-full h-full object-contain p-2"
+                      onError={(e) => {
+                        console.error('Image failed to load:', category.image, e);
+                      }}
+                      onLoad={() => {
+                        console.log('Image loaded successfully:', category.image);
+                      }}
                     />
                   </div>
                   
