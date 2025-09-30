@@ -38,6 +38,7 @@ interface Product {
   previousPrice?: number
   condition: string
   year: number
+  gender: string
   description: string
   stockQuantity: number
   specifications: ProductSpecifications
@@ -249,6 +250,7 @@ export default function AdminPage() {
     previousPrice: '',
     condition: 'NEW',
     year: new Date().getFullYear().toString(),
+    gender: 'MENS',
     description: '',
     stockQuantity: '1',
     categories: [] as string[],
@@ -404,6 +406,7 @@ export default function AdminPage() {
       previousPrice: product.previousPrice?.toString() || '',
       condition: product.condition,
       year: product.year.toString(),
+      gender: product.gender || 'MENS',
       description: product.description,
       stockQuantity: product.stockQuantity.toString(),
       categories: [], // TODO: Add categories when Product interface is updated
@@ -848,6 +851,7 @@ export default function AdminPage() {
                           previousPrice: '',
                           condition: 'NEW',
                           year: new Date().getFullYear().toString(),
+                          gender: 'MENS',
                           description: '',
                           stockQuantity: '1',
                           categories: [],
@@ -921,6 +925,16 @@ export default function AdminPage() {
                           <SelectItem value="NEW">New</SelectItem>
                           <SelectItem value="PRE_OWNED">Pre-owned</SelectItem>
                           <SelectItem value="VINTAGE">Vintage</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Select value={newProduct.gender} onValueChange={(value) => setNewProduct({ ...newProduct, gender: value })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Gender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="MENS">Men's</SelectItem>
+                          <SelectItem value="WOMENS">Women's</SelectItem>
+                          <SelectItem value="UNISEX">Unisex</SelectItem>
                         </SelectContent>
                       </Select>
                       <Input
@@ -1222,8 +1236,22 @@ export default function AdminPage() {
                             <div className="min-w-0 flex-1">
                               <h4 className="font-semibold text-gray-900 truncate">{product.brand} {product.model}</h4>
                               <p className="text-sm text-gray-600">{product.referenceNumber}</p>
-                              <p className="text-sm text-gray-600">{formatPrice(product.price)}</p>
-                              <p className="text-sm text-gray-600">Stock: {product.stockQuantity}</p>
+                              <div className="flex flex-wrap gap-4 text-sm text-gray-600 mt-2">
+                                <span>{formatPrice(product.price)}</span>
+                                <span>Stock: {product.stockQuantity}</span>
+                                <span>Gender: {product.gender === 'MENS' ? 'Men\'s' : product.gender === 'WOMENS' ? 'Women\'s' : 'Unisex'}</span>
+                                <span>Condition: {product.condition}</span>
+                                <span>Year: {product.year}</span>
+                              </div>
+                              {product.specifications && (
+                                <div className="mt-2 text-xs text-gray-500">
+                                  <span>Movement: {product.specifications.movement || 'N/A'}</span>
+                                  <span className="mx-2">•</span>
+                                  <span>Case: {product.specifications.case || 'N/A'}</span>
+                                  <span className="mx-2">•</span>
+                                  <span>Water Res: {product.specifications.waterResistance || 'N/A'}</span>
+                                </div>
+                              )}
                             </div>
                           </div>
                           <div className="flex space-x-2">
@@ -1243,11 +1271,126 @@ export default function AdminPage() {
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const detailsElement = document.getElementById(`details-${product.id}`)
+                                if (detailsElement) {
+                                  detailsElement.classList.toggle('hidden')
+                                }
+                              }}
+                              className="flex-1 lg:flex-none"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
                           </div>
                         </div>
                         
                         {/* Image Manager for this product */}
                         <AdminImageManager productId={product.id} />
+                        
+                        {/* Expandable Details Section */}
+                        <div id={`details-${product.id}`} className="hidden mt-4 pt-4 border-t border-gray-200">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {/* Basic Information */}
+                            <div>
+                              <h5 className="font-semibold text-gray-900 mb-3">Basic Information</h5>
+                              <div className="space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Brand:</span>
+                                  <span className="font-medium">{product.brand}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Model:</span>
+                                  <span className="font-medium">{product.model}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Reference:</span>
+                                  <span className="font-medium">{product.referenceNumber || 'N/A'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Gender:</span>
+                                  <span className="font-medium">{product.gender === 'MENS' ? 'Men\'s' : product.gender === 'WOMENS' ? 'Women\'s' : 'Unisex'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Condition:</span>
+                                  <span className="font-medium">{product.condition}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Year:</span>
+                                  <span className="font-medium">{product.year}</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Technical Specifications */}
+                            <div>
+                              <h5 className="font-semibold text-gray-900 mb-3">Technical Specifications</h5>
+                              <div className="space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Movement:</span>
+                                  <span className="font-medium">{product.specifications?.movement || 'N/A'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Case:</span>
+                                  <span className="font-medium">{product.specifications?.case || 'N/A'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Dial:</span>
+                                  <span className="font-medium">{product.specifications?.dial || 'N/A'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Bracelet:</span>
+                                  <span className="font-medium">{product.specifications?.bracelet || 'N/A'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Water Resistance:</span>
+                                  <span className="font-medium">{product.specifications?.waterResistance || 'N/A'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Power Reserve:</span>
+                                  <span className="font-medium">{product.specifications?.powerReserve || 'N/A'}</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Dimensions & Authenticity */}
+                            <div>
+                              <h5 className="font-semibold text-gray-900 mb-3">Dimensions & Authenticity</h5>
+                              <div className="space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Diameter:</span>
+                                  <span className="font-medium">{product.specifications?.diameter || 'N/A'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Thickness:</span>
+                                  <span className="font-medium">{product.specifications?.thickness || 'N/A'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Guaranteed:</span>
+                                  <span className="font-medium">{product.authenticity?.guaranteed ? 'Yes' : 'No'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Certificate:</span>
+                                  <span className="font-medium">{product.authenticity?.certificate ? 'Yes' : 'No'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Service History:</span>
+                                  <span className="font-medium">{product.authenticity?.serviceHistory ? 'Yes' : 'No'}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Description */}
+                          {product.description && (
+                            <div className="mt-6">
+                              <h5 className="font-semibold text-gray-900 mb-3">Description</h5>
+                              <p className="text-sm text-gray-700 leading-relaxed">{product.description}</p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))
                   )}
