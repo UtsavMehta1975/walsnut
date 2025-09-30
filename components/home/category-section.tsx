@@ -45,14 +45,14 @@ const categories: Category[] = [
     id: 'all-products',
     name: 'All Products',
     href: '/watches',
-    image: '/all_prod (1).png',
+    image: '/all-products.png',
     color: 'bg-gray-100 hover:bg-gray-200'
   },
   {
     id: 'new-arrivals',
     name: 'New Arrivals',
     href: '/watches?category=new-arrivals',
-    image: '/newarrivalshopbycategory.png',
+    image: '/new-arrivals.png',
     color: 'bg-yellow-100 hover:bg-yellow-200'
   }
 ]
