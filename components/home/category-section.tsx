@@ -74,7 +74,7 @@ export function CategorySection() {
         {/* Categories Grid - Horizontal Scrollable */}
         <div className="relative">
           {/* Scrollable Container */}
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide md:justify-center md:overflow-x-visible">
             {categories.map((category) => (
               <Link
                 key={category.id}
