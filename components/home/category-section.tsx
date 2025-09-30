@@ -45,7 +45,7 @@ const categories: Category[] = [
     id: 'all-products',
     name: 'All Products',
     href: '/watches',
-    image: '/allproductsshopbycategory.png',
+    image: '/all_prod.png',
     color: 'bg-purple-100 hover:bg-purple-200'
   },
   {
@@ -99,7 +99,7 @@ export function CategorySection() {
                       width={80}
                       height={80}
                       className={`w-full h-full object-contain ${
-                        category.id === 'signature-eyewear' ? 'p-1' : 'p-2'
+                        category.id === 'signature-eyewear' ? 'p-0.5' : 'p-2'
                       }`}
                       onError={(e) => {
                         console.error('Image failed to load:', category.image, e);
