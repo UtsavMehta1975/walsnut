@@ -18,7 +18,7 @@ const categories: Category[] = [
     name: 'Premium Watches',
     href: '/watches?category=for-him',
     image: '/watch.png',
-    color: 'bg-purple-100 hover:bg-purple-200'
+    color: 'bg-gray-100 hover:bg-gray-200'
   },
   {
     id: 'signature-eyewear',
@@ -32,28 +32,28 @@ const categories: Category[] = [
     name: 'Elite Speakers',
     href: '/speakers',
     image: '/speaker.png',
-    color: 'bg-green-100 hover:bg-green-200'
+    color: 'bg-gray-100 hover:bg-gray-200'
   },
   {
     id: 'true-wireless-earbuds',
     name: 'True Wireless Earbuds',
     href: '/earbuds',
     image: '/airbuds.png',
-    color: 'bg-blue-100 hover:bg-blue-200'
+    color: 'bg-gray-100 hover:bg-gray-200'
   },
   {
     id: 'all-products',
     name: 'All Products',
     href: '/watches',
     image: '/all_prod.png',
-    color: 'bg-purple-100 hover:bg-purple-200'
+    color: 'bg-gray-100 hover:bg-gray-200'
   },
   {
     id: 'new-arrivals',
     name: 'New Arrivals',
     href: '/watches?category=new-arrivals',
     image: '/newarrivalshopbycategory.png',
-    color: 'bg-yellow-100 hover:bg-yellow-200'
+    color: 'bg-gray-100 hover:bg-gray-200'
   }
 ]
 
