@@ -34,8 +34,8 @@ export function HeroSection() {
             <div className="text-sm text-gray-600">Delivery</div>
           </div>
           <div>
-            <div className="text-2xl md:text-3xl font-bold text-black">Premium</div>
-            <div className="text-sm text-gray-600">Quality</div>
+            <div className="text-2xl md:text-3xl font-bold text-black">100%</div>
+            <div className="text-sm text-gray-600">Satisfaction</div>
           </div>
         </div>
       </div>
