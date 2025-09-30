@@ -135,11 +135,11 @@ export function Navbar() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-gray-700 hover:text-yellow-400 transition-colors">
+          <div className="hidden md:flex items-center space-x-6">
+            <Link href="/" className="text-gray-700 hover:text-yellow-400 transition-colors text-sm">
               Home
             </Link>
-            <Link href="/watches" className="text-gray-700 hover:text-yellow-400 transition-colors">
+            <Link href="/watches" className="text-gray-700 hover:text-yellow-400 transition-colors text-sm">
               All Products
             </Link>
             <div className="relative" ref={trendingDropdownRef}>
@@ -148,7 +148,7 @@ export function Navbar() {
                   console.log('Dropdown clicked, current state:', isTrendingDropdownOpen)
                   setIsTrendingDropdownOpen(!isTrendingDropdownOpen)
                 }}
-                className="text-gray-700 hover:text-yellow-400 transition-colors flex items-center focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-50 rounded-md px-2 py-1"
+                className="text-gray-700 hover:text-yellow-400 transition-colors flex items-center focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-50 rounded-md px-2 py-1 text-sm"
                 aria-expanded={isTrendingDropdownOpen}
                 aria-haspopup="true"
               >
@@ -181,19 +181,19 @@ export function Navbar() {
                 </div>
               )}
             </div>
-            <Link href="/sunglasses" className="text-gray-700 hover:text-yellow-400 transition-colors">
+            <Link href="/sunglasses" className="text-gray-700 hover:text-yellow-400 transition-colors text-sm">
               Signature Eyewear
             </Link>
-            <Link href="/speakers" className="text-gray-700 hover:text-yellow-400 transition-colors">
+            <Link href="/speakers" className="text-gray-700 hover:text-yellow-400 transition-colors text-sm">
               Elite Speakers
             </Link>
-            <Link href="/earbuds" className="text-gray-700 hover:text-yellow-400 transition-colors">
+            <Link href="/earbuds" className="text-gray-700 hover:text-yellow-400 transition-colors text-sm">
               True Wireless Earbuds
             </Link>
-            <Link href="/reviews" className="text-gray-700 hover:text-yellow-400 transition-colors">
+            <Link href="/reviews" className="text-gray-700 hover:text-yellow-400 transition-colors text-sm">
               Reviews
             </Link>
-            <Link href="/contact" className="text-gray-700 hover:text-yellow-400 transition-colors">
+            <Link href="/contact" className="text-gray-700 hover:text-yellow-400 transition-colors text-sm">
               Contact Us
             </Link>
           </div>

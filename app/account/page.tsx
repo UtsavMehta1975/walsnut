@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -30,11 +30,23 @@ export default function AccountPage() {
   const { user, isAuthenticated } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
   const [profileData, setProfileData] = useState({
-    name: user?.name || 'John Doe',
-    email: user?.email || 'john@example.com',
-    phone: '+1 (555) 123-4567',
-    address: '123 Main St, New York, NY 10001'
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    address: user?.address || ''
   })
+
+  // Update profileData when user changes
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        address: user.address || ''
+      })
+    }
+  }, [user])
 
   // Mock order data
   const recentOrders: Order[] = []
@@ -48,10 +60,10 @@ export default function AccountPage() {
     setIsEditing(false)
     // Reset to original data
     setProfileData({
-      name: user?.name || 'John Doe',
-      email: user?.email || 'john@example.com',
-      phone: '+1 (555) 123-4567',
-      address: '123 Main St, New York, NY 10001'
+      name: user?.name || '',
+      email: user?.email || '',
+      phone: user?.phone || '',
+      address: user?.address || ''
     })
   }
 
@@ -140,7 +152,7 @@ export default function AccountPage() {
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">
-                      {user?.name || 'User'}
+                      {user?.name || user?.email || 'User'}
                     </p>
                     <p className="text-sm text-gray-600">
                       {user?.role === 'ADMIN' ? 'Administrator' : 'Customer'}
@@ -157,9 +169,21 @@ export default function AccountPage() {
                       <Input
                         value={profileData.name}
                         onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                        placeholder="Enter your full name"
                       />
-                    ) : (
+                    ) : profileData.name ? (
                       <p className="text-gray-900">{profileData.name}</p>
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <p className="text-gray-500 italic">No name added</p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsEditing(true)}
+                        >
+                          Add Name
+                        </Button>
+                      </div>
                     )}
                   </div>
 
@@ -186,9 +210,21 @@ export default function AccountPage() {
                       <Input
                         value={profileData.phone}
                         onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                        placeholder="Enter your phone number"
                       />
-                    ) : (
+                    ) : profileData.phone ? (
                       <p className="text-gray-900">{profileData.phone}</p>
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <p className="text-gray-500 italic">No phone number added</p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsEditing(true)}
+                        >
+                          Add Phone
+                        </Button>
+                      </div>
                     )}
                   </div>
 
@@ -200,9 +236,21 @@ export default function AccountPage() {
                       <Input
                         value={profileData.address}
                         onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
+                        placeholder="Enter your address"
                       />
-                    ) : (
+                    ) : profileData.address ? (
                       <p className="text-gray-900">{profileData.address}</p>
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <p className="text-gray-500 italic">No address added</p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsEditing(true)}
+                        >
+                          Add Address
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </div>

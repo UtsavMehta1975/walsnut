@@ -318,8 +318,8 @@ export default function RefundPolicyPage() {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <h3 className="font-medium text-earth-800 mb-2">Customer Support</h3>
-                <p className="text-earth-700">Email: returns@walnut.com</p>
-                <p className="text-earth-700">Phone: +91 (555) 123-4567</p>
+                <p className="text-earth-700">Email: thewalnutstore01@gmail.com</p>
+                <p className="text-earth-700">Phone: +91 74669 65196</p>
                 <p className="text-earth-700">Hours: Mon-Fri, 9 AM - 6 PM IST</p>
               </div>
               

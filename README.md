@@ -186,7 +186,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🆘 Support
 
-For support, email support@walnut.com or visit our [support page](/support).
+For support, email thewalnutstore01@gmail.com or visit our [support page](/support).
 
 ## 🔗 Links
 

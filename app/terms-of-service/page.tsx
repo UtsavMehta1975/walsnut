@@ -349,13 +349,13 @@ export default function TermsOfServicePage() {
               <div>
                 <h3 className="font-medium text-earth-800 mb-2">Walnut</h3>
                 <p className="text-earth-700">Mumbai, India</p>
-                <p className="text-earth-700">Email: legal@walnut.com</p>
-                <p className="text-earth-700">Phone: +91 (555) 123-4567</p>
+                <p className="text-earth-700">Email: thewalnutstore01@gmail.com</p>
+                <p className="text-earth-700">Phone: +91 74669 65196</p>
               </div>
               
               <div>
                 <h3 className="font-medium text-earth-800 mb-2">Customer Support</h3>
-                <p className="text-earth-700">Email: support@walnut.com</p>
+                <p className="text-earth-700">Email: thewalnutstore01@gmail.com</p>
                 <p className="text-earth-700">For general inquiries and support</p>
               </div>
             </div>

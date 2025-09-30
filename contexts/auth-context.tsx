@@ -8,6 +8,7 @@ interface User {
   email: string
   name: string
   phone?: string | null
+  address?: string | null
   role: 'CUSTOMER' | 'ADMIN'
 }
 
@@ -55,6 +56,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: String(session.user.id || ''),
           email: String(session.user.email || ''),
           name: String(session.user.name || ''),
+          phone: session.user.phone || null,
+          address: session.user.address || null,
           role: (session.user.role as 'CUSTOMER' | 'ADMIN') || 'CUSTOMER'
         }
         setUser(userData)
