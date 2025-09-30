@@ -31,14 +31,14 @@ const categories: Category[] = [
     id: 'elite-speakers',
     name: 'Elite Speakers',
     href: '/speakers',
-    image: '/shopbycategoryspeakers.jpg',
+    image: '/speakersshopbycategory.png',
     color: 'bg-green-100 hover:bg-green-200'
   },
   {
     id: 'true-wireless-earbuds',
     name: 'True Wireless Earbuds',
     href: '/earbuds',
-    image: '/shopbycategoryearbuds.png',
+    image: '/earbudsshopbycategory.png',
     color: 'bg-blue-100 hover:bg-blue-200'
   },
   {
@@ -52,7 +52,7 @@ const categories: Category[] = [
     id: 'new-arrivals',
     name: 'New Arrivals',
     href: '/watches?category=new-arrivals',
-    image: '/newarrivel.jpg',
+    image: '/newarrivalshopbycategory.png',
     color: 'bg-yellow-100 hover:bg-yellow-200'
   }
 ]
