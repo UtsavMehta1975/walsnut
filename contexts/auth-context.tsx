@@ -56,8 +56,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: String(session.user.id || ''),
           email: String(session.user.email || ''),
           name: String(session.user.name || ''),
-          phone: session.user.phone || null,
-          address: session.user.address || null,
+          phone: (session.user as any).phone || null,
+          address: (session.user as any).address || null,
           role: (session.user.role as 'CUSTOMER' | 'ADMIN') || 'CUSTOMER'
         }
         setUser(userData)
