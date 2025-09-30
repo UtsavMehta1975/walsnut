@@ -99,8 +99,8 @@ export function CategorySection() {
                       width={80}
                       height={80}
                       className={`w-full h-full object-contain ${
-                        category.id === 'signature-eyewear' ? 'p-0.5 pt-3' : 
-                        category.id === 'all-products' ? 'p-1 pt-4' : 'p-2'
+                        category.id === 'signature-eyewear' ? 'p-1 pt-1' : 
+                        category.id === 'all-products' ? 'p-0.4 pt-4' : 'p-2'
                       }`}
                       onError={(e) => {
                         console.error('Image failed to load:', category.image, e);
