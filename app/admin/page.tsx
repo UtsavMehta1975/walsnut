@@ -962,90 +962,132 @@ export default function AdminPage() {
                     {/* Category Selection */}
                     <div className="mb-6">
                       <h4 className="font-medium text-gray-900 mb-4">Product Categories</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <label className="flex items-center">
                           <input
                             type="checkbox"
-                            checked={Array.isArray(newProduct.categories) && newProduct.categories.includes('for-him')}
+                            checked={Array.isArray(newProduct.categories) && newProduct.categories.includes('premium-watches')}
                             onChange={(e) => {
                               if (e.target.checked) {
                                 setNewProduct({
                                   ...newProduct,
-                                  categories: [...(Array.isArray(newProduct.categories) ? newProduct.categories : []), 'for-him']
+                                  categories: [...(Array.isArray(newProduct.categories) ? newProduct.categories : []), 'premium-watches']
                                 })
                               } else {
                                 setNewProduct({
                                   ...newProduct,
-                                  categories: Array.isArray(newProduct.categories) ? newProduct.categories.filter(cat => cat !== 'for-him') : []
+                                  categories: Array.isArray(newProduct.categories) ? newProduct.categories.filter(cat => cat !== 'premium-watches') : []
                                 })
                               }
                             }}
                             className="mr-3 h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
                           />
-                          For Him
+                          Premium Watches
                         </label>
                         <label className="flex items-center">
                           <input
                             type="checkbox"
-                            checked={Array.isArray(newProduct.categories) && newProduct.categories.includes('for-her')}
+                            checked={Array.isArray(newProduct.categories) && newProduct.categories.includes('signature-eyewear')}
                             onChange={(e) => {
                               if (e.target.checked) {
                                 setNewProduct({
                                   ...newProduct,
-                                  categories: [...(Array.isArray(newProduct.categories) ? newProduct.categories : []), 'for-her']
+                                  categories: [...(Array.isArray(newProduct.categories) ? newProduct.categories : []), 'signature-eyewear']
                                 })
                               } else {
                                 setNewProduct({
                                   ...newProduct,
-                                  categories: Array.isArray(newProduct.categories) ? newProduct.categories.filter(cat => cat !== 'for-her') : []
+                                  categories: Array.isArray(newProduct.categories) ? newProduct.categories.filter(cat => cat !== 'signature-eyewear') : []
                                 })
                               }
                             }}
                             className="mr-3 h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
                           />
-                          For Her
+                          Signature Eyewear
                         </label>
                         <label className="flex items-center">
                           <input
                             type="checkbox"
-                            checked={Array.isArray(newProduct.categories) && newProduct.categories.includes('sale-1499')}
+                            checked={Array.isArray(newProduct.categories) && newProduct.categories.includes('elite-speakers')}
                             onChange={(e) => {
                               if (e.target.checked) {
                                 setNewProduct({
                                   ...newProduct,
-                                  categories: [...(Array.isArray(newProduct.categories) ? newProduct.categories : []), 'sale-1499']
+                                  categories: [...(Array.isArray(newProduct.categories) ? newProduct.categories : []), 'elite-speakers']
                                 })
                               } else {
                                 setNewProduct({
                                   ...newProduct,
-                                  categories: Array.isArray(newProduct.categories) ? newProduct.categories.filter(cat => cat !== 'sale-1499') : []
+                                  categories: Array.isArray(newProduct.categories) ? newProduct.categories.filter(cat => cat !== 'elite-speakers') : []
                                 })
                               }
                             }}
                             className="mr-3 h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
                           />
-                          Sale - ₹1,499 Collection
+                          Elite Speakers
                         </label>
                         <label className="flex items-center">
                           <input
                             type="checkbox"
-                            checked={Array.isArray(newProduct.categories) && newProduct.categories.includes('sale-1999')}
+                            checked={Array.isArray(newProduct.categories) && newProduct.categories.includes('true-wireless-earbuds')}
                             onChange={(e) => {
                               if (e.target.checked) {
                                 setNewProduct({
                                   ...newProduct,
-                                  categories: [...(Array.isArray(newProduct.categories) ? newProduct.categories : []), 'sale-1999']
+                                  categories: [...(Array.isArray(newProduct.categories) ? newProduct.categories : []), 'true-wireless-earbuds']
                                 })
                               } else {
                                 setNewProduct({
                                   ...newProduct,
-                                  categories: Array.isArray(newProduct.categories) ? newProduct.categories.filter(cat => cat !== 'sale-1999') : []
+                                  categories: Array.isArray(newProduct.categories) ? newProduct.categories.filter(cat => cat !== 'true-wireless-earbuds') : []
                                 })
                               }
                             }}
                             className="mr-3 h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
                           />
-                          Sale - ₹1,999 Collection
+                          True Wireless Earbuds
+                        </label>
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={Array.isArray(newProduct.categories) && newProduct.categories.includes('all-products')}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setNewProduct({
+                                  ...newProduct,
+                                  categories: [...(Array.isArray(newProduct.categories) ? newProduct.categories : []), 'all-products']
+                                })
+                              } else {
+                                setNewProduct({
+                                  ...newProduct,
+                                  categories: Array.isArray(newProduct.categories) ? newProduct.categories.filter(cat => cat !== 'all-products') : []
+                                })
+                              }
+                            }}
+                            className="mr-3 h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                          />
+                          All Products
+                        </label>
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={Array.isArray(newProduct.categories) && newProduct.categories.includes('new-arrivals')}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setNewProduct({
+                                  ...newProduct,
+                                  categories: [...(Array.isArray(newProduct.categories) ? newProduct.categories : []), 'new-arrivals']
+                                })
+                              } else {
+                                setNewProduct({
+                                  ...newProduct,
+                                  categories: Array.isArray(newProduct.categories) ? newProduct.categories.filter(cat => cat !== 'new-arrivals') : []
+                                })
+                              }
+                            }}
+                            className="mr-3 h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                          />
+                          New Arrivals
                         </label>
                       </div>
                     </div>
@@ -1320,6 +1362,25 @@ export default function AdminPage() {
                                 <div className="flex justify-between">
                                   <span className="text-gray-600">Year:</span>
                                   <span className="font-medium">{product.year}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Categories:</span>
+                                  <span className="font-medium">
+                                    {Array.isArray(product.categories) && product.categories.length > 0 
+                                      ? product.categories.map(cat => {
+                                          const categoryNames: { [key: string]: string } = {
+                                            'premium-watches': 'Premium Watches',
+                                            'signature-eyewear': 'Signature Eyewear',
+                                            'elite-speakers': 'Elite Speakers',
+                                            'true-wireless-earbuds': 'True Wireless Earbuds',
+                                            'all-products': 'All Products',
+                                            'new-arrivals': 'New Arrivals'
+                                          }
+                                          return categoryNames[cat] || cat
+                                        }).join(', ')
+                                      : 'None'
+                                    }
+                                  </span>
                                 </div>
                               </div>
                             </div>
