@@ -17,42 +17,42 @@ const categories: Category[] = [
     id: 'premium-watches',
     name: 'Premium Watches',
     href: '/watches?category=for-him',
-    image: '/shopbycategorypremiumwatch.avif',
+    image: '/shopbycategorypremiumwatch.png',
     color: 'bg-purple-100 hover:bg-purple-200'
   },
   {
     id: 'signature-eyewear',
     name: 'Signature Eyewear',
     href: '/sunglasses',
-    image: '/shopbycategorysignatureeyewear.avif',
+    image: '/sunglasseshopbycategory.jpg',
     color: 'bg-gray-100 hover:bg-gray-200'
   },
   {
     id: 'elite-speakers',
     name: 'Elite Speakers',
     href: '/speakers',
-    image: '/shopbycategoryelitespeakers.avif',
+    image: '/shopbycategoryspeakers.jpg',
     color: 'bg-green-100 hover:bg-green-200'
   },
   {
     id: 'true-wireless-earbuds',
     name: 'True Wireless Earbuds',
     href: '/earbuds',
-    image: '/shopbycategorytruewirelessearbuds.avif',
+    image: '/shopbycategoryearbuds.png',
     color: 'bg-blue-100 hover:bg-blue-200'
   },
   {
     id: 'all-products',
     name: 'All Products',
     href: '/watches',
-    image: '/shopbycategoryallproducts.avif',
+    image: '/allproductsshopbycategory.png',
     color: 'bg-purple-100 hover:bg-purple-200'
   },
   {
     id: 'new-arrivals',
     name: 'New Arrivals',
     href: '/watches?category=new-arrivals',
-    image: '/shopbycategorynewarrivals.avif',
+    image: '/newarrivel.jpg',
     color: 'bg-yellow-100 hover:bg-yellow-200'
   }
 ]
