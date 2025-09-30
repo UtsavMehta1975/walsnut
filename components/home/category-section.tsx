@@ -17,7 +17,7 @@ const categories: Category[] = [
     id: 'premium-watches',
     name: 'Premium Watches',
     href: '/watches?category=for-him',
-    image: '/shopbycategorypremiumwatch.png',
+    image: '/watch.png',
     color: 'bg-purple-100 hover:bg-purple-200'
   },
   {
