@@ -3,6 +3,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { formatPrice } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { useCart } from '@/store/cart-store'
+import { ShoppingCart, Zap } from 'lucide-react'
 
 interface Product {
   id: string
@@ -19,12 +22,39 @@ interface CleanProductCardProps {
 }
 
 export function CleanProductCard({ product }: CleanProductCardProps) {
+  const { addToCart } = useCart()
   const discountPercentage = product.previousPrice 
     ? Math.round(((product.previousPrice - product.price) / product.previousPrice) * 100)
     : 0
 
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    addToCart({
+      id: product.id,
+      name: `${product.brand} ${product.model}`,
+      price: product.price,
+      image: product.imageUrl,
+      quantity: 1
+    })
+  }
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    addToCart({
+      id: product.id,
+      name: `${product.brand} ${product.model}`,
+      price: product.price,
+      image: product.imageUrl,
+      quantity: 1
+    })
+    // Redirect to checkout
+    window.location.href = '/checkout'
+  }
+
   return (
-    <Link href={`/watches/${product.id}`} className="group block">
+    <div className="group block">
       <div className="bg-white/95 hover:shadow-sm transition-shadow duration-200">
         {/* Product Image */}
         <div className="relative aspect-square overflow-hidden bg-gray-50">
@@ -75,8 +105,28 @@ export function CleanProductCard({ product }: CleanProductCardProps) {
               </span>
             )}
           </div>
+
+          {/* Action Buttons */}
+          <div className="mt-3 space-y-2">
+            <Button 
+              onClick={handleAddToCart}
+              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm py-2"
+              size="sm"
+            >
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              Add to Cart
+            </Button>
+            <Button 
+              onClick={handleBuyNow}
+              className="w-full bg-yellow-500 hover:bg-yellow-600 text-white text-sm py-2"
+              size="sm"
+            >
+              <Zap className="h-4 w-4 mr-2" />
+              Buy Now
+            </Button>
+          </div>
         </div>
       </div>
-    </Link>
+    </div>
   )
 }

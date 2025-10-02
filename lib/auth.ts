@@ -17,6 +17,12 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
+          // Check if database is configured
+          if (!process.env.MYSQL_URL) {
+            console.error('Database not configured for authentication')
+            return null
+          }
+
           // Optimized query - only select necessary fields
           const user = await db.user.findUnique({
             where: {
@@ -68,11 +74,16 @@ export const authOptions: NextAuthOptions = {
       return token
     },
     async session({ session, token }) {
-      if (token && session.user) {
-        session.user.role = token.role
-        session.user.id = token.id
+      try {
+        if (token && session.user) {
+          session.user.role = token.role
+          session.user.id = token.id
+        }
+        return session
+      } catch (error) {
+        console.error('Session callback error:', error)
+        return session
       }
-      return session
     }
   },
   pages: {
