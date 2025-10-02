@@ -64,9 +64,37 @@ const nextConfig = {
   
   // Performance optimizations
   experimental: {
-    serverComponentsExternalPackages: ['@prisma/client'],
+    serverComponentsExternalPackages: ['@prisma/client', 'jose'],
     optimizeCss: true,
     optimizePackageImports: ['lucide-react'],
+  },
+
+  // Content Security Policy
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.cashfree.com; connect-src 'self' https://api.cashfree.com;"
+          }
+        ]
+      }
+    ]
+  },
+  
+  // Webpack configuration to handle jose module
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push('jose')
+    }
+    // Ensure jose is available for middleware
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      'jose': require.resolve('jose')
+    }
+    return config
   },
   
   // Disable static generation for error pages to prevent Html import issues

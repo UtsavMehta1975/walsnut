@@ -32,6 +32,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Handle client-side mounting
   useEffect(() => {
     setMounted(true)
+    
+    // Restore user from localStorage if available
+    if (typeof window !== 'undefined') {
+      const savedUser = localStorage.getItem('user')
+      if (savedUser) {
+        try {
+          const userData = JSON.parse(savedUser)
+          setUser(userData)
+        } catch (error) {
+          console.error('Error parsing saved user data:', error)
+          localStorage.removeItem('user')
+        }
+      }
+    }
   }, [])
 
   // Sync NextAuth session with our user state
@@ -77,7 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true)
       
-      // First, try direct API call for faster response
+      // Use only custom API call for authentication
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -92,16 +106,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (response.ok) {
         const userData = await response.json()
         
-        // Optimistically update user state immediately
+        // Update user state immediately
         setUser(userData)
         setIsLoading(false)
         
-        // Then sign in with NextAuth in background
-        signIn('credentials', {
-          email: email.toLowerCase().trim(),
-          password,
-          redirect: false
-        }).catch(console.error)
+        // Store user data in localStorage for persistence
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('user', JSON.stringify(userData))
+        }
         
         return { success: true, user: userData }
       } else {

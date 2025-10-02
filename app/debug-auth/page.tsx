@@ -1,83 +1,79 @@
 'use client'
 
-import { useAuth } from '@/contexts/auth-context'
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { useSession, signIn, signOut } from 'next-auth/react'
+import { useAuth } from '@/contexts/auth-context'
 
 export default function DebugAuthPage() {
-  const { user, isAuthenticated, isLoading, login } = useAuth()
-  const [email, setEmail] = useState('admin@walnut.com')
-  const [password, setPassword] = useState('password123')
-  const [loginResult, setLoginResult] = useState<string>('')
+  const { data: session, status } = useSession()
+  const { user, isAuthenticated, login } = useAuth()
+  const [testResult, setTestResult] = useState<string>('')
 
-  const handleLogin = async () => {
+  const testLogin = async () => {
     try {
-      const success = await login(email, password)
-      setLoginResult(success ? 'Login successful!' : 'Login failed!')
+      const result = await login('admin@walnut.com', 'admin123')
+      setTestResult(`Login result: ${JSON.stringify(result, null, 2)}`)
     } catch (error) {
-      setLoginResult(`Login error: ${error}`)
+      setTestResult(`Login error: ${error}`)
+    }
+  }
+
+  const testNextAuthSignIn = async () => {
+    try {
+      const result = await signIn('credentials', {
+        email: 'admin@walnut.com',
+        password: 'admin123',
+        redirect: false
+      })
+      setTestResult(`NextAuth signIn result: ${JSON.stringify(result, null, 2)}`)
+    } catch (error) {
+      setTestResult(`NextAuth signIn error: ${error}`)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
-        <h1 className="text-2xl font-bold mb-4">Auth Debug</h1>
-        
-        <div className="mb-4">
-          <h2 className="font-semibold mb-2">Current State:</h2>
-          <p>Loading: {isLoading ? 'Yes' : 'No'}</p>
-          <p>Authenticated: {isAuthenticated ? 'Yes' : 'No'}</p>
-          <p>User: {user ? JSON.stringify(user, null, 2) : 'None'}</p>
-          <p>User Role: {user?.role || 'None'}</p>
-          <p>Role Type: {typeof user?.role}</p>
-          <p>Role === 'ADMIN': {user?.role === 'ADMIN' ? 'Yes' : 'No'}</p>
-          <p>Role.toUpperCase() === 'ADMIN': {user?.role?.toUpperCase() === 'ADMIN' ? 'Yes' : 'No'}</p>
+    <div className="container mx-auto p-8">
+      <h1 className="text-2xl font-bold mb-6">Authentication Debug Page</h1>
+      
+      <div className="space-y-4">
+        <div className="p-4 border rounded">
+          <h2 className="font-semibold">NextAuth Session Status:</h2>
+          <p>Status: {status}</p>
+          <p>Session: {JSON.stringify(session, null, 2)}</p>
         </div>
 
-        <div className="mb-4">
-          <h2 className="font-semibold mb-2">Test Login:</h2>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border rounded mb-2"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border rounded mb-2"
-          />
-          <Button onClick={handleLogin} className="w-full">
-            Login
-          </Button>
-          <p className="mt-2 text-sm">{loginResult}</p>
+        <div className="p-4 border rounded">
+          <h2 className="font-semibold">Auth Context:</h2>
+          <p>Is Authenticated: {isAuthenticated ? 'Yes' : 'No'}</p>
+          <p>User: {JSON.stringify(user, null, 2)}</p>
         </div>
 
-        <div className="mb-4">
-          <h2 className="font-semibold mb-2">Admin Check:</h2>
-          <p>Is Admin: {user?.role === 'ADMIN' ? 'Yes' : 'No'}</p>
-          <p>Role: {user?.role || 'None'}</p>
+        <div className="p-4 border rounded">
+          <h2 className="font-semibold">Test Results:</h2>
+          <p>{testResult}</p>
         </div>
 
-        <div>
-          <h2 className="font-semibold mb-2">Actions:</h2>
-          <Button 
-            onClick={() => window.location.href = '/admin'} 
-            className="w-full mb-2"
-            disabled={!isAuthenticated || user?.role !== 'ADMIN'}
+        <div className="space-x-4">
+          <button 
+            onClick={testLogin}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
-            Go to Admin Panel
-          </Button>
-          <Button 
-            onClick={() => window.location.href = '/'} 
-            className="w-full"
+            Test Custom Login
+          </button>
+          
+          <button 
+            onClick={testNextAuthSignIn}
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
           >
-            Go Home
-          </Button>
+            Test NextAuth SignIn
+          </button>
+          
+          <button 
+            onClick={() => signOut()}
+            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+          >
+            Sign Out
+          </button>
         </div>
       </div>
     </div>

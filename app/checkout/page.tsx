@@ -52,6 +52,16 @@ function CheckoutContent() {
     cvv: '',
     cardName: ''
   })
+  
+  const [paymentMethod, setPaymentMethod] = useState('')
+
+  // Payment method options
+  const paymentMethods = [
+    { id: 'upi', name: 'UPI', icon: '📱', description: 'Pay using UPI apps like PhonePe, Google Pay' },
+    { id: 'card', name: 'Credit/Debit Card', icon: '💳', description: 'Visa, Mastercard, RuPay cards' },
+    { id: 'netbanking', name: 'Net Banking', icon: '🏦', description: 'Direct bank transfer' },
+    { id: 'wallet', name: 'Digital Wallet', icon: '💰', description: 'Paytm, PhonePe, Google Pay wallet' }
+  ]
 
   // Determine if this is a Buy Now or Cart checkout
   const isBuyNow = productId && brand && model && price
@@ -97,6 +107,12 @@ function CheckoutContent() {
     
     if (missingFields.length > 0) {
       toast.error(`Please fill in all required fields: ${missingFields.join(', ')}`)
+      return
+    }
+
+    // Payment method validation
+    if (!paymentMethod) {
+      toast.error('Please select a payment method')
       return
     }
 
@@ -166,15 +182,46 @@ function CheckoutContent() {
 
       const result = await response.json()
       
-      toast.success('Order placed successfully! You will receive a confirmation email shortly.')
+      // Initialize payment with Cashfree
+      const paymentResponse = await fetch('/api/payments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderId: result.order.id,
+          paymentMethod
+        })
+      })
+
+      if (!paymentResponse.ok) {
+        throw new Error('Failed to initialize payment')
+      }
+
+      const paymentData = await paymentResponse.json()
       
       // Clear cart if this was a cart checkout
       if (!isBuyNow) {
         clearCart()
       }
       
-      // Redirect to order confirmation
-      router.push(`/orders?orderId=${result.order.id}`)
+      // Initialize Cashfree payment UI
+      const cashfree = new (window as any).Cashfree({
+        mode: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'
+      })
+      
+      cashfree.checkout({
+        paymentSessionId: paymentData.paymentSessionId,
+        returnUrl: `${window.location.origin}/payment/success?order_id={order_id}`,
+        onSuccess: () => {
+          toast.success('Payment successful!')
+          router.push('/payment/success')
+        },
+        onFailure: () => {
+          toast.error('Payment failed')
+          router.push('/payment/failure')
+        }
+      })
       
     } catch (error) {
       console.error('Checkout error:', error)
@@ -350,46 +397,40 @@ function CheckoutContent() {
               </CardContent>
             </Card>
 
-            {/* Payment Information */}
+            {/* Payment Method Selection */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <CreditCard className="h-5 w-5 mr-2" />
-                  Payment Information
+                  Payment Method
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input
-                    name="cardName"
-                    placeholder="Cardholder Name"
-                    value={formData.cardName}
-                    onChange={handleInputChange}
-                    required
-                    className="md:col-span-2"
-                  />
-                  <Input
-                    name="cardNumber"
-                    placeholder="Card Number"
-                    value={formData.cardNumber}
-                    onChange={handleInputChange}
-                    required
-                    className="md:col-span-2"
-                  />
-                  <Input
-                    name="expiryDate"
-                    placeholder="MM/YY"
-                    value={formData.expiryDate}
-                    onChange={handleInputChange}
-                    required
-                  />
-                  <Input
-                    name="cvv"
-                    placeholder="CVV"
-                    value={formData.cvv}
-                    onChange={handleInputChange}
-                    required
-                  />
+                <div className="space-y-3">
+                  {paymentMethods.map((method) => (
+                    <label 
+                      key={method.id} 
+                      className={`flex items-center space-x-3 p-4 border rounded-lg cursor-pointer transition-colors ${
+                        paymentMethod === method.id 
+                          ? 'border-yellow-400 bg-yellow-50' 
+                          : 'border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value={method.id}
+                        checked={paymentMethod === method.id}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                        className="text-yellow-400 focus:ring-yellow-400"
+                      />
+                      <span className="text-2xl">{method.icon}</span>
+                      <div className="flex-1">
+                        <div className="font-medium">{method.name}</div>
+                        <div className="text-sm text-gray-600">{method.description}</div>
+                      </div>
+                    </label>
+                  ))}
                 </div>
               </CardContent>
             </Card>

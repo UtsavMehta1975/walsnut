@@ -61,43 +61,18 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      try {
-        if (user) {
-          // Ensure all values are serializable
-          token.role = String(user.role || 'CUSTOMER')
-          token.id = String(user.id || '')
-        }
-        return token
-      } catch (error) {
-        console.error('JWT callback error:', error)
-        // Return a safe default token
-        return {
-          ...token,
-          role: 'CUSTOMER',
-          id: ''
-        }
+      if (user) {
+        token.role = user.role
+        token.id = user.id
       }
+      return token
     },
     async session({ session, token }) {
-      try {
-        if (token && session.user) {
-          // Ensure all values are serializable and valid
-          session.user.role = String(token.role || 'CUSTOMER')
-          session.user.id = String(token.id || '')
-        }
-        return session
-      } catch (error) {
-        console.error('Session callback error:', error)
-        // Return a safe default session
-        return {
-          ...session,
-          user: {
-            ...session.user,
-            role: 'CUSTOMER',
-            id: ''
-          }
-        }
+      if (token && session.user) {
+        session.user.role = token.role
+        session.user.id = token.id
       }
+      return session
     }
   },
   pages: {
@@ -106,10 +81,10 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
-    maxAge: 7 * 24 * 60 * 60, // 7 days (reduced for better security)
-    updateAge: 12 * 60 * 60, // 12 hours
+    maxAge: 24 * 60 * 60, // 1 day
+    updateAge: 60 * 60, // 1 hour
   },
   secret: process.env.NEXTAUTH_SECRET || 'a6l15TQlu9p8qpFB+wLMj35R583D1df6Wu71+fyw+PU=',
-  debug: false, // Disable debug for better performance
+  debug: true, // Enable debug to troubleshoot authentication issues
 }
 
