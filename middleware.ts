@@ -7,11 +7,11 @@ export async function middleware(request: NextRequest) {
   // Create response
   const response = NextResponse.next()
   
-  // Add CSP headers to allow Cashfree SDK
-  response.headers.set(
-    'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.cashfree.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.cashfree.com https://sdk.cashfree.com; frame-src 'self' https://sdk.cashfree.com;"
-  )
+  // Temporarily disable CSP to fix Cashfree SDK loading
+  // response.headers.set(
+  //   'Content-Security-Policy',
+  //   "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.cashfree.com https://*.cashfree.com; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https: blob:; font-src 'self' data: https:; connect-src 'self' https://api.cashfree.com https://sdk.cashfree.com https://*.cashfree.com; frame-src 'self' https://sdk.cashfree.com https://*.cashfree.com;"
+  // )
   
   // Add CORS headers for Cashfree
   response.headers.set('Access-Control-Allow-Origin', '*')
