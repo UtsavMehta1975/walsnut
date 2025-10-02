@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { formatPrice } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/store/cart-store'
+import { useAuth } from '@/contexts/auth-context'
 import { ShoppingCart, Zap } from 'lucide-react'
 
 interface Product {
@@ -23,6 +24,7 @@ interface CleanProductCardProps {
 
 export function CleanProductCard({ product }: CleanProductCardProps) {
   const { addToCart } = useCart()
+  const { isAuthenticated } = useAuth()
   const discountPercentage = product.previousPrice 
     ? Math.round(((product.previousPrice - product.price) / product.previousPrice) * 100)
     : 0
@@ -47,7 +49,7 @@ export function CleanProductCard({ product }: CleanProductCardProps) {
       price: product.price,
       image: product.imageUrl
     })
-    // Redirect to checkout
+    // Redirect to checkout (allow both authenticated and guest users)
     window.location.href = '/checkout'
   }
 

@@ -78,11 +78,12 @@ function CheckoutContent() {
   const tax = subtotal * 0.18 // 18% GST (Indian tax rate)
   const total = subtotal + shipping + tax
 
-  // Redirect to login if not authenticated
+  // Redirect to login if not authenticated (but allow guest checkout for now)
   useEffect(() => {
-    if (!isAuthenticated && !isLoading) {
-      router.push('/auth/signin?redirect=/checkout')
-    }
+    // Temporarily disable authentication check for development
+    // if (!isAuthenticated && !isLoading) {
+    //   router.push('/auth/signin?redirect=/checkout')
+    // }
   }, [isAuthenticated, isLoading, router])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,11 +96,12 @@ function CheckoutContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!isAuthenticated) {
-      toast.error('Please sign in to complete your order')
-      router.push('/auth/signin?redirect=/checkout')
-      return
-    }
+    // Temporarily allow guest checkout
+    // if (!isAuthenticated) {
+    //   toast.error('Please sign in to complete your order')
+    //   router.push('/auth/signin?redirect=/checkout')
+    //   return
+    // }
 
     // Form validation
     const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'state', 'zipCode']
