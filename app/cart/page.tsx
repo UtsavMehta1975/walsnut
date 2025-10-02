@@ -14,7 +14,6 @@ import { formatPrice } from '@/lib/utils'
 export default function CartPage() {
   const { user } = useAuth()
   const { items, removeFromCart, updateQuantity, clearCart, getTotal } = useCart()
-  const [isCheckingOut, setIsCheckingOut] = useState(false)
 
   const handleQuantityChange = (id: string, newQuantity: number) => {
     if (newQuantity <= 0) {
@@ -25,16 +24,9 @@ export default function CartPage() {
   }
 
   const handleCheckout = () => {
-    if (!user) {
-      // Redirect to login or show login modal
-      return
-    }
-    
-    setIsCheckingOut(true)
-    // Here you would integrate with your payment processor
-    setTimeout(() => {
-      setIsCheckingOut(false)
-    }, 2000)
+    // Allow both authenticated and guest checkout
+    // Redirect directly to checkout page
+    window.location.href = '/checkout'
   }
 
   if (items.length === 0) {
@@ -205,9 +197,8 @@ export default function CartPage() {
                 <Button
                   className="w-full bg-yellow-400 text-black hover:bg-yellow-500 font-bold py-3"
                   onClick={handleCheckout}
-                  disabled={isCheckingOut}
                 >
-                  {isCheckingOut ? 'Processing...' : 'Proceed to Checkout'}
+                  Proceed to Checkout
                 </Button>
               </div>
             </div>
