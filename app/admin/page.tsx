@@ -467,6 +467,7 @@ export default function AdminPage() {
           previousPrice: '',
           condition: 'NEW',
           year: new Date().getFullYear().toString(),
+          gender: 'MENS',
           description: '',
           stockQuantity: '1',
           categories: [],
