@@ -34,8 +34,7 @@ export function CleanProductCard({ product }: CleanProductCardProps) {
       id: product.id,
       name: `${product.brand} ${product.model}`,
       price: product.price,
-      image: product.imageUrl,
-      quantity: 1
+      image: product.imageUrl
     })
   }
 
@@ -46,8 +45,7 @@ export function CleanProductCard({ product }: CleanProductCardProps) {
       id: product.id,
       name: `${product.brand} ${product.model}`,
       price: product.price,
-      image: product.imageUrl,
-      quantity: 1
+      image: product.imageUrl
     })
     // Redirect to checkout
     window.location.href = '/checkout'
