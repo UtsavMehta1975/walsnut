@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: NextRequest) {
   try {
     // Check if database is configured
-    if (!process.env.MYSQL_URL || process.env.MYSQL_URL.includes('YourStrongPassword')) {
+    if (!process.env.MYSQL_URL) {
       return NextResponse.json(
         { error: 'Database not configured. Please contact administrator.' },
         { status: 503 }

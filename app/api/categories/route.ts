@@ -4,7 +4,7 @@ import { db } from '@/lib/db'
 export async function GET(request: NextRequest) {
   try {
     // Check if database is available
-    if (!process.env.MYSQL_URL || process.env.MYSQL_URL.includes('YourStrongPassword')) {
+    if (!process.env.MYSQL_URL) {
       // Return mock data if database is not configured
       return NextResponse.json({
         data: [
