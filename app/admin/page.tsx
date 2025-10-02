@@ -47,6 +47,7 @@ interface Product {
     certificate: boolean
     serviceHistory: boolean
   }
+  categories?: string[]
 }
 
 interface Order {
