@@ -59,7 +59,12 @@ export default function RootLayout({
             />
           </AuthProvider>
         </AuthSessionProvider>
-        <script src="https://sdk.cashfree.com/js/v3/cashfree.js" async></script>
+        <script 
+          src="https://sdk.cashfree.com/js/v3/cashfree.js" 
+          async 
+          crossOrigin="anonymous"
+          onError="console.warn('Cashfree SDK failed to load')"
+        ></script>
       </body>
     </html>
   )

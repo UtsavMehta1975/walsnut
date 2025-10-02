@@ -4,6 +4,14 @@ import { db } from '@/lib/db'
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if database is configured
+    if (!process.env.MYSQL_URL || process.env.MYSQL_URL.includes('YourStrongPassword')) {
+      return NextResponse.json(
+        { message: 'Database not configured. Please contact administrator.' },
+        { status: 503 }
+      )
+    }
+
     const { email, password } = await request.json()
 
     if (!email || !password) {

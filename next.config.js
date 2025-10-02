@@ -69,20 +69,20 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react'],
   },
 
-  // Content Security Policy
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.cashfree.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.cashfree.com https://sdk.cashfree.com; frame-src 'self' https://sdk.cashfree.com;"
-          }
-        ]
-      }
-    ]
-  },
+  // Content Security Policy - temporarily disabled to fix Cashfree SDK loading
+  // async headers() {
+  //   return [
+  //     {
+  //       source: '/(.*)',
+  //       headers: [
+  //         {
+  //           key: 'Content-Security-Policy',
+  //           value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.cashfree.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.cashfree.com https://sdk.cashfree.com; frame-src 'self' https://sdk.cashfree.com;"
+  //         }
+  //       ]
+  //     }
+  //   ]
+  // },
   
   // Webpack configuration to handle jose module
   webpack: (config, { isServer }) => {

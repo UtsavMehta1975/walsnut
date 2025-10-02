@@ -4,6 +4,15 @@ import type { NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   
+  // Create response
+  const response = NextResponse.next()
+  
+  // Add CSP headers to allow Cashfree SDK
+  response.headers.set(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.cashfree.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.cashfree.com https://sdk.cashfree.com; frame-src 'self' https://sdk.cashfree.com;"
+  )
+  
   // Temporarily disable authentication middleware to fix jose module issues
   // TODO: Re-enable after fixing jose module bundling
   
@@ -32,7 +41,7 @@ export async function middleware(request: NextRequest) {
     // }
   }
   
-  return NextResponse.next()
+  return response
 }
 
 export const config = {
