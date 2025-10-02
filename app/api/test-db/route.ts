@@ -3,6 +3,15 @@ import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {
+    // Check if database is configured
+    if (!process.env.MYSQL_URL || process.env.MYSQL_URL.includes('YourStrongPassword')) {
+      return NextResponse.json({
+        success: false,
+        error: 'Database not configured for production',
+        message: 'Please update MYSQL_URL with the correct password (currently using placeholder: YourStrongPassword)'
+      })
+    }
+
     // Test database connection
     await db.$connect()
     

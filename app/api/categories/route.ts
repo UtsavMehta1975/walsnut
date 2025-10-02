@@ -3,6 +3,19 @@ import { db } from '@/lib/db'
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if database is available
+    if (!process.env.MYSQL_URL || process.env.MYSQL_URL.includes('YourStrongPassword')) {
+      // Return mock data if database is not configured
+      return NextResponse.json({
+        data: [
+          { id: 'premium-watches', name: 'Premium Watches', productCount: 0 },
+          { id: 'signature-eyewear', name: 'Signature Eyewear', productCount: 0 },
+          { id: 'elite-speakers', name: 'Elite Speakers', productCount: 0 },
+          { id: 'true-wireless-earbuds', name: 'True Wireless Earbuds', productCount: 0 }
+        ]
+      })
+    }
+
     // Get all categories from the database
     const categories = await db.category.findMany({
       include: {
