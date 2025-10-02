@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
   try {
     // Check if database is configured
     if (!process.env.MYSQL_URL) {
+      console.error('Database not configured - MYSQL_URL missing')
       return NextResponse.json(
         { error: 'Database not configured. Please contact administrator.' },
         { status: 503 }
@@ -111,6 +112,7 @@ export async function POST(request: NextRequest) {
   try {
     // Check if database is configured
     if (!process.env.MYSQL_URL) {
+      console.error('Database not configured - MYSQL_URL missing')
       return NextResponse.json(
         { error: 'Database not configured. Please contact administrator.' },
         { status: 503 }

@@ -8,8 +8,18 @@ export async function POST(request: NextRequest) {
   try {
     // Check if database is configured
     if (!process.env.MYSQL_URL) {
+      console.error('Database not configured - MYSQL_URL missing')
       return NextResponse.json(
         { error: 'Database not configured. Please contact administrator.' },
+        { status: 503 }
+      )
+    }
+
+    // Check if Cashfree credentials are configured
+    if (!process.env.CASHFREE_APP_ID || !process.env.CASHFREE_SECRET_KEY) {
+      console.error('Cashfree credentials not configured')
+      return NextResponse.json(
+        { error: 'Payment system not configured. Please contact administrator.' },
         { status: 503 }
       )
     }
