@@ -5,6 +5,17 @@ import { authOptions } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if database is configured
+    if (!process.env.MYSQL_URL) {
+      return NextResponse.json({
+        products: [],
+        totalCount: 0,
+        totalPages: 0,
+        currentPage: 1,
+        message: 'Database not configured'
+      })
+    }
+
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '12')
@@ -165,7 +176,7 @@ export async function GET(request: NextRequest) {
       previousPrice: product.previousPrice ? Number(product.previousPrice) : null,
     }))
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       data: serializedProducts,
       pagination: {
         page,
@@ -174,6 +185,13 @@ export async function GET(request: NextRequest) {
         totalPages
       }
     })
+    
+    // Add CORS headers
+    response.headers.set('Access-Control-Allow-Origin', '*')
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    
+    return response
   } catch (error) {
     console.error('Products API error:', error)
     return NextResponse.json(

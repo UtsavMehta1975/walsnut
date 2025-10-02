@@ -61,8 +61,7 @@ export default function RootLayout({
         </AuthSessionProvider>
         <script 
           src="https://sdk.cashfree.com/js/v3/cashfree.js" 
-          async 
-          crossOrigin="anonymous"
+          async
         ></script>
       </body>
     </html>

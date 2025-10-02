@@ -13,6 +13,11 @@ export async function middleware(request: NextRequest) {
     "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.cashfree.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.cashfree.com https://sdk.cashfree.com; frame-src 'self' https://sdk.cashfree.com;"
   )
   
+  // Add CORS headers for Cashfree
+  response.headers.set('Access-Control-Allow-Origin', '*')
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  
   // Temporarily disable authentication middleware to fix jose module issues
   // TODO: Re-enable after fixing jose module bundling
   
