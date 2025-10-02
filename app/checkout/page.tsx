@@ -227,7 +227,17 @@ function CheckoutContent() {
       
     } catch (error) {
       console.error('Checkout error:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to place order')
+      if (error instanceof Error) {
+        if (error.message.includes('Database not configured')) {
+          toast.error('Service temporarily unavailable. Please contact support.')
+        } else if (error.message.includes('Failed to initialize payment')) {
+          toast.error('Payment system error. Please try again or contact support.')
+        } else {
+          toast.error(error.message)
+        }
+      } else {
+        toast.error('An unexpected error occurred. Please try again.')
+      }
     } finally {
       setIsProcessing(false)
     }

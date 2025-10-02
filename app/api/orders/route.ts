@@ -16,6 +16,14 @@ const createOrderSchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if database is configured
+    if (!process.env.MYSQL_URL) {
+      return NextResponse.json(
+        { error: 'Database not configured. Please contact administrator.' },
+        { status: 503 }
+      )
+    }
+
     // Temporarily disable authentication for development
     // TODO: Re-implement proper authentication
     // Use the first user from the database for testing
@@ -101,6 +109,14 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if database is configured
+    if (!process.env.MYSQL_URL) {
+      return NextResponse.json(
+        { error: 'Database not configured. Please contact administrator.' },
+        { status: 503 }
+      )
+    }
+
     // Temporarily disable authentication for development
     // TODO: Re-implement proper authentication
     // Use the first user from the database for testing
