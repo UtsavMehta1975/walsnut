@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react'
+import { getUserSession, saveUserSession, clearUserSession, initializeSessionPersistence } from '@/lib/session-persistence'
 
 interface User {
   id: string
@@ -33,18 +34,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMounted(true)
     
-    // Restore user from localStorage if available
-    if (typeof window !== 'undefined') {
-      const savedUser = localStorage.getItem('user')
-      if (savedUser) {
-        try {
-          const userData = JSON.parse(savedUser)
-          setUser(userData)
-        } catch (error) {
-          console.error('Error parsing saved user data:', error)
-          localStorage.removeItem('user')
-        }
-      }
+    // Initialize session persistence
+    initializeSessionPersistence()
+    
+    // Restore user from session persistence
+    const savedUser = getUserSession()
+    if (savedUser) {
+      setUser(savedUser)
+      console.log('✅ User restored from session persistence:', savedUser.email)
     }
   }, [])
 
@@ -110,10 +107,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(userData)
         setIsLoading(false)
         
-        // Store user data in localStorage for persistence
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('user', JSON.stringify(userData))
-        }
+        // Store user data using session persistence
+        saveUserSession(userData)
         
         return { success: true, user: userData }
       } else {
@@ -176,12 +171,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Sign out from NextAuth
       await signOut({ redirect: false })
       
-      // Clear any localStorage data
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('walnut_user')
-        localStorage.removeItem('walnut_cart')
-        localStorage.removeItem('walnut_wishlist')
-      }
+      // Clear session data
+      clearUserSession()
       
       console.log('✅ Auth context - Logout successful')
       
@@ -223,6 +214,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signup,
     logout
   }
+
+  // Debug logging for production
+  useEffect(() => {
+    if (mounted && typeof window !== 'undefined') {
+      console.log('🔍 Auth State:', {
+        user: user ? `${user.email} (${user.role})` : 'null',
+        isAuthenticated,
+        isLoading,
+        sessionValid: getUserSession() ? 'valid session' : 'no session'
+      })
+    }
+  }, [user, isAuthenticated, isLoading, mounted])
 
   return (
     <AuthContext.Provider value={value}>
