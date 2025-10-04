@@ -8,6 +8,9 @@ NEXTAUTH_SECRET="SfqOkvFq0IJRTkqmlkHNscOio/5zNPCBvbiSAtTJxOs="
 # App
 NEXT_PUBLIC_APP_URL="https://www.thewalnutstore.com"
 
+# Meta Pixel (Facebook Pixel) for ads tracking
+NEXT_PUBLIC_META_PIXEL_ID="your_meta_pixel_id_here"
+
 # Production
 NODE_ENV="production"
 

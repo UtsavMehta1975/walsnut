@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/contexts/auth-context'
 import toast from 'react-hot-toast'
+import { trackCompleteRegistration } from '@/components/analytics/meta-pixel'
 
 export default function SignUpPage() {
   const [name, setName] = useState('')
@@ -52,6 +53,9 @@ export default function SignUpPage() {
       const success = await signup(name, email, password, phone)
       
       if (success) {
+        // Track registration completion
+        trackCompleteRegistration('email')
+        
         toast.success('Account created successfully! Welcome to The Walnut Store!')
         // Signup typically creates regular users, so redirect to dashboard
         console.log('New user account created, redirecting to dashboard...')

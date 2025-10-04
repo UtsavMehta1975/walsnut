@@ -5,6 +5,7 @@ import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { CleanProductCard } from '@/components/ui/clean-product-card'
 import { useRouter } from 'next/navigation'
+import { trackSearch } from '@/components/analytics/meta-pixel'
 
 interface Product {
   id: string
@@ -89,6 +90,14 @@ export default function WatchesPage() {
     }
     fetchLatest()
   }, [category, searchQuery])
+
+  // Track search events
+  useEffect(() => {
+    if (searchQuery && searchQuery.length > 2) {
+      const contentIds = products.map(product => product.id)
+      trackSearch(searchQuery, contentIds)
+    }
+  }, [searchQuery, products])
 
   const loadMoreProducts = async () => {
     if (isLoadingMore || !hasMore) return

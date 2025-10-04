@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { formatPrice } from '@/lib/utils'
@@ -7,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { useCart } from '@/store/cart-store'
 import { useAuth } from '@/contexts/auth-context'
 import { ShoppingCart, Zap } from 'lucide-react'
+import { trackAddToCart, trackViewContent } from '@/components/analytics/meta-pixel'
 
 interface Product {
   id: string
@@ -29,6 +31,11 @@ export function CleanProductCard({ product }: CleanProductCardProps) {
     ? Math.round(((product.previousPrice - product.price) / product.previousPrice) * 100)
     : 0
 
+  // Track product view
+  React.useEffect(() => {
+    trackViewContent([product.id], 'product')
+  }, [product.id])
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -38,6 +45,9 @@ export function CleanProductCard({ product }: CleanProductCardProps) {
       price: product.price,
       image: product.imageUrl
     })
+    
+    // Track Add to Cart event
+    trackAddToCart(product.price, 'INR', [product.id])
   }
 
   const handleBuyNow = (e: React.MouseEvent) => {
@@ -49,6 +59,10 @@ export function CleanProductCard({ product }: CleanProductCardProps) {
       price: product.price,
       image: product.imageUrl
     })
+    
+    // Track Add to Cart event for Buy Now
+    trackAddToCart(product.price, 'INR', [product.id])
+    
     // Redirect to checkout (allow both authenticated and guest users)
     window.location.href = '/checkout'
   }

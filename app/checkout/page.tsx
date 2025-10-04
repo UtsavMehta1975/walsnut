@@ -14,6 +14,7 @@ import { formatPrice } from '@/lib/utils'
 import Image from 'next/image'
 import { useCart } from '@/store/cart-store'
 import { useAuth } from '@/contexts/auth-context'
+import { trackInitiateCheckout, trackPurchase } from '@/components/analytics/meta-pixel'
 
 interface CartItem {
   id: string
@@ -85,6 +86,15 @@ function CheckoutContent() {
     //   router.push('/auth/signin?redirect=/checkout')
     // }
   }, [isAuthenticated, isLoading, router])
+
+  // Track Initiate Checkout event
+  useEffect(() => {
+    if (items.length > 0) {
+      const totalValue = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+      const contentIds = items.map(item => item.id)
+      trackInitiateCheckout(totalValue, 'INR', contentIds)
+    }
+  }, [items])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -206,6 +216,11 @@ function CheckoutContent() {
       if (!isBuyNow) {
         clearCart()
       }
+      
+      // Track Purchase event
+      const totalValue = checkoutItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+      const contentIds = checkoutItems.map(item => item.id)
+      trackPurchase(totalValue, 'INR', contentIds)
       
       // For now, simulate successful payment since we're using test API
       toast.success('Order created successfully! (Test mode)')
