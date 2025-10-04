@@ -1,7 +1,6 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { useSession, signIn, signOut } from 'next-auth/react'
 import { getUserSession, saveUserSession, clearUserSession, initializeSessionPersistence } from '@/lib/session-persistence'
 
 interface User {
@@ -25,7 +24,6 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession()
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
@@ -45,11 +43,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // Sync NextAuth session with our user state (but prioritize localStorage)
+  // Load user session on mount
   useEffect(() => {
     if (!mounted) return
     
-    // Always check localStorage first for user data
+    // Check localStorage first for user data
     const savedUser = getUserSession()
     if (savedUser) {
       setUser(savedUser)
@@ -58,44 +56,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
     
-    // Fallback to NextAuth session if no localStorage data
-    if (status === 'loading') {
-      setIsLoading(true)
-      return
-    }
-
-    if (status === 'unauthenticated') {
-      setUser(null)
-      setIsLoading(false)
-      return
-    }
-
-    if (session?.user) {
-      try {
-        // Convert NextAuth session to our User format with safe parsing
-        const userData: User = {
-          id: String(session.user.id || ''),
-          email: String(session.user.email || ''),
-          name: String(session.user.name || ''),
-          phone: (session.user as any).phone || null,
-          address: (session.user as any).address || null,
-          role: (session.user.role as 'CUSTOMER' | 'ADMIN') || 'CUSTOMER'
+    // If no localStorage data, check our session API
+    fetch('/api/session')
+      .then(res => res.json())
+      .then(data => {
+        if (data.user) {
+          setUser(data.user)
+          saveUserSession(data.user)
         }
-        setUser(userData)
         setIsLoading(false)
-        
-        // Save to session persistence
-        saveUserSession(userData)
-      } catch (error) {
-        console.error('Error parsing session user data:', error)
-        setUser(null)
+      })
+      .catch(error => {
+        console.error('Session API error:', error)
         setIsLoading(false)
-      }
-    } else {
-      setUser(null)
-      setIsLoading(false)
-    }
-  }, [session, status, mounted])
+      })
+  }, [mounted])
 
   const login = async (email: string, password: string): Promise<{ success: boolean; user?: User }> => {
     try {
@@ -149,13 +124,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (response.ok) {
         // After successful signup, sign in automatically
-        const loginResult = await signIn('credentials', {
-          email,
-          password,
-          redirect: false
-        })
+        const loginResult = await login(email, password)
         
-        if (loginResult?.ok) {
+        if (loginResult.success) {
           // Session established immediately
           return true
         }
@@ -181,8 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       setIsLoading(false)
       
-      // Sign out from NextAuth
-      await signOut({ redirect: false })
+      // Clear session data (no NextAuth signOut needed)
       
       // Clear session data
       clearUserSession()

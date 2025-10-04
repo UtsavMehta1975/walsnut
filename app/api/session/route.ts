@@ -1,31 +1,32 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { getUserSession } from '@/lib/session-persistence'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    // Return a simple session response to prevent NextAuth errors
+    // Get user from session persistence
+    const user = getUserSession()
+    
+    if (user) {
+      return NextResponse.json({
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        },
+        expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      })
+    }
+    
     return NextResponse.json({
       user: null,
-      expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     })
   } catch (error) {
     console.error('Session API error:', error)
     return NextResponse.json({
       user: null,
-      expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     })
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    // Return a simple response for POST requests
-    return NextResponse.json({
-      message: 'Session API working'
-    })
-  } catch (error) {
-    console.error('Session API POST error:', error)
-    return NextResponse.json({
-      error: 'Session service temporarily unavailable'
-    }, { status: 503 })
   }
 }

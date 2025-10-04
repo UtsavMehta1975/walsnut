@@ -7,10 +7,10 @@ export async function middleware(request: NextRequest) {
   // Create response
   const response = NextResponse.next()
   
-  // Enable CSP with Cashfree SDK support
+  // Enable CSP with Cashfree SDK and Facebook Pixel support
   response.headers.set(
     'Content-Security-Policy',
-    "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.cashfree.com https://*.cashfree.com; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https: blob:; font-src 'self' data: https:; connect-src 'self' https://api.cashfree.com https://sdk.cashfree.com https://*.cashfree.com; frame-src 'self' https://sdk.cashfree.com https://*.cashfree.com;"
+    "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.cashfree.com https://*.cashfree.com https://connect.facebook.net https://*.facebook.com; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https: blob: https://www.facebook.com; font-src 'self' data: https:; connect-src 'self' https://api.cashfree.com https://sdk.cashfree.com https://*.cashfree.com https://connect.facebook.net https://*.facebook.com; frame-src 'self' https://sdk.cashfree.com https://*.cashfree.com https://www.facebook.com;"
   )
   
   // Add CORS headers for Cashfree
