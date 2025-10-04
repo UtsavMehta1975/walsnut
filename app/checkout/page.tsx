@@ -194,8 +194,8 @@ function CheckoutContent() {
 
       const result = await response.json()
       
-      // Initialize payment with Cashfree (use test API for now)
-      const paymentResponse = await fetch('/api/payment-test', {
+      // Initialize payment with Cashfree
+      const paymentResponse = await fetch('/api/payments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -222,27 +222,23 @@ function CheckoutContent() {
       const contentIds = checkoutItems.map(item => item.id)
       trackPurchase(totalValue, 'INR', contentIds)
       
-      // For now, simulate successful payment since we're using test API
-      toast.success('Order created successfully! (Test mode)')
-      router.push('/payment/success')
+      // Initialize Cashfree payment
+      const cashfree = new (window as any).Cashfree({
+        mode: 'production' // Use production mode
+      })
       
-      // TODO: Re-enable Cashfree integration once environment variables are configured
-      // const cashfree = new (window as any).Cashfree({
-      //   mode: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'
-      // })
-      
-      // cashfree.checkout({
-      //   paymentSessionId: paymentData.paymentSessionId,
-      //   returnUrl: `${window.location.origin}/payment/success?order_id={order_id}`,
-      //   onSuccess: () => {
-      //     toast.success('Payment successful!')
-      //     router.push('/payment/success')
-      //   },
-      //   onFailure: () => {
-      //     toast.error('Payment failed')
-      //     router.push('/payment/failure')
-      //   }
-      // })
+      cashfree.checkout({
+        paymentSessionId: paymentData.paymentSessionId,
+        returnUrl: `${window.location.origin}/payment/success?order_id={order_id}`,
+        onSuccess: () => {
+          toast.success('Payment successful!')
+          router.push('/payment/success')
+        },
+        onFailure: () => {
+          toast.error('Payment failed')
+          router.push('/payment/failure')
+        }
+      })
       
     } catch (error) {
       console.error('Checkout error:', error)
