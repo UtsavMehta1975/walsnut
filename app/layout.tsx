@@ -6,6 +6,7 @@ import { StickyWhatsApp } from '@/components/ui/sticky-whatsapp'
 import AuthSessionProvider from '@/components/providers/session-provider'
 import { Toaster } from 'react-hot-toast'
 import { MetaPixel } from '@/components/analytics/meta-pixel'
+import { AuthDebug } from '@/components/debug/auth-debug'
 
 // Force dynamic rendering for entire app to prevent SSR issues
 export const dynamic = 'force-dynamic'
@@ -61,6 +62,7 @@ export default function RootLayout({
           </AuthProvider>
         </AuthSessionProvider>
         <MetaPixel />
+        <AuthDebug />
         <script 
           src="https://sdk.cashfree.com/js/v3/cashfree.js" 
           async

@@ -45,10 +45,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // Sync NextAuth session with our user state
+  // Sync NextAuth session with our user state (but prioritize localStorage)
   useEffect(() => {
     if (!mounted) return
     
+    // Always check localStorage first for user data
+    const savedUser = getUserSession()
+    if (savedUser) {
+      setUser(savedUser)
+      setIsLoading(false)
+      console.log('✅ User loaded from session persistence:', savedUser.email)
+      return
+    }
+    
+    // Fallback to NextAuth session if no localStorage data
     if (status === 'loading') {
       setIsLoading(true)
       return
@@ -73,6 +83,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         setUser(userData)
         setIsLoading(false)
+        
+        // Save to session persistence
+        saveUserSession(userData)
       } catch (error) {
         console.error('Error parsing session user data:', error)
         setUser(null)
