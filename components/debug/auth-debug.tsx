@@ -4,11 +4,28 @@ import { useAuth } from '@/contexts/auth-context'
 import { getUserSession } from '@/lib/session-persistence'
 
 export function AuthDebug() {
-  const { user, isAuthenticated, isLoading } = useAuth()
   const sessionUser = getUserSession()
-
+  
+  // Only show in development and when we have session data
   if (process.env.NODE_ENV !== 'development') {
     return null
+  }
+
+  // Try to get auth context, but handle errors gracefully
+  let user = null
+  let isAuthenticated = false
+  let isLoading = false
+  
+  try {
+    const authContext = useAuth()
+    user = authContext.user
+    isAuthenticated = authContext.isAuthenticated
+    isLoading = authContext.isLoading
+  } catch (error) {
+    // Auth context not available, use session data only
+    user = sessionUser
+    isAuthenticated = !!sessionUser
+    isLoading = false
   }
 
   return (
