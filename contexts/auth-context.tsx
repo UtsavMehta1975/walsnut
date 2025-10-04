@@ -220,12 +220,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (mounted && typeof window !== 'undefined') {
       console.log('🔍 Auth State:', {
         user: user ? `${user.email} (${user.role})` : 'null',
-        isAuthenticated,
+        isAuthenticated: !!user,
         isLoading,
         sessionValid: getUserSession() ? 'valid session' : 'no session'
       })
     }
-  }, [user, isAuthenticated, isLoading, mounted])
+  }, [user, isLoading, mounted])
 
   return (
     <AuthContext.Provider value={value}>
