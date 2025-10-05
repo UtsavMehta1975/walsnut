@@ -15,6 +15,7 @@ import Image from 'next/image'
 import { useCart } from '@/store/cart-store'
 import { useAuth } from '@/contexts/auth-context'
 import { trackInitiateCheckout, trackPurchase } from '@/components/analytics/meta-pixel'
+import MobileCheckout from '@/components/checkout/mobile-checkout'
 
 interface CartItem {
   id: string
@@ -30,6 +31,7 @@ function CheckoutContent() {
   const { user, isAuthenticated, isLoading } = useAuth()
   const { items, clearCart } = useCart()
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   
   // Get product details from URL params (for Buy Now)
   const productId = searchParams.get('productId')
@@ -78,6 +80,18 @@ function CheckoutContent() {
   const shipping = 0 // Free shipping for luxury items
   const tax = subtotal * 0.18 // 18% GST (Indian tax rate)
   const total = subtotal + shipping + tax
+
+  // Check if mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Redirect to login if not authenticated (but allow guest checkout for now)
   useEffect(() => {
@@ -286,6 +300,11 @@ function CheckoutContent() {
   //     </div>
   //   )
   // }
+
+  // Use mobile checkout for mobile devices
+  if (isMobile) {
+    return <MobileCheckout />
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
