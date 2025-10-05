@@ -82,6 +82,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const [showImageModal, setShowImageModal] = useState(false)
   const [isImageLoading, setIsImageLoading] = useState(true)
   const [carouselScrollTop, setCarouselScrollTop] = useState(0)
+  const [allProducts, setAllProducts] = useState<any[]>([])
   const { addToCart } = useCart()
 
   useEffect(() => {
@@ -126,6 +127,9 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
         
         // Fetch related products after main product is loaded
         fetchRelatedProducts(p.brand, p.price, p.id)
+        
+        // Fetch all products for navigation
+        fetchAllProducts()
       } catch {
         setProduct(null)
       } finally {
@@ -134,6 +138,19 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     }
     fetchProduct()
   }, [productId])
+
+  const fetchAllProducts = async () => {
+    try {
+      const res = await fetch('/api/products?limit=100&sortBy=createdAt&sortOrder=desc')
+      if (!res.ok) return
+      
+      const json = await res.json()
+      const data = Array.isArray(json?.data) ? json.data : json
+      setAllProducts(data)
+    } catch (error) {
+      console.error('Error fetching all products:', error)
+    }
+  }
 
   const fetchRelatedProducts = async (brand: string, price: number, excludeId: string) => {
     try {
@@ -509,6 +526,57 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               >
                 Buy Now
               </Button>
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="pt-6 border-t border-gray-200">
+              <div className="flex items-center justify-between">
+                <Link href="/watches">
+                  <Button 
+                    variant="outline"
+                    className="flex items-center gap-2 text-gray-600 border-gray-300 hover:bg-gray-50 transition-colors"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    Back to Watches
+                  </Button>
+                </Link>
+                
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    className="text-gray-600 border-gray-300 hover:bg-gray-50 transition-colors"
+                    onClick={() => {
+                      // Navigate to previous product (if available)
+                      const currentIndex = allProducts.findIndex(p => p.id === product.id)
+                      if (currentIndex > 0) {
+                        window.location.href = `/watches/${allProducts[currentIndex - 1].id}`
+                      }
+                    }}
+                    disabled={allProducts.findIndex(p => p.id === product.id) === 0}
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    Previous
+                  </Button>
+                  
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    className="text-gray-600 border-gray-300 hover:bg-gray-50 transition-colors"
+                    onClick={() => {
+                      // Navigate to next product (if available)
+                      const currentIndex = allProducts.findIndex(p => p.id === product.id)
+                      if (currentIndex < allProducts.length - 1) {
+                        window.location.href = `/watches/${allProducts[currentIndex + 1].id}`
+                      }
+                    }}
+                    disabled={allProducts.findIndex(p => p.id === product.id) === allProducts.length - 1}
+                  >
+                    Next
+                    <ArrowLeft className="w-4 h-4 rotate-180" />
+                  </Button>
+                </div>
+              </div>
             </div>
 
             {/* Trust Badges - Helios Style */}
