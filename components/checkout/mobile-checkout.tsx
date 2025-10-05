@@ -6,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, ChevronRight, MapPin, CreditCard, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MapPin, CreditCard, Check, Edit, Plus, Home } from 'lucide-react';
 import { useCart } from '@/store/cart-store';
+import { useAuth } from '@/contexts/auth-context';
 
 interface CartItem {
   id: string;
@@ -17,16 +18,22 @@ interface CartItem {
   quantity: number;
 }
 
-interface ShippingInfo {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
+interface DeliveryAddress {
+  id?: string;
   address: string;
   city: string;
   state: string;
   zipCode: string;
   country: string;
+  isDefault?: boolean;
+}
+
+interface ShippingInfo {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  deliveryAddress: DeliveryAddress;
 }
 
 interface PaymentInfo {
@@ -39,18 +46,25 @@ interface PaymentInfo {
 
 export default function MobileCheckout() {
   const { items, getTotal, clearCart } = useCart();
+  const { user } = useAuth();
   const total = getTotal();
   const [currentStep, setCurrentStep] = useState(1);
+  const [savedAddresses, setSavedAddresses] = useState<DeliveryAddress[]>([]);
+  const [showNewAddress, setShowNewAddress] = useState(false);
+  
+  // Pre-fill user information from account
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    country: 'India'
+    firstName: user?.name?.split(' ')[0] || '',
+    lastName: user?.name?.split(' ').slice(1).join(' ') || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    deliveryAddress: {
+      address: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      country: 'India'
+    }
   });
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>({
     paymentMethod: 'card',
@@ -114,6 +128,51 @@ export default function MobileCheckout() {
     setShippingInfo(prev => ({ ...prev, [field]: value }));
   };
 
+  const updateDeliveryAddress = (field: keyof DeliveryAddress, value: string) => {
+    setShippingInfo(prev => ({
+      ...prev,
+      deliveryAddress: { ...prev.deliveryAddress, [field]: value }
+    }));
+  };
+
+  const selectSavedAddress = (address: DeliveryAddress) => {
+    setShippingInfo(prev => ({
+      ...prev,
+      deliveryAddress: address
+    }));
+    setShowNewAddress(false);
+  };
+
+  const addNewAddress = () => {
+    setShowNewAddress(true);
+    setShippingInfo(prev => ({
+      ...prev,
+      deliveryAddress: {
+        address: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        country: 'India'
+      }
+    }));
+  };
+
+  // Payment method options with logos
+  const paymentMethods = [
+    {
+      id: 'card',
+      name: 'Credit/Debit Card',
+      logos: ['visa', 'mastercard', 'rupay'],
+      description: 'Visa, Mastercard, RuPay'
+    },
+    {
+      id: 'upi',
+      name: 'UPI',
+      logos: ['phonepe', 'gpay', 'paytm', 'bhim'],
+      description: 'PhonePe, Google Pay, Paytm, BHIM'
+    }
+  ];
+
   const updatePaymentInfo = (field: keyof PaymentInfo, value: string) => {
     setPaymentInfo(prev => ({ ...prev, [field]: value }));
   };
@@ -158,117 +217,169 @@ export default function MobileCheckout() {
       {/* Step Content */}
       <div className="max-w-md mx-auto">
         {currentStep === 1 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="w-5 h-5" />
-                Shipping Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleShippingSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
+            {/* Contact Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5" />
+                  Contact Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="firstName">First Name</Label>
+                      <Input
+                        id="firstName"
+                        value={shippingInfo.firstName}
+                        onChange={(e) => updateShippingInfo('firstName', e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <Input
+                        id="lastName"
+                        value={shippingInfo.lastName}
+                        onChange={(e) => updateShippingInfo('lastName', e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                  
                   <div>
-                    <Label htmlFor="firstName">First Name</Label>
+                    <Label htmlFor="email">Email</Label>
                     <Input
-                      id="firstName"
-                      value={shippingInfo.firstName}
-                      onChange={(e) => updateShippingInfo('firstName', e.target.value)}
+                      id="email"
+                      type="email"
+                      value={shippingInfo.email}
+                      onChange={(e) => updateShippingInfo('email', e.target.value)}
                       required
                     />
                   </div>
+                  
                   <div>
-                    <Label htmlFor="lastName">Last Name</Label>
+                    <Label htmlFor="phone">Phone</Label>
                     <Input
-                      id="lastName"
-                      value={shippingInfo.lastName}
-                      onChange={(e) => updateShippingInfo('lastName', e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={shippingInfo.email}
-                    onChange={(e) => updateShippingInfo('email', e.target.value)}
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={shippingInfo.phone}
-                    onChange={(e) => updateShippingInfo('phone', e.target.value)}
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="address">Address</Label>
-                  <Input
-                    id="address"
-                    value={shippingInfo.address}
-                    onChange={(e) => updateShippingInfo('address', e.target.value)}
-                    required
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="city">City</Label>
-                    <Input
-                      id="city"
-                      value={shippingInfo.city}
-                      onChange={(e) => updateShippingInfo('city', e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="state">State</Label>
-                    <Input
-                      id="state"
-                      value={shippingInfo.state}
-                      onChange={(e) => updateShippingInfo('state', e.target.value)}
+                      id="phone"
+                      type="tel"
+                      value={shippingInfo.phone}
+                      onChange={(e) => updateShippingInfo('phone', e.target.value)}
                       required
                     />
                   </div>
                 </div>
-                
-                <div className="grid grid-cols-2 gap-4">
+              </CardContent>
+            </Card>
+
+            {/* Delivery Address */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Home className="w-5 h-5" />
+                    Delivery Address
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addNewAddress}
+                    className="flex items-center gap-1"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add New
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {savedAddresses.length > 0 && !showNewAddress && (
+                  <div className="space-y-2 mb-4">
+                    {savedAddresses.map((address, index) => (
+                      <div
+                        key={index}
+                        className="p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
+                        onClick={() => selectSavedAddress(address)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium">{address.address}</p>
+                            <p className="text-sm text-gray-600">
+                              {address.city}, {address.state} {address.zipCode}
+                            </p>
+                          </div>
+                          {address.isDefault && (
+                            <Badge variant="secondary">Default</Badge>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <form onSubmit={handleShippingSubmit} className="space-y-4">
                   <div>
-                    <Label htmlFor="zipCode">ZIP Code</Label>
+                    <Label htmlFor="address">Street Address</Label>
                     <Input
-                      id="zipCode"
-                      value={shippingInfo.zipCode}
-                      onChange={(e) => updateShippingInfo('zipCode', e.target.value)}
+                      id="address"
+                      value={shippingInfo.deliveryAddress.address}
+                      onChange={(e) => updateDeliveryAddress('address', e.target.value)}
                       required
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="country">Country</Label>
-                    <Input
-                      id="country"
-                      value={shippingInfo.country}
-                      onChange={(e) => updateShippingInfo('country', e.target.value)}
-                      required
-                    />
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="city">City</Label>
+                      <Input
+                        id="city"
+                        value={shippingInfo.deliveryAddress.city}
+                        onChange={(e) => updateDeliveryAddress('city', e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="state">State</Label>
+                      <Input
+                        id="state"
+                        value={shippingInfo.deliveryAddress.state}
+                        onChange={(e) => updateDeliveryAddress('state', e.target.value)}
+                        required
+                      />
+                    </div>
                   </div>
-                </div>
-                
-                <Button type="submit" className="w-full">
-                  Continue to Payment
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="zipCode">ZIP Code</Label>
+                      <Input
+                        id="zipCode"
+                        value={shippingInfo.deliveryAddress.zipCode}
+                        onChange={(e) => updateDeliveryAddress('zipCode', e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="country">Country</Label>
+                      <Input
+                        id="country"
+                        value={shippingInfo.deliveryAddress.country}
+                        onChange={(e) => updateDeliveryAddress('country', e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <Button type="submit" className="w-full">
+                    Continue to Payment
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
         )}
 
         {currentStep === 2 && (
@@ -283,23 +394,41 @@ export default function MobileCheckout() {
               <form onSubmit={handlePaymentSubmit} className="space-y-4">
                 <div>
                   <Label>Payment Method</Label>
-                  <div className="flex gap-2 mt-2">
-                    <Button
-                      type="button"
-                      variant={paymentInfo.paymentMethod === 'card' ? 'default' : 'outline'}
-                      onClick={() => updatePaymentInfo('paymentMethod', 'card')}
-                      className="flex-1"
-                    >
-                      Card
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={paymentInfo.paymentMethod === 'upi' ? 'default' : 'outline'}
-                      onClick={() => updatePaymentInfo('paymentMethod', 'upi')}
-                      className="flex-1"
-                    >
-                      UPI
-                    </Button>
+                  <div className="space-y-3 mt-2">
+                    {paymentMethods.map((method) => (
+                      <div
+                        key={method.id}
+                        className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                          paymentInfo.paymentMethod === method.id
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-200 hover:bg-gray-50'
+                        }`}
+                        onClick={() => updatePaymentInfo('paymentMethod', method.id)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium">{method.name}</div>
+                            <div className="text-sm text-gray-600">{method.description}</div>
+                          </div>
+                          <div className="flex gap-1">
+                            {method.logos.map((logo) => (
+                              <div
+                                key={logo}
+                                className="w-8 h-5 bg-gray-200 rounded flex items-center justify-center text-xs font-bold"
+                              >
+                                {logo === 'visa' && 'VISA'}
+                                {logo === 'mastercard' && 'MC'}
+                                {logo === 'rupay' && 'RUPAY'}
+                                {logo === 'phonepe' && 'PP'}
+                                {logo === 'gpay' && 'GP'}
+                                {logo === 'paytm' && 'PT'}
+                                {logo === 'bhim' && 'BHIM'}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
                 
@@ -391,16 +520,23 @@ export default function MobileCheckout() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Shipping Summary */}
+              {/* Contact Summary */}
               <div>
-                <h3 className="font-semibold mb-2">Shipping Address</h3>
+                <h3 className="font-semibold mb-2">Contact Information</h3>
                 <div className="bg-gray-50 p-3 rounded-lg text-sm">
                   <p>{shippingInfo.firstName} {shippingInfo.lastName}</p>
-                  <p>{shippingInfo.address}</p>
-                  <p>{shippingInfo.city}, {shippingInfo.state} {shippingInfo.zipCode}</p>
-                  <p>{shippingInfo.country}</p>
                   <p>{shippingInfo.email}</p>
                   <p>{shippingInfo.phone}</p>
+                </div>
+              </div>
+
+              {/* Shipping Summary */}
+              <div>
+                <h3 className="font-semibold mb-2">Delivery Address</h3>
+                <div className="bg-gray-50 p-3 rounded-lg text-sm">
+                  <p>{shippingInfo.deliveryAddress.address}</p>
+                  <p>{shippingInfo.deliveryAddress.city}, {shippingInfo.deliveryAddress.state} {shippingInfo.deliveryAddress.zipCode}</p>
+                  <p>{shippingInfo.deliveryAddress.country}</p>
                 </div>
               </div>
 
