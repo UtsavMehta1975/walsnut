@@ -70,23 +70,27 @@ export function CleanProductCard({ product }: CleanProductCardProps) {
   return (
     <div className="group block">
       <div className="bg-white/95 hover:shadow-sm transition-shadow duration-200">
-        {/* Product Image */}
-        <div className="relative aspect-square overflow-hidden bg-gray-50">
-          <Image
-            src={product.imageUrl}
-            alt={`${product.brand} ${product.model}`}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16vw"
-          />
-        </div>
+        {/* Product Image - Clickable */}
+        <Link href={`/watches/${product.id}`}>
+          <div className="relative aspect-square overflow-hidden bg-gray-50 cursor-pointer">
+            <Image
+              src={product.imageUrl}
+              alt={`${product.brand} ${product.model}`}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16vw"
+            />
+          </div>
+        </Link>
 
         {/* Product Info */}
         <div className="p-4">
-          {/* Product Name */}
-          <h3 className="text-sm font-medium text-gray-900 mb-1 line-clamp-2">
-            {product.brand} {product.model}
-          </h3>
+          {/* Product Name - Clickable */}
+          <Link href={`/watches/${product.id}`}>
+            <h3 className="text-sm font-medium text-gray-900 mb-1 line-clamp-2 hover:text-gray-700 cursor-pointer transition-colors">
+              {product.brand} {product.model}
+            </h3>
+          </Link>
           
           {/* Reference Number */}
           {product.referenceNumber && (
