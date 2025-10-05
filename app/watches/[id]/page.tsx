@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { useCart } from '@/store/cart-store'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
-import { ShoppingCart, Heart, ArrowLeft, Clock, Sparkles, TrendingUp } from 'lucide-react'
+import { ShoppingCart, Heart, ArrowLeft, Clock, Sparkles, TrendingUp, ChevronUp, ChevronDown } from 'lucide-react'
 
 interface ProductImage {
   id: string
@@ -81,6 +81,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [showImageModal, setShowImageModal] = useState(false)
   const [isImageLoading, setIsImageLoading] = useState(true)
+  const [carouselScrollTop, setCarouselScrollTop] = useState(0)
   const { addToCart } = useCart()
 
   useEffect(() => {
@@ -238,6 +239,22 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     setIsImageLoading(false)
   }
 
+  const scrollCarousel = (direction: 'up' | 'down') => {
+    const carousel = document.getElementById('image-carousel')
+    if (carousel) {
+      const scrollAmount = 80 // Height of one thumbnail + gap
+      const newScrollTop = direction === 'up' 
+        ? Math.max(0, carousel.scrollTop - scrollAmount)
+        : Math.min(carousel.scrollHeight - carousel.clientHeight, carousel.scrollTop + scrollAmount)
+      
+      carousel.scrollTo({
+        top: newScrollTop,
+        behavior: 'smooth'
+      })
+      setCarouselScrollTop(newScrollTop)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -300,10 +317,66 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-          {/* Product Images - Helios Style Gallery */}
-          <div className="space-y-6">
+          {/* Product Images - Vertical Carousel Style */}
+          <div className="flex gap-4">
+            {/* Mini Carousel - Left Side */}
+            {product.images.length > 1 && (
+              <div className="flex flex-col items-center">
+                {/* Up Arrow */}
+                {product.images.length > 6 && (
+                  <button
+                    onClick={() => scrollCarousel('up')}
+                    className="p-1 mb-2 text-gray-400 hover:text-gray-600 transition-colors"
+                    disabled={carouselScrollTop === 0}
+                  >
+                    <ChevronUp className="w-4 h-4" />
+                  </button>
+                )}
+
+                {/* Thumbnail Carousel */}
+                <div 
+                  id="image-carousel"
+                  className="flex flex-col space-y-2 max-h-[500px] overflow-y-auto scrollbar-hide"
+                  onScroll={(e) => setCarouselScrollTop(e.currentTarget.scrollTop)}
+                >
+                  {product.images.map((imageUrl, index) => (
+                    <div 
+                      key={index} 
+                      className={`w-16 h-16 overflow-hidden cursor-pointer transition-all border-2 rounded ${
+                        selectedImageIndex === index 
+                          ? 'border-black shadow-md' 
+                          : 'border-gray-200 hover:border-gray-400'
+                      }`}
+                      onClick={() => {
+                        setSelectedImageIndex(index)
+                        setIsImageLoading(true) // Show loader when switching images
+                      }}
+                    >
+                      <Image
+                        src={imageUrl}
+                        alt={`${product.name} - View ${index + 1}`}
+                        width={64}
+                        height={64}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Down Arrow */}
+                {product.images.length > 6 && (
+                  <button
+                    onClick={() => scrollCarousel('down')}
+                    className="p-1 mt-2 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            )}
+
             {/* Main Image - Professional display */}
-            <div className="aspect-square overflow-hidden bg-gray-50 border border-gray-200 relative">
+            <div className="flex-1 aspect-square overflow-hidden bg-gray-50 border border-gray-200 relative">
               {/* Image Loader */}
               {isImageLoading && (
                 <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
@@ -325,34 +398,6 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 onError={handleImageError}
               />
             </div>
-            
-            {/* Image Gallery - Thumbnail navigation */}
-            {product.images.length > 1 && (
-              <div className="grid grid-cols-4 gap-4">
-                {product.images.map((imageUrl, index) => (
-                  <div 
-                    key={index} 
-                    className={`aspect-square overflow-hidden cursor-pointer transition-all border-2 ${
-                      selectedImageIndex === index 
-                        ? 'border-black' 
-                        : 'border-gray-200 hover:border-gray-400'
-                    }`}
-                    onClick={() => {
-                      setSelectedImageIndex(index)
-                      setIsImageLoading(true) // Show loader when switching images
-                    }}
-                  >
-                    <Image
-                      src={imageUrl}
-                      alt={`${product.name} - View ${index + 1}`}
-                      width={200}
-                      height={200}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Product Details - Helios Style */}
@@ -740,35 +785,21 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
         </div>
       </div>
 
-      {/* Image Modal - Minimal */}
+      {/* Image Modal - Vertical Carousel Style */}
       {showImageModal && (
         <div className="fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center p-4">
-          <div className="relative max-w-4xl max-h-full">
-            <button
-              onClick={() => setShowImageModal(false)}
-              className="absolute top-4 right-4 text-white hover:text-gray-300 text-3xl font-light z-10 w-8 h-8 flex items-center justify-center"
-            >
-              ×
-            </button>
-            <div className="relative">
-              <Image
-                src={product.images[selectedImageIndex]}
-                alt={product.name}
-                width={800}
-                height={800}
-                className="w-full h-auto max-h-[80vh] object-contain"
-              />
-            </div>
+          <div className="relative max-w-6xl max-h-full flex gap-4">
+            {/* Mini Carousel - Left Side */}
             {product.images.length > 1 && (
-              <div className="flex justify-center mt-6 space-x-3">
+              <div className="flex flex-col space-y-2 max-h-[80vh] overflow-y-auto">
                 {product.images.map((imageUrl, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImageIndex(index)}
-                    className={`w-16 h-16 overflow-hidden transition-all ${
+                    className={`w-16 h-16 overflow-hidden transition-all border-2 rounded ${
                       selectedImageIndex === index 
-                        ? 'ring-2 ring-white' 
-                        : 'opacity-60 hover:opacity-100'
+                        ? 'border-white shadow-lg' 
+                        : 'border-gray-600 hover:border-gray-400'
                     }`}
                   >
                     <Image
@@ -782,6 +813,23 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 ))}
               </div>
             )}
+
+            {/* Main Modal Image */}
+            <div className="relative flex-1">
+              <button
+                onClick={() => setShowImageModal(false)}
+                className="absolute top-4 right-4 text-white hover:text-gray-300 text-3xl font-light z-10 w-8 h-8 flex items-center justify-center bg-black/50 rounded-full"
+              >
+                ×
+              </button>
+              <Image
+                src={product.images[selectedImageIndex]}
+                alt={product.name}
+                width={800}
+                height={800}
+                className="w-full h-auto max-h-[80vh] object-contain"
+              />
+            </div>
           </div>
         </div>
       )}
