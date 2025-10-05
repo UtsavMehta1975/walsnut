@@ -440,6 +440,7 @@ export default function AdminPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.email}`,
         },
         body: JSON.stringify({
           brand: newProduct.brand,
@@ -645,7 +646,10 @@ export default function AdminPage() {
           <div className="space-y-6">
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-              <Card className="hover:shadow-md transition-shadow">
+              <Card 
+                className="hover:shadow-md transition-shadow cursor-pointer hover:bg-gray-50"
+                onClick={() => setActiveTab('products')}
+              >
                 <CardContent className="p-4 lg:p-6">
                   <div className="flex items-center">
                     <div className="p-2 bg-yellow-100 rounded-lg">
@@ -665,7 +669,10 @@ export default function AdminPage() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-md transition-shadow">
+              <Card 
+                className="hover:shadow-md transition-shadow cursor-pointer hover:bg-gray-50"
+                onClick={() => setActiveTab('customers')}
+              >
                 <CardContent className="p-4 lg:p-6">
                   <div className="flex items-center">
                     <div className="p-2 bg-blue-100 rounded-lg">
@@ -685,7 +692,10 @@ export default function AdminPage() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-md transition-shadow">
+              <Card 
+                className="hover:shadow-md transition-shadow cursor-pointer hover:bg-gray-50"
+                onClick={() => setActiveTab('orders')}
+              >
                 <CardContent className="p-4 lg:p-6">
                   <div className="flex items-center">
                     <div className="p-2 bg-green-100 rounded-lg">
@@ -705,7 +715,10 @@ export default function AdminPage() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-md transition-shadow">
+              <Card 
+                className="hover:shadow-md transition-shadow cursor-pointer hover:bg-gray-50"
+                onClick={() => setActiveTab('orders')}
+              >
                 <CardContent className="p-4 lg:p-6">
                   <div className="flex items-center">
                     <div className="p-2 bg-purple-100 rounded-lg">
@@ -800,7 +813,24 @@ export default function AdminPage() {
                     </div>
                   ) : (
                     (Array.isArray(orders) ? orders.slice(0, 5) : []).map((order) => (
-                      <div key={order.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                      <div 
+                        key={order.id} 
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                        onClick={() => {
+                          setActiveTab('orders')
+                          // Scroll to the specific order in the orders tab
+                          setTimeout(() => {
+                            const orderElement = document.getElementById(`order-${order.id}`)
+                            if (orderElement) {
+                              orderElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                              orderElement.classList.add('bg-yellow-50', 'border-yellow-200')
+                              setTimeout(() => {
+                                orderElement.classList.remove('bg-yellow-50', 'border-yellow-200')
+                              }, 3000)
+                            }
+                          }, 100)
+                        }}
+                      >
                       <div className="mb-3 sm:mb-0">
                         <h4 className="font-semibold text-gray-900">{order.customerName}</h4>
                         <p className="text-sm text-gray-600">{order.customerEmail}</p>
@@ -1513,7 +1543,7 @@ export default function AdminPage() {
                     </div>
                   ) : (
                     (Array.isArray(orders) ? orders : []).map((order) => (
-                    <div key={order.id} className="border border-gray-200 rounded-lg p-4 lg:p-6 hover:bg-gray-50 transition-colors">
+                    <div key={order.id} id={`order-${order.id}`} className="border border-gray-200 rounded-lg p-4 lg:p-6 hover:bg-gray-50 transition-colors">
                       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
                         <div className="mb-4 lg:mb-0">
                           <h4 className="font-semibold text-gray-900">Order #{order.id}</h4>
