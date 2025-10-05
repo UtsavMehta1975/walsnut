@@ -7,6 +7,17 @@ export function convertGoogleDriveUrl(url: string): string {
       return '/web-banner.png';
     }
 
+    // Handle Google Drive direct image URLs (lh3.googleusercontent.com format)
+    if (url.includes('lh3.googleusercontent.com/d/')) {
+      // Extract the file ID from the URL
+      const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+      if (match) {
+        const fileId = match[1];
+        // Convert to direct image URL that works with Next.js Image
+        return `https://drive.google.com/uc?export=view&id=${fileId}`;
+      }
+    }
+
     // Check if it's a Google Drive file URL (new format)
     if (url.includes('drive.google.com/file/d/')) {
       // Extract the file ID from the URL
@@ -52,7 +63,7 @@ export function convertGoogleDriveUrl(url: string): string {
  * Checks if a URL is a Google Drive URL
  */
 export function isGoogleDriveUrl(url: string): boolean {
-  return Boolean(url && url.includes('drive.google.com'));
+  return Boolean(url && (url.includes('drive.google.com') || url.includes('lh3.googleusercontent.com/d/')));
 }
 
 /**
