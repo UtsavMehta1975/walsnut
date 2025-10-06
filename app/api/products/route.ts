@@ -3,6 +3,8 @@ import { db } from '@/lib/db'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     // Check if database is configured
@@ -192,10 +194,12 @@ export async function GET(request: NextRequest) {
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
     
     return response
-  } catch (error) {
+  } catch (error: any) {
     console.error('Products API error:', error)
+    console.error('Error message:', error.message)
+    console.error('Error stack:', error.stack)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error.message },
       { status: 500 }
     )
   }
@@ -294,10 +298,12 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(serializedProduct)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Create product error:', error)
+    console.error('Error message:', error.message)
+    console.error('Error stack:', error.stack)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error.message },
       { status: 500 }
     )
   }
