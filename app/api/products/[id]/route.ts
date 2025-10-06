@@ -11,7 +11,7 @@ export async function GET(
   try {
     const product = await db.product.findUnique({
       where: { id: params.id },
-              include: {
+      include: {
           images: {
             orderBy: { sortOrder: 'asc' }
           },
