@@ -5,7 +5,7 @@ import Script from 'next/script'
 import Image from 'next/image'
 
 // Meta Pixel ID - Replace with your actual pixel ID
-const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || 'YOUR_PIXEL_ID_HERE'
+const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '1318811556370834'
 
 declare global {
   interface Window {

@@ -234,7 +234,6 @@ export async function POST(request: NextRequest) {
     const validConditions = ['NEW', 'PRE_OWNED', 'VINTAGE']
     const validGenders = ['MENS', 'WOMENS', 'UNISEX']
     const validMovements = ['AUTOMATIC', 'MANUAL', 'QUARTZ']
-    const validAuthenticityStatuses = ['PENDING', 'VERIFIED', 'CERTIFIED']
     
     if (body.condition && !validConditions.includes(body.condition)) {
       return NextResponse.json(
@@ -286,10 +285,6 @@ export async function POST(request: NextRequest) {
         images: true
       }
     })
-
-    // TODO: Category system will be implemented after database schema update
-    // For now, we'll use the existing categoryId field
-    // The categories array from the admin panel will be processed later
 
     // Convert Decimal fields to numbers
     const serializedProduct = {
