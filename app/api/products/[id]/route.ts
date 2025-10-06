@@ -9,30 +9,38 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Check if database is configured
+    if (!process.env.MYSQL_URL) {
+      return NextResponse.json(
+        { error: 'Database not configured' },
+        { status: 503 }
+      )
+    }
+
     const product = await db.product.findUnique({
       where: { id: params.id },
       include: {
-          images: {
-            orderBy: { sortOrder: 'asc' }
-          },
-          reviews: {
-            include: {
-              user: {
-                select: {
-                  name: true,
-                  email: true
-                }
+        images: {
+          orderBy: { sortOrder: 'asc' }
+        },
+        reviews: {
+          include: {
+            user: {
+              select: {
+                name: true,
+                email: true
               }
-            },
-            orderBy: { createdAt: 'desc' }
-          },
-          _count: {
-            select: {
-              reviews: true,
-              wishlistItems: true
             }
+          },
+          orderBy: { createdAt: 'desc' }
+        },
+        _count: {
+          select: {
+            reviews: true,
+            wishlistItems: true
           }
         }
+      }
     })
 
     if (!product) {
@@ -53,7 +61,7 @@ export async function GET(
   } catch (error) {
     console.error('Get product error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }
