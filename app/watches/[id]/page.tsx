@@ -10,11 +10,12 @@ import { useCart } from '@/store/cart-store'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { ShoppingCart, Heart, ArrowLeft, Clock, Sparkles, TrendingUp, ChevronUp, ChevronDown, Check } from 'lucide-react'
-import { ColorSelector, extractColorVariants } from '@/components/ui/color-selector'
+import { ColorSelector, extractColorVariants, ColorVariant } from '@/components/ui/color-selector'
 
 interface ProductImage {
   id: string
   imageUrl: string
+  altText?: string
   isPrimary: boolean
   sortOrder: number
   variantSku?: string
@@ -47,7 +48,7 @@ interface Product {
   colors: string[]
   category: string
   image: string
-  images: string[]
+  images?: ProductImage[]
   description: string
   sku: string
   // Add specifications and other fields
@@ -81,7 +82,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const [relatedProducts, setRelatedProducts] = useState<RelatedProduct[]>([])
   const [isLoadingRelated, setIsLoadingRelated] = useState(false)
   const [selectedColor, setSelectedColor] = useState('BLACK')
-  const [selectedVariant, setSelectedVariant] = useState<any>(null)
+  const [selectedVariant, setSelectedVariant] = useState<ColorVariant | null>(null)
   const [quantity, setQuantity] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
@@ -357,10 +358,10 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           {/* Product Images - Vertical Carousel Style */}
           <div className="flex gap-4">
             {/* Mini Carousel - Left Side */}
-            {product.images.length > 1 && (
+            {product.images && product.images.length > 1 && (
               <div className="flex flex-col items-center">
                 {/* Up Arrow */}
-                {product.images.length > 6 && (
+                {product.images && product.images.length > 6 && (
                   <button
                     onClick={() => scrollCarousel('up')}
                     className="p-1 mb-2 text-gray-400 hover:text-gray-600 transition-colors"
@@ -376,7 +377,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                   className="flex flex-col space-y-2 max-h-[500px] overflow-y-auto scrollbar-hide"
                   onScroll={(e) => setCarouselScrollTop(e.currentTarget.scrollTop)}
                 >
-                  {product.images.map((imageUrl, index) => (
+                  {product.images.map((image, index) => (
                     <div 
                       key={index} 
                       className={`w-16 h-16 overflow-hidden cursor-pointer transition-all border-2 rounded ${
@@ -390,8 +391,8 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                       }}
                     >
                       <Image
-                        src={imageUrl}
-                        alt={`${product.name} - View ${index + 1}`}
+                        src={image.imageUrl}
+                        alt={image.altText || `${product.name} - View ${index + 1}`}
                         width={64}
                         height={64}
                         className="w-full h-full object-cover"
@@ -401,7 +402,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 </div>
 
                 {/* Down Arrow */}
-                {product.images.length > 6 && (
+                {product.images && product.images.length > 6 && (
                   <button
                     onClick={() => scrollCarousel('down')}
                     className="p-1 mt-2 text-gray-400 hover:text-gray-600 transition-colors"
@@ -425,7 +426,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               )}
               
               <Image
-                src={product.images[selectedImageIndex]}
+                src={product.images?.[selectedImageIndex]?.imageUrl || product.image}
                 alt={selectedVariant ? `${product.name} - ${selectedVariant.colorName}` : product.name}
                 width={800}
                 height={800}
@@ -505,7 +506,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               <div className="mb-6">
                 <h3 className="text-sm font-medium text-black mb-3 uppercase tracking-wide">Select Color & Style</h3>
                 <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
-                  {product.images.map((image, index) => {
+                  {product.images.map((image: ProductImage, index: number) => {
                     const isSelected = selectedImageIndex === index
                     const variantSku = image.variantSku || `${product.sku}-${index + 1}`
                     const colorName = image.colorName || `Variant ${index + 1}`
@@ -520,7 +521,8 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                             sku: variantSku,
                             colorName: colorName,
                             colorCode: image.colorCode || `VAR${index + 1}`,
-                            imageUrl: image.imageUrl
+                            imageUrl: image.imageUrl,
+                            isAvailable: true
                           })
                           setSelectedColor(colorName)
                         }}
@@ -957,9 +959,9 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
         <div className="fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center p-4">
           <div className="relative max-w-6xl max-h-full flex gap-4">
             {/* Mini Carousel - Left Side */}
-            {product.images.length > 1 && (
+            {product.images && product.images.length > 1 && (
               <div className="flex flex-col space-y-2 max-h-[80vh] overflow-y-auto">
-                {product.images.map((imageUrl, index) => (
+                {product.images.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImageIndex(index)}
@@ -970,8 +972,8 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                     }`}
                   >
                     <Image
-                      src={imageUrl}
-                      alt={`${product.name} - View ${index + 1}`}
+                      src={image.imageUrl}
+                      alt={image.altText || `${product.name} - View ${index + 1}`}
                       width={64}
                       height={64}
                       className="w-full h-full object-cover"
@@ -990,7 +992,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 ×
               </button>
               <Image
-                src={product.images[selectedImageIndex]}
+                src={product.images?.[selectedImageIndex]?.imageUrl || product.image}
                 alt={product.name}
                 width={800}
                 height={800}

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Check } from 'lucide-react'
 
-interface ColorVariant {
+export interface ColorVariant {
   id: string
   sku: string
   colorName: string
