@@ -10,11 +10,31 @@ export async function GET(request: NextRequest) {
     // Check if database is configured
     if (!process.env.MYSQL_URL) {
       return NextResponse.json({
-        products: [],
-        totalCount: 0,
-        totalPages: 0,
-        currentPage: 1,
+        data: [],
+        pagination: {
+          page: 1,
+          limit: 12,
+          total: 0,
+          totalPages: 0
+        },
         message: 'Database not configured'
+      })
+    }
+
+    // Test database connection first
+    try {
+      await db.$connect()
+    } catch (dbError) {
+      console.error('Database connection failed:', dbError)
+      return NextResponse.json({
+        data: [],
+        pagination: {
+          page: 1,
+          limit: 12,
+          total: 0,
+          totalPages: 0
+        },
+        message: 'Database connection failed'
       })
     }
 

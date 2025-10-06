@@ -11,6 +11,17 @@ export async function GET(
   try {
     console.log('Fetching product with ID:', params.id)
     
+    // Test database connection first
+    try {
+      await db.$connect()
+    } catch (dbError) {
+      console.error('Database connection failed:', dbError)
+      return NextResponse.json(
+        { error: 'Database connection failed', productId: params.id },
+        { status: 503 }
+      )
+    }
+    
     // Simple product query without complex includes
     const product = await db.product.findUnique({
       where: { id: params.id },
