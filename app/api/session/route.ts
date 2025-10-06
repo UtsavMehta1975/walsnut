@@ -1,18 +1,19 @@
 import { NextResponse } from 'next/server'
-import { getUserSession } from '@/lib/session-persistence'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
 export async function GET() {
   try {
-    // Get user from session persistence
-    const user = getUserSession()
+    // Use NextAuth session instead of client-side session
+    const session = await getServerSession(authOptions)
     
-    if (user) {
+    if (session?.user) {
       return NextResponse.json({
         user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.name,
+          role: session.user.role,
         },
         expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       })

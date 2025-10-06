@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -558,9 +559,11 @@ export default function MobileCheckout() {
                   {items.map((item: CartItem) => (
                     <div key={item.id} className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
-                        <img 
+                        <Image 
                           src={item.image} 
                           alt={item.name}
+                          width={48}
+                          height={48}
                           className="w-12 h-12 object-cover rounded"
                         />
                         <div>
