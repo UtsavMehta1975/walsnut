@@ -22,23 +22,6 @@ export async function GET(
       include: {
         images: {
           orderBy: { sortOrder: 'asc' }
-        },
-        reviews: {
-          include: {
-            user: {
-              select: {
-                name: true,
-                email: true
-              }
-            }
-          },
-          orderBy: { createdAt: 'desc' }
-        },
-        _count: {
-          select: {
-            reviews: true,
-            wishlistItems: true
-          }
         }
       }
     })
