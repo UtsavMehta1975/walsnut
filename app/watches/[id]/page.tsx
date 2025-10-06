@@ -10,12 +10,17 @@ import { useCart } from '@/store/cart-store'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { ShoppingCart, Heart, ArrowLeft, Clock, Sparkles, TrendingUp, ChevronUp, ChevronDown } from 'lucide-react'
+import { ColorSelector, extractColorVariants } from '@/components/ui/color-selector'
 
 interface ProductImage {
   id: string
   imageUrl: string
   isPrimary: boolean
   sortOrder: number
+  variantSku?: string
+  colorName?: string
+  colorCode?: string
+  isSelectable?: boolean
 }
 
 interface RelatedProduct {
@@ -76,6 +81,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const [relatedProducts, setRelatedProducts] = useState<RelatedProduct[]>([])
   const [isLoadingRelated, setIsLoadingRelated] = useState(false)
   const [selectedColor, setSelectedColor] = useState('BLACK')
+  const [selectedVariant, setSelectedVariant] = useState<any>(null)
   const [quantity, setQuantity] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
@@ -214,22 +220,36 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
   const handleAddToCart = () => {
     if (product) {
+      const variantSku = selectedVariant?.sku || product.sku
+      const variantName = selectedVariant 
+        ? `${product.name} - ${selectedVariant.colorName}`
+        : product.name
+      
       addToCart({
         id: product.id,
-        name: product.name,
+        name: variantName,
         price: product.price,
-        image: product.image
+        image: product.image,
+        variantSku: variantSku,
+        selectedColor: selectedVariant?.colorName || selectedColor
       })
     }
   }
 
   const handleBuyNow = () => {
     if (product) {
+      const variantSku = selectedVariant?.sku || product.sku
+      const variantName = selectedVariant 
+        ? `${product.name} - ${selectedVariant.colorName}`
+        : product.name
+      
       addToCart({
         id: product.id,
-        name: product.name,
+        name: variantName,
         price: product.price,
-        image: product.image
+        image: product.image,
+        variantSku: variantSku,
+        selectedColor: selectedVariant?.colorName || selectedColor
       })
       window.location.href = '/checkout'
     }
@@ -406,7 +426,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               
               <Image
                 src={product.images[selectedImageIndex]}
-                alt={product.name}
+                alt={selectedVariant ? `${product.name} - ${selectedVariant.colorName}` : product.name}
                 width={800}
                 height={800}
                 className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
@@ -414,6 +434,13 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 onLoad={handleImageLoad}
                 onError={handleImageError}
               />
+              
+              {/* Selected Variant Badge */}
+              {selectedVariant && (
+                <div className="absolute top-4 left-4 bg-black bg-opacity-75 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  {selectedVariant.colorName}
+                </div>
+              )}
             </div>
           </div>
 
@@ -426,6 +453,11 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               </div>
               <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
                 {product.model}
+                {selectedVariant && (
+                  <span className="text-xl lg:text-2xl font-normal text-gray-600 ml-2">
+                    - {selectedVariant.colorName}
+                  </span>
+                )}
               </h1>
               {product.referenceNumber && (
                 <div className="text-sm text-gray-600">
@@ -468,8 +500,75 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               )}
             </div>
 
-            {/* Color Options - Clean buttons */}
-            {product.colors.length > 0 && (
+            {/* Unified Image-Color Selector */}
+            {product.images && product.images.length > 1 && (
+              <div className="mb-6">
+                <h3 className="text-sm font-medium text-black mb-3 uppercase tracking-wide">Select Color & Style</h3>
+                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+                  {product.images.map((image, index) => {
+                    const isSelected = selectedImageIndex === index
+                    const variantSku = image.variantSku || `${product.sku}-${index + 1}`
+                    const colorName = image.colorName || `Variant ${index + 1}`
+                    
+                    return (
+                      <button
+                        key={image.id}
+                        onClick={() => {
+                          setSelectedImageIndex(index)
+                          setSelectedVariant({
+                            id: image.id,
+                            sku: variantSku,
+                            colorName: colorName,
+                            colorCode: image.colorCode || `VAR${index + 1}`,
+                            imageUrl: image.imageUrl
+                          })
+                          setSelectedColor(colorName)
+                        }}
+                        className={`
+                          relative aspect-square rounded-lg border-2 transition-all duration-200 overflow-hidden
+                          ${isSelected 
+                            ? 'border-yellow-500 ring-2 ring-yellow-200 scale-105' 
+                            : 'border-gray-300 hover:border-gray-400 hover:scale-105'
+                          }
+                        `}
+                        title={`${colorName} - ${variantSku}`}
+                      >
+                        <Image
+                          src={getOptimizedImageUrl(image.imageUrl)}
+                          alt={image.altText || `${product.name} - ${colorName}`}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 640px) 25vw, (max-width: 768px) 16vw, 12vw"
+                        />
+                        
+                        {/* Selected Indicator */}
+                        {isSelected && (
+                          <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center">
+                            <Check className="w-3 h-3 text-white" />
+                          </div>
+                        )}
+                        
+                        {/* Color Name Overlay */}
+                        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white text-xs p-1 text-center">
+                          {colorName}
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+                
+                {/* Selected Variant Info */}
+                {selectedVariant && (
+                  <div className="mt-3 text-sm text-gray-600">
+                    <span className="font-medium">Selected:</span> {selectedVariant.colorName} 
+                    <span className="ml-2 text-xs text-gray-500">SKU: {selectedVariant.sku}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Fallback Color Options - Clean buttons */}
+            {(!product.images || product.images.length <= 1) && product.colors.length > 0 && (
               <div>
                 <h3 className="text-sm font-medium text-black mb-3 uppercase tracking-wide">Color</h3>
                 <div className="flex flex-wrap gap-2">

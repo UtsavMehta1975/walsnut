@@ -93,6 +93,10 @@ model ProductImage {
   altText            String?
   isPrimary          Boolean @default(false)
   sortOrder          Int     @default(0)
+  variantSku         String? // Unique SKU for this image variant
+  colorName          String? // Color name (e.g., "Black", "Silver", "Gold")
+  colorCode          String? // Color code (e.g., "BLK", "SLV", "GLD")
+  isSelectable       Boolean @default(true) // Can customer select this variant
   createdAt          DateTime @default(now())
 
   // Relations
