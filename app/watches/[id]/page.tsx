@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { useCart } from '@/store/cart-store'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
-import { ShoppingCart, Heart, ArrowLeft, Clock, Sparkles, TrendingUp, ChevronUp, ChevronDown } from 'lucide-react'
+import { ShoppingCart, Heart, ArrowLeft, Clock, Sparkles, TrendingUp, ChevronUp, ChevronDown, Check } from 'lucide-react'
 import { ColorSelector, extractColorVariants } from '@/components/ui/color-selector'
 
 interface ProductImage {
