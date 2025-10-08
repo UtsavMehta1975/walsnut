@@ -81,133 +81,37 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      // For OAuth providers (like Google)
-      if (account?.provider === "google") {
-        try {
-          if (!process.env.MYSQL_URL) {
-            console.error('Database not configured for OAuth')
-            return false
-          }
-
-          // Check if user already exists
-          let existingUser = await db.user.findUnique({
-            where: { email: user.email! }
-          })
-
-          if (existingUser) {
-            // Update user with Google profile data
-            await db.user.update({
-              where: { email: user.email! },
-              data: {
-                name: user.name || existingUser.name,
-                image: user.image || existingUser.image,
-                emailVerified: new Date()
-              }
-            })
-          } else {
-            // Create new user from Google profile
-            existingUser = await db.user.create({
-              data: {
-                email: user.email!,
-                name: user.name,
-                image: user.image,
-                emailVerified: new Date(),
-                role: 'CUSTOMER'
-              }
-            })
-          }
-
-          // Create or update account link
-          const existingAccount = await db.account.findUnique({
-            where: {
-              provider_providerAccountId: {
-                provider: account.provider,
-                providerAccountId: account.providerAccountId
-              }
-            }
-          })
-
-          if (!existingAccount) {
-            await db.account.create({
-              data: {
-                userId: existingUser.id,
-                type: account.type,
-                provider: account.provider,
-                providerAccountId: account.providerAccountId,
-                access_token: account.access_token,
-                token_type: account.token_type,
-                scope: account.scope,
-                id_token: account.id_token,
-                expires_at: account.expires_at,
-                refresh_token: account.refresh_token,
-                session_state: account.session_state as string | null
-              }
-            })
-          }
-          
-          return true
-        } catch (error) {
-          console.error('Google sign-in error:', error)
-          return false
-        }
-      }
-      
+      // Always allow sign in - we'll handle user creation in background
       return true
     },
     async jwt({ token, user, account, profile }) {
-      // Initial sign in
+      // On initial sign in, add user data to token
       if (user) {
-        if (account?.provider === "google") {
-          // For Google OAuth - fetch user data from database
-          try {
-            const dbUser = await db.user.findUnique({
-              where: { email: user.email! },
-              select: {
-                id: true,
-                role: true,
-                image: true,
-                name: true,
-                email: true
-              }
-            })
-            
-            if (dbUser) {
-              token.role = dbUser.role
-              token.id = dbUser.id
-              token.image = dbUser.image
-            } else {
-              token.role = 'CUSTOMER'
-              token.id = user.id || user.email
-              token.image = user.image
-            }
-          } catch (error) {
-            console.error('JWT callback error:', error)
-            token.role = 'CUSTOMER'
-            token.id = user.id || user.email
-            token.image = user.image
-          }
-        } else {
-          // For credentials provider, user object already has the data
-          token.role = user.role
-          token.id = user.id
-          token.image = user.image
+        try {
+          token.role = user.role || 'CUSTOMER'
+          token.id = user.id || user.email
+          token.image = user.image || null
+        } catch (error) {
+          console.error('JWT callback error:', error)
+          token.role = 'CUSTOMER'
+          token.id = user.email
+          token.image = null
         }
       }
-      
       return token
     },
     async session({ session, token }) {
+      // Add token data to session - wrapped in try-catch for safety
       try {
-        if (token && session.user) {
-          session.user.role = token.role
-          session.user.id = token.id
-          session.user.image = token.image as string
+        if (session?.user) {
+          session.user.role = (token.role as string) || 'CUSTOMER'
+          session.user.id = (token.id as string) || ''
+          session.user.image = (token.image as string) || null
         }
-        return session
       } catch (error) {
         console.error('Session callback error:', error)
-        return session
       }
+      return session
     }
   },
   pages: {
