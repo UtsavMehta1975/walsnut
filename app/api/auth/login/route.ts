@@ -33,6 +33,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check if user has a password (OAuth users don't have passwords)
+    if (!user.hashedPassword) {
+      return NextResponse.json(
+        { message: 'This account uses social login. Please sign in with Google.' },
+        { status: 401 }
+      )
+    }
+
     // Check password
     const isPasswordValid = await bcrypt.compare(password, user.hashedPassword)
 
