@@ -5,6 +5,10 @@ MYSQL_URL="mysql://utsav:YourStrongPassword@185.196.21.112:3306/walnut_db"
 NEXTAUTH_URL="https://www.thewalnutstore.com"
 NEXTAUTH_SECRET="SfqOkvFq0IJRTkqmlkHNscOio/5zNPCBvbiSAtTJxOs="
 
+# Google OAuth (for NextAuth)
+GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+
 # App
 NEXT_PUBLIC_APP_URL="https://www.thewalnutstore.com"
 
