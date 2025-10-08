@@ -45,8 +45,7 @@ export const authOptions: NextAuthOptions = {
               email: true,
               name: true,
               role: true,
-              hashedPassword: true,
-              image: true
+              hashedPassword: true
             }
           })
 
@@ -70,7 +69,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.name,
             role: user.role,
-            image: user.image
+            image: null
           }
         } catch (error) {
           console.error('Auth error:', error)
@@ -96,44 +95,28 @@ export const authOptions: NextAuthOptions = {
           })
 
           if (existingUser) {
-            // Update user with Google profile data if user table has image field
+            // Update user with Google profile data
+            // Note: Not updating image/emailVerified until migration is run
             try {
               await db.user.update({
                 where: { email: user.email! },
                 data: {
-                  name: user.name || existingUser.name,
-                  image: user.image || existingUser.image,
-                  emailVerified: new Date()
+                  name: user.name || existingUser.name
                 }
               })
             } catch (updateError) {
-              // Ignore update errors (e.g., if migration not run yet)
+              // Ignore update errors
               console.warn('Could not update user profile:', updateError)
             }
           } else {
             // Create new user from Google profile
-            try {
-              existingUser = await db.user.create({
-                data: {
-                  email: user.email!,
-                  name: user.name,
-                  image: user.image,
-                  emailVerified: new Date(),
-                  role: 'CUSTOMER' // Default role for OAuth users
-                }
-              })
-            } catch (createError) {
-              // Ignore create errors (e.g., if migration not run yet)
-              console.warn('Could not create user:', createError)
-              // Try creating without OAuth-specific fields
-              existingUser = await db.user.create({
-                data: {
-                  email: user.email!,
-                  name: user.name,
-                  role: 'CUSTOMER'
-                }
-              })
-            }
+            existingUser = await db.user.create({
+              data: {
+                email: user.email!,
+                name: user.name,
+                role: 'CUSTOMER' // Default role for OAuth users
+              }
+            })
           }
 
           // Try to create account link if Account table exists
@@ -189,7 +172,6 @@ export const authOptions: NextAuthOptions = {
               select: {
                 id: true,
                 role: true,
-                image: true,
                 name: true,
                 email: true
               }
@@ -198,25 +180,25 @@ export const authOptions: NextAuthOptions = {
             if (dbUser) {
               token.role = dbUser.role
               token.id = dbUser.id
-              token.image = dbUser.image
+              token.image = user.image || null
             } else {
               // Fallback if user not found
               token.role = 'CUSTOMER'
               token.id = user.id || user.email
-              token.image = user.image
+              token.image = user.image || null
             }
           } catch (error) {
             console.error('JWT callback error:', error)
             // Fallback on error
             token.role = 'CUSTOMER'
             token.id = user.id || user.email
-            token.image = user.image
+            token.image = user.image || null
           }
         } else {
           // For credentials provider, user object already has the data
           token.role = user.role
           token.id = user.id
-          token.image = user.image
+          token.image = null
         }
       }
       
