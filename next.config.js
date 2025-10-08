@@ -64,7 +64,7 @@ const nextConfig = {
   
   // Performance optimizations
   experimental: {
-    serverComponentsExternalPackages: ['@prisma/client', 'jose'],
+    serverComponentsExternalPackages: ['@prisma/client'],
     optimizeCss: true,
     optimizePackageImports: ['lucide-react'],
   },
@@ -84,16 +84,10 @@ const nextConfig = {
   //   ]
   // },
   
-  // Webpack configuration to handle jose module
+  // Webpack configuration to handle ES modules
   webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.externals.push('jose')
-    }
-    // Ensure jose is available for middleware
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      'jose': require.resolve('jose')
-    }
+    // Don't externalize jose - let webpack bundle it properly
+    // This fixes the ERR_REQUIRE_ESM error
     return config
   },
   
