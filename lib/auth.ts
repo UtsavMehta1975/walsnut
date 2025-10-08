@@ -3,10 +3,8 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
 import bcrypt from "bcryptjs"
 import { db } from "@/lib/db"
-import { PrismaAdapter } from "@next-auth/prisma-adapter"
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(db),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
@@ -87,12 +85,12 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === "google") {
         try {
           // Check if user already exists
-          const existingUser = await db.user.findUnique({
+          let existingUser = await db.user.findUnique({
             where: { email: user.email! }
           })
 
           if (existingUser) {
-            // Update user with Google profile data if needed
+            // Update user with Google profile data
             await db.user.update({
               where: { email: user.email! },
               data: {
@@ -101,8 +99,47 @@ export const authOptions: NextAuthOptions = {
                 emailVerified: new Date()
               }
             })
+          } else {
+            // Create new user from Google profile
+            existingUser = await db.user.create({
+              data: {
+                email: user.email!,
+                name: user.name,
+                image: user.image,
+                emailVerified: new Date(),
+                role: 'CUSTOMER' // Default role for OAuth users
+              }
+            })
           }
-          // If user doesn't exist, PrismaAdapter will create it automatically
+
+          // Check if account link exists
+          const existingAccount = await db.account.findUnique({
+            where: {
+              provider_providerAccountId: {
+                provider: account.provider,
+                providerAccountId: account.providerAccountId
+              }
+            }
+          })
+
+          // Create account link if it doesn't exist
+          if (!existingAccount) {
+            await db.account.create({
+              data: {
+                userId: existingUser.id,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                access_token: account.access_token,
+                token_type: account.token_type,
+                scope: account.scope,
+                id_token: account.id_token,
+                expires_at: account.expires_at,
+                refresh_token: account.refresh_token,
+                session_state: account.session_state as string | null
+              }
+            })
+          }
           
           return true
         } catch (error) {
@@ -114,26 +151,35 @@ export const authOptions: NextAuthOptions = {
       return true
     },
     async jwt({ token, user, account, profile }) {
+      // Initial sign in
       if (user) {
-        token.role = user.role
-        token.id = user.id
-        token.image = user.image
-      }
-      
-      // For OAuth providers, get user data from database
-      if (account?.provider === "google" && user?.email) {
-        try {
-          const dbUser = await db.user.findUnique({
-            where: { email: user.email }
-          })
-          
-          if (dbUser) {
-            token.role = dbUser.role
-            token.id = dbUser.id
-            token.image = dbUser.image
+        // For OAuth providers, fetch full user data from database
+        if (account?.provider === "google") {
+          try {
+            const dbUser = await db.user.findUnique({
+              where: { email: user.email! },
+              select: {
+                id: true,
+                role: true,
+                image: true,
+                name: true,
+                email: true
+              }
+            })
+            
+            if (dbUser) {
+              token.role = dbUser.role
+              token.id = dbUser.id
+              token.image = dbUser.image
+            }
+          } catch (error) {
+            console.error('JWT callback error:', error)
           }
-        } catch (error) {
-          console.error('JWT callback error:', error)
+        } else {
+          // For credentials provider, user object already has the data
+          token.role = user.role
+          token.id = user.id
+          token.image = user.image
         }
       }
       
