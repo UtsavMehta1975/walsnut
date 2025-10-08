@@ -71,14 +71,17 @@ export default function SignInPage() {
   }
 
   const handleGoogleSignIn = async () => {
+    console.log('🔵 GOOGLE BUTTON CLICKED!')
     try {
       setIsLoading(true)
-      await signIn('google', { 
+      console.log('🔵 Calling signIn with google provider...')
+      const result = await signIn('google', { 
         callbackUrl: redirectUrl || '/',
         redirect: true 
       })
+      console.log('🔵 SignIn result:', result)
     } catch (error) {
-      console.error('Google sign-in error:', error)
+      console.error('🔴 Google sign-in error:', error)
       toast.error('Google sign-in failed. Please try again.')
       setIsLoading(false)
     }
