@@ -11,6 +11,7 @@ import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { ShoppingCart, Heart, ArrowLeft, Clock, Sparkles, TrendingUp, ChevronUp, ChevronDown, Check } from 'lucide-react'
 import { ColorSelector, extractColorVariants, ColorVariant } from '@/components/ui/color-selector'
+import toast from 'react-hot-toast'
 
 interface ProductImage {
   id: string
@@ -233,6 +234,16 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
         image: product.image,
         variantSku: variantSku,
         selectedColor: selectedVariant?.colorName || selectedColor
+      })
+      
+      // Show success toast with cart icon
+      toast.success(`${variantName} added to cart!`, {
+        duration: 3000,
+        icon: '🛒',
+        style: {
+          background: '#10B981',
+          color: '#fff',
+        },
       })
     }
   }

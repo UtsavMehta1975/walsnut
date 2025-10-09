@@ -6,11 +6,12 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart, Heart, Star, Eye } from 'lucide-react'
+import { ShoppingCart, Heart, Star, Eye, Check } from 'lucide-react'
 import { useCart } from '@/store/cart-store'
 import { useWishlist } from '@/store/wishlist-store'
 import { formatPrice } from '@/lib/utils'
 import { getProductImageUrl } from '@/lib/image-utils'
+import toast from 'react-hot-toast'
 
 interface Product {
   id: string
@@ -41,6 +42,7 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
   const { addToCart } = useCart()
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist()
   const [isLoading, setIsLoading] = useState(false)
+  const [justAdded, setJustAdded] = useState(false)
 
   // Get the proper image URL using the utility function
   const imageUrl = getProductImageUrl(product)
@@ -53,12 +55,23 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
     e.preventDefault()
     e.stopPropagation()
     
+    // Add to cart
     addToCart({
       id: product.id,
       name: `${product.brand} ${product.model}`,
       price: product.price,
       image: imageUrl
     })
+    
+    // Show success feedback
+    setJustAdded(true)
+    toast.success(`${product.brand} ${product.model} added to cart!`, {
+      duration: 2000,
+      icon: '🛒',
+    })
+    
+    // Reset button state after animation
+    setTimeout(() => setJustAdded(false), 2000)
   }
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
@@ -181,11 +194,24 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
             <Button 
               onClick={handleAddToCart}
               disabled={product.stockQuantity === 0}
-              className="flex-1 btn-highlight h-[44px] w-[44px] sm:h-[44px] sm:w-auto sm:flex-1 text-sm sm:text-sm font-semibold rounded-none flex items-center justify-center"
+              className={`flex-1 h-[44px] w-[44px] sm:h-[44px] sm:w-auto sm:flex-1 text-sm sm:text-sm font-semibold rounded-none flex items-center justify-center transition-all duration-300 ${
+                justAdded 
+                  ? 'bg-green-500 hover:bg-green-600 scale-105' 
+                  : 'btn-highlight'
+              }`}
               size="default"
             >
-              <ShoppingCart className="h-4 w-4 sm:mr-1" />
-              <span className="hidden sm:inline ml-1">Add to Cart</span>
+              {justAdded ? (
+                <>
+                  <Check className="h-4 w-4 sm:mr-1 animate-bounce" />
+                  <span className="hidden sm:inline ml-1">Added!</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline ml-1">Add to Cart</span>
+                </>
+              )}
             </Button>
             <Button 
               onClick={handleCardClick}
