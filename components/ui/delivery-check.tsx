@@ -43,26 +43,40 @@ export function DeliveryCheck({ onPinCodeValidated, variant = 'product', classNa
     }
 
     setIsChecking(true)
+    setDeliveryInfo(null) // Reset previous results
 
     try {
       console.log('🔍 Checking PIN code:', pinCode)
       
-      // Fetch PIN code details from India Post API
-      const response = await fetch(`https://api.postalpincode.in/pincode/${pinCode}`)
+      // Fetch PIN code details from India Post API with timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+      
+      const response = await fetch(`https://api.postalpincode.in/pincode/${pinCode}`, {
+        method: 'GET',
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+        }
+      })
+      
+      clearTimeout(timeoutId)
+      
+      console.log('📡 Response status:', response.status, response.statusText)
       
       if (!response.ok) {
-        throw new Error('API request failed')
+        throw new Error(`API returned ${response.status}: ${response.statusText}`)
       }
       
       const data = await response.json()
-      console.log('📦 API Response:', data)
+      console.log('📦 API Response:', JSON.stringify(data, null, 2))
 
-      if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice?.length > 0) {
+      if (data && Array.isArray(data) && data.length > 0 && data[0].Status === 'Success' && data[0].PostOffice?.length > 0) {
         const postOffice = data[0].PostOffice[0]
         const city = postOffice.District || postOffice.Block || 'Unknown'
         const state = postOffice.State || 'Unknown'
         
-        console.log('✅ Found location:', { city, state })
+        console.log('✅ Found location:', { city, state, postOffice })
         
         // Calculate delivery days based on state/region
         const deliveryDays = calculateDeliveryDays(state, city)
@@ -103,6 +117,9 @@ export function DeliveryCheck({ onPinCodeValidated, variant = 'product', classNa
         })
       } else {
         console.log('❌ Invalid PIN code response:', data)
+        const errorMessage = data && data[0] && data[0].Message ? data[0].Message : 'Invalid PIN code'
+        console.log('Error message from API:', errorMessage)
+        
         setDeliveryInfo({
           available: false,
           days: 0,
@@ -115,11 +132,32 @@ export function DeliveryCheck({ onPinCodeValidated, variant = 'product', classNa
           duration: 3000
         })
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ PIN code check error:', error)
-      toast.error('Failed to check delivery. Please try again.', {
-        duration: 3000
+      
+      let errorMessage = 'Failed to check delivery. '
+      
+      if (error.name === 'AbortError') {
+        errorMessage += 'Request timed out. Please try again.'
+      } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        errorMessage += 'Network error. Check your internet connection.'
+      } else if (error.message.includes('CORS')) {
+        errorMessage += 'API access issue. Please try again.'
+      } else {
+        errorMessage += 'Please try again later.'
+      }
+      
+      console.error('Detailed error:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
       })
+      
+      toast.error(errorMessage, {
+        duration: 4000
+      })
+      
+      setDeliveryInfo(null)
     } finally {
       setIsChecking(false)
     }
