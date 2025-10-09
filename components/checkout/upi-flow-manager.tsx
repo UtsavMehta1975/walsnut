@@ -25,9 +25,14 @@ export function UPIFlowManager({ amount, orderDetails }: UPIFlowManagerProps) {
     setSelectedApp(appName)
     
     try {
-      console.log('🚀 Initiating proper Cashfree UPI payment (no risk warnings!)')
+      console.log('🚀 Starting UPI payment via Cashfree payment page')
+      console.log('💰 Amount:', amount)
+      console.log('📱 App selected:', appName)
+      
+      toast('Creating order...', { icon: '⏳', duration: 2000 })
       
       // Create order first
+      console.log('📝 Creating order...')
       const createOrderResponse = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -39,14 +44,21 @@ export function UPIFlowManager({ amount, orderDetails }: UPIFlowManagerProps) {
         })
       })
       
+      console.log('📡 Order API response status:', createOrderResponse.status)
+      
       if (!createOrderResponse.ok) {
-        throw new Error('Failed to create order')
+        const errorData = await createOrderResponse.text()
+        console.error('❌ Order creation failed:', errorData)
+        throw new Error('Failed to create order: ' + errorData)
       }
       
       const { order } = await createOrderResponse.json()
-      console.log('✅ Order created:', order.id)
+      console.log('✅ Order created successfully:', order.id)
       
-      // Use Cashfree's UPI Collect/Intent API (proper merchant flow)
+      toast('Initializing payment...', { icon: '💳', duration: 2000 })
+      
+      // Use Cashfree's UPI payment API
+      console.log('💳 Calling UPI payment API...')
       const upiResponse = await fetch('/api/payments/upi-collect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -55,60 +67,98 @@ export function UPIFlowManager({ amount, orderDetails }: UPIFlowManagerProps) {
         })
       })
       
+      console.log('📡 UPI API response status:', upiResponse.status)
+      
       if (!upiResponse.ok) {
-        throw new Error('Failed to initialize UPI payment')
+        const errorData = await upiResponse.text()
+        console.error('❌ UPI payment init failed:', errorData)
+        throw new Error('Failed to initialize UPI payment: ' + errorData)
       }
       
       const upiData = await upiResponse.json()
-      console.log('✅ UPI payment initialized:', upiData)
+      console.log('✅ UPI payment response:', JSON.stringify(upiData, null, 2))
       
       if (!upiData.paymentSessionId) {
-        throw new Error('Payment session not created')
+        console.error('❌ No payment session ID in response:', upiData)
+        throw new Error('Payment session not created - missing paymentSessionId')
       }
       
+      console.log('✅ Payment session ID obtained:', upiData.paymentSessionId)
+      
+      toast('Loading payment page...', { icon: '🔄', duration: 2000 })
+      
       // Always use Cashfree's payment page (NO RISK WARNINGS!)
-      console.log('📱 Opening Cashfree payment page with UPI')
+      console.log('📱 Loading Cashfree SDK...')
       
       // Load Cashfree SDK
       const loadCashfreeSDK = () => {
         return new Promise<void>((resolve, reject) => {
           if ((window as any).Cashfree) {
+            console.log('✅ Cashfree SDK already loaded')
             resolve()
             return
           }
           
+          console.log('⬇️ Downloading Cashfree SDK...')
           const script = document.createElement('script')
           script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js'
-          script.onload = () => resolve()
-          script.onerror = () => reject(new Error('Failed to load Cashfree SDK'))
+          script.onload = () => {
+            console.log('✅ Cashfree SDK downloaded')
+            resolve()
+          }
+          script.onerror = () => {
+            console.error('❌ Failed to load Cashfree SDK')
+            reject(new Error('Failed to load Cashfree SDK'))
+          }
           document.head.appendChild(script)
         })
       }
       
       await loadCashfreeSDK()
-      console.log('✅ Cashfree SDK loaded')
+      console.log('✅ Cashfree SDK ready')
       
+      // Initialize Cashfree
+      console.log('🔧 Initializing Cashfree instance...')
       const cashfree = new (window as any).Cashfree({
         mode: 'production'
       })
+      console.log('✅ Cashfree instance created')
       
       // Open Cashfree's verified payment page
-      cashfree.checkout({
+      const returnUrl = `${window.location.origin}/payment/success?order_id=${upiData.orderId}`
+      console.log('🌐 Return URL:', returnUrl)
+      console.log('🎫 Payment Session ID:', upiData.paymentSessionId)
+      console.log('🚀 Opening Cashfree checkout...')
+      
+      const checkoutOptions = {
         paymentSessionId: upiData.paymentSessionId,
-        returnUrl: `${window.location.origin}/payment/success?order_id=${upiData.orderId}`,
-      })
+        returnUrl: returnUrl
+      }
       
-      console.log('✅ Cashfree payment page opened')
+      console.log('📋 Checkout options:', checkoutOptions)
       
-      toast.success('Opening secure Cashfree payment page...', {
-        duration: 5000,
+      cashfree.checkout(checkoutOptions)
+      
+      console.log('✅ Cashfree checkout initiated!')
+      
+      toast.success('Opening Cashfree payment page...', {
+        duration: 3000,
         icon: '🔒'
       })
       
     } catch (error: any) {
       console.error('❌ UPI payment error:', error)
-      toast.error(error.message || 'Failed to initiate payment. Please try again.')
+      console.error('❌ Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      })
+      
+      toast.error(error.message || 'Failed to initiate payment. Check console for details.', {
+        duration: 5000
+      })
     } finally {
+      console.log('🏁 Payment flow complete (processing stopped)')
       setIsProcessing(false)
       setSelectedApp('')
     }
