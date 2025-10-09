@@ -119,6 +119,69 @@ function CheckoutContent() {
     })
   }
 
+  // Get current location and auto-fill address (mobile only)
+  const useCurrentLocation = async () => {
+    setIsLoadingLocation(true)
+    
+    try {
+      if (!navigator.geolocation) {
+        toast.error('Location services not supported')
+        setIsLoadingLocation(false)
+        return
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords
+          console.log('📍 Location:', latitude, longitude)
+
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`,
+              { headers: { 'User-Agent': 'WalnutStore/1.0' } }
+            )
+
+            if (response.ok) {
+              const data = await response.json()
+              const addr = data.address
+              
+              const street = addr.road || addr.street || ''
+              const neighborhood = addr.neighbourhood || addr.suburb || ''
+              const fullAddress = [street, neighborhood].filter(Boolean).join(', ') || addr.display_name
+              
+              setFormData(prev => ({
+                ...prev,
+                address: fullAddress,
+                city: addr.city || addr.town || addr.village || '',
+                state: addr.state || '',
+                zipCode: addr.postcode || '',
+                country: addr.country || 'India'
+              }))
+
+              toast.success('📍 Location detected! Please verify the address', { duration: 4000 })
+            }
+          } catch (err) {
+            toast.error('Could not get address. Please enter manually.')
+          }
+          
+          setIsLoadingLocation(false)
+        },
+        (error) => {
+          let msg = 'Could not get location'
+          if (error.code === error.PERMISSION_DENIED) {
+            msg = 'Location permission denied. Please enable in your browser.'
+          }
+          toast.error(msg)
+          setIsLoadingLocation(false)
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      )
+    } catch (error) {
+      toast.error('Failed to get location')
+      setIsLoadingLocation(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
