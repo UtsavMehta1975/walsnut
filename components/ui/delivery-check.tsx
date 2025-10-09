@@ -45,14 +45,24 @@ export function DeliveryCheck({ onPinCodeValidated, variant = 'product', classNa
     setIsChecking(true)
 
     try {
-      // Fetch PIN code details from India Post API (free, no auth needed)
+      console.log('🔍 Checking PIN code:', pinCode)
+      
+      // Fetch PIN code details from India Post API
       const response = await fetch(`https://api.postalpincode.in/pincode/${pinCode}`)
+      
+      if (!response.ok) {
+        throw new Error('API request failed')
+      }
+      
       const data = await response.json()
+      console.log('📦 API Response:', data)
 
-      if (data[0].Status === 'Success' && data[0].PostOffice?.length > 0) {
+      if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice?.length > 0) {
         const postOffice = data[0].PostOffice[0]
-        const city = postOffice.District
-        const state = postOffice.State
+        const city = postOffice.District || postOffice.Block || 'Unknown'
+        const state = postOffice.State || 'Unknown'
+        
+        console.log('✅ Found location:', { city, state })
         
         // Calculate delivery days based on state/region
         const deliveryDays = calculateDeliveryDays(state, city)
@@ -75,6 +85,7 @@ export function DeliveryCheck({ onPinCodeValidated, variant = 'product', classNa
         }
 
         setDeliveryInfo(deliveryData)
+        console.log('📍 Delivery info set:', deliveryData)
 
         // Call parent callback if provided
         if (onPinCodeValidated) {
@@ -84,13 +95,14 @@ export function DeliveryCheck({ onPinCodeValidated, variant = 'product', classNa
             state,
             deliveryDays
           })
+          console.log('✅ Callback called with data')
         }
 
-        toast.success(`Delivery available to ${city}!`, {
-          icon: '✅',
-          duration: 3000
+        toast.success(`✅ Delivery to ${city}, ${state} in ${deliveryDays} days!`, {
+          duration: 4000
         })
       } else {
+        console.log('❌ Invalid PIN code response:', data)
         setDeliveryInfo({
           available: false,
           days: 0,
@@ -98,13 +110,16 @@ export function DeliveryCheck({ onPinCodeValidated, variant = 'product', classNa
           state: '',
           estimatedDate: ''
         })
-        toast.error('Invalid PIN code or delivery not available', {
-          icon: '❌'
+        toast.error('Invalid PIN code. Please check and try again.', {
+          icon: '❌',
+          duration: 3000
         })
       }
     } catch (error) {
-      console.error('PIN code check error:', error)
-      toast.error('Failed to check delivery. Please try again.')
+      console.error('❌ PIN code check error:', error)
+      toast.error('Failed to check delivery. Please try again.', {
+        duration: 3000
+      })
     } finally {
       setIsChecking(false)
     }
