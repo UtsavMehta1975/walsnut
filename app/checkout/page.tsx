@@ -16,7 +16,7 @@ import { useCart } from '@/store/cart-store'
 import { useAuth } from '@/contexts/auth-context'
 import { trackInitiateCheckout, trackPurchase } from '@/components/analytics/meta-pixel'
 import MobileCheckout from '@/components/checkout/mobile-checkout'
-import { UPIApps } from '@/components/checkout/upi-apps'
+import { UPIFlowManager } from '@/components/checkout/upi-flow-manager'
 import { DeliveryCheck } from '@/components/ui/delivery-check'
 import { MobileTopNav, StepProgress } from '@/components/ui/mobile-top-nav'
 
@@ -685,19 +685,15 @@ function CheckoutContent() {
                   ))}
                 </div>
 
-                {/* UPI Apps Section - Only on Mobile */}
+                {/* UPI Payment Flow - Only on Mobile */}
                 {paymentMethod === 'upi' && isMobile && (
                   <div className="mt-4">
-                    <UPIApps
+                    <UPIFlowManager
                       amount={total}
                       orderDetails={{
                         orderId: `ORDER_${Date.now()}`,
                         customerName: `${formData.firstName} ${formData.lastName}`,
                         customerEmail: formData.email
-                      }}
-                      onPaymentInitiated={() => {
-                        console.log('🎯 UPI Payment initiated via app')
-                        toast.loading('Opening payment app...', { duration: 2000 })
                       }}
                     />
                   </div>
