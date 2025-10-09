@@ -12,6 +12,7 @@ import { Footer } from '@/components/layout/footer'
 import { ShoppingCart, Heart, ArrowLeft, Clock, Sparkles, TrendingUp, ChevronUp, ChevronDown, Check } from 'lucide-react'
 import { ColorSelector, extractColorVariants, ColorVariant } from '@/components/ui/color-selector'
 import { DeliveryCheck } from '@/components/ui/delivery-check'
+import { MobileTopNav, MobileBottomNav } from '@/components/ui/mobile-top-nav'
 import toast from 'react-hot-toast'
 
 interface ProductImage {
@@ -340,9 +341,18 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     <div className="min-h-screen bg-white">
       <Navbar />
       
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Minimal Breadcrumb */}
-        <nav className="flex mb-6" aria-label="Breadcrumb">
+      {/* Mobile Top Navigation */}
+      <MobileTopNav
+        title={product ? `${product.brand} ${product.model}` : 'Product Details'}
+        showBack={true}
+        showCart={true}
+        showWishlist={true}
+        customBackUrl="/watches"
+      />
+      
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 lg:pb-6">
+        {/* Minimal Breadcrumb - Hide on mobile */}
+        <nav className="hidden lg:flex mb-6" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-2 text-sm">
             <li>
               <Link href="/" className="text-gray-500 hover:text-black transition-colors">
@@ -1024,6 +1034,9 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           </div>
         </div>
       )}
+      
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav activeSection="watches" />
        
       <Footer />
     </div>
