@@ -33,6 +33,7 @@ function CheckoutContent() {
   const { items, clearCart } = useCart()
   const [isProcessing, setIsProcessing] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false)
   
   // Get product details from URL params (for Buy Now)
   const productId = searchParams.get('productId')
@@ -374,6 +375,40 @@ function CheckoutContent() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {/* Use Current Location Button - Mobile Only */}
+                {isMobile && (
+                  <div className="mb-6">
+                    <Button
+                      type="button"
+                      onClick={useCurrentLocation}
+                      disabled={isLoadingLocation}
+                      className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg mb-2"
+                    >
+                      {isLoadingLocation ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                          Detecting location...
+                        </>
+                      ) : (
+                        <>
+                          <MapPin className="w-4 h-4 mr-2" />
+                          📍 Use My Current Location
+                        </>
+                      )}
+                    </Button>
+                    <p className="text-xs text-gray-500 text-center">
+                      Auto-fill address using your phone's GPS
+                    </p>
+                    <div className="relative my-4">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-300"></div>
+                      </div>
+                      <div className="relative flex justify-center text-xs">
+                        <span className="bg-white px-2 text-gray-500">or enter manually</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
                     name="firstName"

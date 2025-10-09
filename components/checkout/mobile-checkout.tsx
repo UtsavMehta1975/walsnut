@@ -53,6 +53,7 @@ export default function MobileCheckout() {
   const [currentStep, setCurrentStep] = useState(1);
   const [savedAddresses, setSavedAddresses] = useState<DeliveryAddress[]>([]);
   const [showNewAddress, setShowNewAddress] = useState(false);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   
   // Pre-fill user information from account
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
@@ -157,6 +158,113 @@ export default function MobileCheckout() {
         country: 'India'
       }
     }));
+  };
+
+  // Get current location and reverse geocode to address
+  const useCurrentLocation = async () => {
+    setIsLoadingLocation(true);
+    
+    try {
+      // Check if geolocation is supported
+      if (!navigator.geolocation) {
+        alert('Location services are not supported by your browser');
+        setIsLoadingLocation(false);
+        return;
+      }
+
+      // Get current position
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          console.log('📍 Location obtained:', latitude, longitude);
+
+          try {
+            // Use OpenStreetMap Nominatim for reverse geocoding (free, no API key needed)
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`,
+              {
+                headers: {
+                  'User-Agent': 'WalnutStore/1.0'
+                }
+              }
+            );
+
+            if (response.ok) {
+              const data = await response.json();
+              const addr = data.address;
+              
+              console.log('📍 Address data:', addr);
+
+              // Extract address components
+              const street = addr.road || addr.street || '';
+              const neighborhood = addr.neighbourhood || addr.suburb || '';
+              const fullAddress = [street, neighborhood].filter(Boolean).join(', ') || addr.display_name;
+              
+              // Update shipping info with detected location
+              setShippingInfo(prev => ({
+                ...prev,
+                deliveryAddress: {
+                  address: fullAddress,
+                  city: addr.city || addr.town || addr.village || '',
+                  state: addr.state || '',
+                  zipCode: addr.postcode || '',
+                  country: addr.country || 'India'
+                }
+              }));
+
+              // Show success notification
+              import('react-hot-toast').then(({ default: toast }) => {
+                toast.success('📍 Location detected! Please verify and edit if needed', {
+                  duration: 4000
+                });
+              });
+            } else {
+              throw new Error('Failed to get address from location');
+            }
+          } catch (geocodeError) {
+            console.error('Geocoding error:', geocodeError);
+            import('react-hot-toast').then(({ default: toast }) => {
+              toast.error('Could not get address from location. Please enter manually.');
+            });
+          }
+          
+          setIsLoadingLocation(false);
+        },
+        (error) => {
+          console.error('Location error:', error);
+          let errorMessage = 'Could not get your location';
+          
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Location permission denied. Please enable location access.';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Location information is unavailable.';
+              break;
+            case error.TIMEOUT:
+              errorMessage = 'Location request timed out.';
+              break;
+          }
+          
+          import('react-hot-toast').then(({ default: toast }) => {
+            toast.error(errorMessage);
+          });
+          
+          setIsLoadingLocation(false);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    } catch (error) {
+      console.error('Error getting location:', error);
+      import('react-hot-toast').then(({ default: toast }) => {
+        toast.error('Failed to get location');
+      });
+      setIsLoadingLocation(false);
+    }
   };
 
   // Payment method options with logos
@@ -297,6 +405,30 @@ export default function MobileCheckout() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {/* Use Current Location Button */}
+                <div className="mb-4">
+                  <Button
+                    type="button"
+                    onClick={useCurrentLocation}
+                    disabled={isLoadingLocation}
+                    className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg"
+                  >
+                    {isLoadingLocation ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                        Getting your location...
+                      </>
+                    ) : (
+                      <>
+                        <MapPin className="w-4 h-4 mr-2" />
+                        📍 Use My Current Location
+                      </>
+                    )}
+                  </Button>
+                  <p className="text-xs text-gray-500 text-center mt-2">
+                    We'll auto-fill your address using GPS
+                  </p>
+                </div>
                 {savedAddresses.length > 0 && !showNewAddress && (
                   <div className="space-y-2 mb-4">
                     {savedAddresses.map((address, index) => (
