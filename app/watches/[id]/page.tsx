@@ -11,6 +11,7 @@ import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { ShoppingCart, Heart, ArrowLeft, Clock, Sparkles, TrendingUp, ChevronUp, ChevronDown, Check } from 'lucide-react'
 import { ColorSelector, extractColorVariants, ColorVariant } from '@/components/ui/color-selector'
+import { DeliveryCheck } from '@/components/ui/delivery-check'
 import toast from 'react-hot-toast'
 
 interface ProductImage {
@@ -638,6 +639,16 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               >
                 Buy Now
               </Button>
+            </div>
+
+            {/* Delivery Check */}
+            <div className="pt-6">
+              <DeliveryCheck 
+                variant="product"
+                onPinCodeValidated={(data) => {
+                  console.log('📦 Delivery available:', data)
+                }}
+              />
             </div>
 
             {/* Navigation Buttons */}

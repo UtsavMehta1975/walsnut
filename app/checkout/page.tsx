@@ -17,6 +17,7 @@ import { useAuth } from '@/contexts/auth-context'
 import { trackInitiateCheckout, trackPurchase } from '@/components/analytics/meta-pixel'
 import MobileCheckout from '@/components/checkout/mobile-checkout'
 import { UPIApps } from '@/components/checkout/upi-apps'
+import { DeliveryCheck } from '@/components/ui/delivery-check'
 
 interface CartItem {
   id: string
@@ -472,6 +473,27 @@ function CheckoutContent() {
                     </div>
                   </div>
                 )}
+
+                {/* Delivery Check with PIN code */}
+                <div className="mb-6">
+                  <DeliveryCheck
+                    variant="checkout"
+                    onPinCodeValidated={(data) => {
+                      // Auto-fill city and state when PIN code is validated
+                      setFormData(prev => ({
+                        ...prev,
+                        zipCode: data.pinCode,
+                        city: data.city,
+                        state: data.state
+                      }))
+                      toast.success('City and State auto-filled from PIN code!', {
+                        icon: '✅',
+                        duration: 2000
+                      })
+                    }}
+                  />
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
                     name="firstName"
@@ -504,7 +526,7 @@ function CheckoutContent() {
                   />
                   <Input
                     name="address"
-                    placeholder="Street Address"
+                    placeholder="Street Address / House No."
                     value={formData.address}
                     onChange={handleInputChange}
                     required
@@ -512,24 +534,28 @@ function CheckoutContent() {
                   />
                   <Input
                     name="city"
-                    placeholder="City"
+                    placeholder="City (auto-filled from PIN)"
                     value={formData.city}
                     onChange={handleInputChange}
                     required
+                    className="bg-gray-50"
                   />
                   <Input
                     name="state"
-                    placeholder="State"
+                    placeholder="State (auto-filled from PIN)"
                     value={formData.state}
                     onChange={handleInputChange}
                     required
+                    className="bg-gray-50"
                   />
                   <Input
                     name="zipCode"
-                    placeholder="ZIP Code"
+                    placeholder="ZIP Code (check above)"
                     value={formData.zipCode}
                     onChange={handleInputChange}
                     required
+                    maxLength={6}
+                    className="bg-gray-50"
                   />
                   <Input
                     name="country"
