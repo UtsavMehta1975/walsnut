@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, MapPin, CreditCard, Check, Edit, Plus, Home } from 'lucide-react';
 import { useCart } from '@/store/cart-store';
 import { useAuth } from '@/contexts/auth-context';
-import { UPIApps } from '@/components/checkout/upi-apps';
+import { UPIFlowManager } from '@/components/checkout/upi-flow-manager';
 import { DeliveryCheck } from '@/components/ui/delivery-check';
 import toast from 'react-hot-toast';
 
