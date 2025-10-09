@@ -78,64 +78,87 @@ export function UPIApps({ amount, orderDetails, onPaymentInitiated }: UPIAppsPro
     }
   ]
 
-  // Generate UPI payment link
-  const generateUPILink = (app: UPIApp) => {
-    // Get UPI merchant details from environment
-    const merchantVPA = process.env.NEXT_PUBLIC_UPI_ID || 'merchant@upi'
-    const merchantName = process.env.NEXT_PUBLIC_UPI_MERCHANT_NAME || 'Walnut Store'
-    const transactionNote = `Order ${orderDetails.orderId}`
-    
-    const upiParams = new URLSearchParams({
-      pa: merchantVPA, // Payee address (your UPI ID)
-      pn: merchantName, // Payee name
-      am: amount.toFixed(2), // Amount
-      cu: 'INR', // Currency
-      tn: transactionNote, // Transaction note
-      mc: '5411', // Merchant category code (Grocery Stores, Supermarkets)
-    })
-
-    // App-specific deep links
-    const deepLinks: Record<string, string> = {
-      phonepe: `phonepe://pay?${upiParams.toString()}`,
-      gpay: `tez://upi/pay?${upiParams.toString()}`,
-      paytm: `paytmmp://pay?${upiParams.toString()}`,
-      fampay: `fampay://upi/pay?${upiParams.toString()}`,
-      upi: `upi://pay?${upiParams.toString()}` // Generic UPI for other apps
-    }
-
-    return deepLinks[app.id] || deepLinks.upi
-  }
-
-  const handleUPIAppClick = (app: UPIApp) => {
-    const upiLink = generateUPILink(app)
-    
-    console.log(`Opening ${app.name} with UPI link:`, upiLink)
+  const handleUPIAppClick = async (app: UPIApp) => {
+    console.log(`🎯 User selected ${app.name} for UPI payment`)
     
     // Call the callback if provided
     onPaymentInitiated?.()
     
-    // Try to open the app
-    window.location.href = upiLink
-    
-    // Show instruction toast
-    toast.success(
-      `Opening ${app.name}... Complete the payment in the app`,
-      {
-        duration: 5000,
-        icon: app.logo,
+    try {
+      // Create order first via your backend
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerName: orderDetails.customerName,
+          customerEmail: orderDetails.customerEmail,
+          amount: amount,
+          paymentMethod: 'upi'
+        })
+      })
+
+      if (!orderResponse.ok) {
+        throw new Error('Failed to create order')
       }
-    )
-    
-    // Fallback message if app doesn't open
-    setTimeout(() => {
-      toast(
-        `If ${app.name} didn't open, please check if it's installed`,
+
+      const orderData = await orderResponse.json()
+      console.log('📦 Order created:', orderData.order.id)
+
+      // Now initiate Cashfree UPI payment with preferred app
+      const paymentResponse = await fetch('/api/payments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: orderData.order.id,
+          paymentMethod: 'upi',
+          preferredApp: app.id // PhonePe, GPay, Paytm, etc.
+        })
+      })
+
+      if (!paymentResponse.ok) {
+        throw new Error('Failed to initialize payment')
+      }
+
+      const paymentData = await paymentResponse.json()
+      
+      // Initialize Cashfree UPI payment with app preference
+      const cashfree = new (window as any).Cashfree({
+        mode: process.env.NEXT_PUBLIC_CASHFREE_ENV || 'production'
+      })
+      
+      // Cashfree checkout with UPI app preference
+      cashfree.checkout({
+        paymentSessionId: paymentData.paymentSessionId,
+        returnUrl: `${window.location.origin}/payment/success?order_id={order_id}`,
+        redirectTarget: '_self',
+        appearance: {
+          theme: 'light',
+          width: '100%',
+          height: '100%'
+        },
+        // Cashfree will handle opening the specific UPI app
+        paymentMethods: {
+          upi: {
+            preferredApp: app.packageName
+          }
+        }
+      })
+
+      toast.success(
+        `Opening ${app.name} via Cashfree...`,
         {
-          duration: 4000,
-          icon: '💡',
+          duration: 3000,
+          icon: '🔐',
         }
       )
-    }, 3000)
+      
+    } catch (error) {
+      console.error('🔴 Payment initialization error:', error)
+      toast.error(
+        error instanceof Error ? error.message : 'Payment failed. Please try again.',
+        { duration: 4000 }
+      )
+    }
   }
 
   if (!isMobile) {
