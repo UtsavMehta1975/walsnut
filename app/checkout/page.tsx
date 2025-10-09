@@ -685,9 +685,10 @@ function CheckoutContent() {
                   ))}
                 </div>
 
-                {/* UPI Payment Flow - Only on Mobile */}
-                {paymentMethod === 'upi' && isMobile && (
+                {/* UPI Payment Flow */}
+                {paymentMethod === 'upi' && (
                   <div className="mt-4">
+                    {console.log('🎯 Rendering UPI Flow Manager:', { paymentMethod, isMobile, amount })}
                     <UPIFlowManager
                       amount={total}
                       orderDetails={{
@@ -696,6 +697,11 @@ function CheckoutContent() {
                         customerEmail: formData.email
                       }}
                     />
+                    {!isMobile && (
+                      <p className="text-xs text-gray-500 mt-2 text-center">
+                        💡 UPI works best on mobile. For desktop, use Card or Net Banking.
+                      </p>
+                    )}
                   </div>
                 )}
               </CardContent>
