@@ -391,20 +391,6 @@ function CheckoutContent() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
-      {/* Mobile Top Navigation */}
-      <MobileTopNav 
-        title="Checkout" 
-        showBack={true}
-        customBackUrl={isBuyNow ? "/watches" : "/cart"}
-        showCart={false}
-      />
-
-      {/* Step Progress - Mobile Only */}
-      <StepProgress 
-        steps={['Address', 'Payment', 'Review']}
-        currentStep={1}
-      />
-      
       {/* Header - Hide on Mobile */}
       <div className="hidden lg:block bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
