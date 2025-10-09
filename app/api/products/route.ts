@@ -126,26 +126,48 @@ export async function GET(request: NextRequest) {
     const orderBy: any = {}
     orderBy[sortBy] = sortOrder
 
-    const [products, total] = await Promise.all([
-      db.product.findMany({
-        where,
-        include: {
-          images: {
-            orderBy: { sortOrder: 'asc' }
-          },
-          _count: {
-            select: {
-              reviews: true,
-              wishlistItems: true
+    console.log('🔍 Products API Query:', { where, orderBy, skip, limit, search })
+
+    let products, total
+    try {
+      [products, total] = await Promise.all([
+        db.product.findMany({
+          where,
+          include: {
+            images: {
+              orderBy: { sortOrder: 'asc' }
+            },
+            _count: {
+              select: {
+                reviews: true,
+                wishlistItems: true
+              }
             }
-          }
+          },
+          orderBy,
+          skip,
+          take: limit
+        }),
+        db.product.count({ where })
+      ])
+      console.log('✅ Products fetched:', products.length, 'Total:', total)
+    } catch (queryError: any) {
+      console.error('❌ Database query error:', queryError)
+      console.error('❌ Query details:', { where, orderBy, skip, limit })
+      
+      // Return empty results instead of failing
+      return NextResponse.json({
+        data: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          totalPages: 0
         },
-        orderBy,
-        skip,
-        take: limit
-      }),
-      db.product.count({ where })
-    ])
+        error: 'Failed to fetch products',
+        details: queryError.message
+      })
+    }
 
     const totalPages = Math.ceil(total / limit)
 
