@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/contexts/auth-context'
-import { StickyWhatsApp } from '@/components/ui/sticky-whatsapp'
 import AuthSessionProvider from '@/components/providers/session-provider'
 import { Toaster } from 'react-hot-toast'
 import { MetaPixel } from '@/components/analytics/meta-pixel'
@@ -33,7 +32,6 @@ export default function RootLayout({
         <AuthSessionProvider>
           <AuthProvider>
             {children}
-            <StickyWhatsApp />
             <Toaster 
               position="top-right"
               toastOptions={{

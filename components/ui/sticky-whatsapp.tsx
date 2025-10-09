@@ -21,7 +21,7 @@ export function StickyWhatsApp() {
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="bg-green-500 hover:bg-green-600 text-white w-14 h-14 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center animate-pulse hover:animate-none"
+        className="bg-green-500 hover:bg-green-600 text-white w-14 h-14 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center"
         title="Chat on WhatsApp"
       >
         <svg className="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">

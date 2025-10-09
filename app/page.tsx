@@ -12,6 +12,7 @@ import { WatchAdvisor } from '@/components/home/watch-advisor'
 import { WhyChooseWalnut } from '@/components/home/why-choose-walnut'
 import { Footer } from '@/components/layout/footer'
 import { MobileBottomNav } from '@/components/ui/mobile-top-nav'
+import { StickyWhatsApp } from '@/components/ui/sticky-whatsapp'
 
 export default function HomePage() {
   return (
