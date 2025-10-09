@@ -12,7 +12,7 @@ import { Footer } from '@/components/layout/footer'
 import { ShoppingCart, Heart, ArrowLeft, Clock, Sparkles, TrendingUp, ChevronUp, ChevronDown, Check } from 'lucide-react'
 import { ColorSelector, extractColorVariants, ColorVariant } from '@/components/ui/color-selector'
 import { DeliveryCheck } from '@/components/ui/delivery-check'
-import { MobileTopNav, MobileBottomNav } from '@/components/ui/mobile-top-nav'
+import { MobileBottomNav } from '@/components/ui/mobile-top-nav'
 import toast from 'react-hot-toast'
 
 interface ProductImage {
@@ -340,15 +340,6 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-      
-      {/* Mobile Top Navigation */}
-      <MobileTopNav
-        title={product ? `${product.brand} ${product.model}` : 'Product Details'}
-        showBack={true}
-        showCart={true}
-        showWishlist={true}
-        customBackUrl="/watches"
-      />
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 lg:pb-6">
         {/* Minimal Breadcrumb - Hide on mobile */}
