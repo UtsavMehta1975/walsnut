@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { CleanProductCard } from '@/components/ui/clean-product-card'
+import { MobileTopNav, MobileBottomNav } from '@/components/ui/mobile-top-nav'
 import { useRouter } from 'next/navigation'
 import { trackSearch } from '@/components/analytics/meta-pixel'
 
@@ -154,8 +155,14 @@ export default function WatchesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
+      <MobileTopNav 
+        title={searchQuery ? "Search Results" : category === 'for-her' ? "Women's Watches" : category === 'for-him' ? "Men's Watches" : "All Watches"}
+        showBack={true}
+        showCart={true}
+        showWishlist={true}
+      />
       
-      <main className="py-8">
+      <main className="py-8 pb-24 lg:pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
@@ -233,6 +240,7 @@ export default function WatchesPage() {
         </div>
       </main>
       
+      <MobileBottomNav activeSection="watches" />
       <Footer />
     </div>
   )
