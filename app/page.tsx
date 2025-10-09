@@ -31,6 +31,7 @@ export default function HomePage() {
       </main>
       <MobileBottomNav activeSection="home" />
       <Footer />
+      <StickyWhatsApp />
     </div>
   )
 }
