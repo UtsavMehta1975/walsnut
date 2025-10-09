@@ -545,7 +545,7 @@ export default function MobileCheckout() {
                     <p className="text-xs text-gray-500 mt-1 text-center">
                       {shippingInfo.deliveryAddress.zipCode.length === 6 && shippingInfo.deliveryAddress.city 
                         ? '✅ City & State auto-filled!'
-                        : 'We'll auto-fill your city and state'}
+                        : 'We will auto-fill your city and state'}
                     </p>
                   </div>
 

@@ -14,43 +14,160 @@ export default function PaymentSuccessPage() {
   const router = useRouter()
   const [orderDetails, setOrderDetails] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [verificationStatus, setVerificationStatus] = useState<'verifying' | 'success' | 'failed' | 'pending'>('verifying')
+  const [verificationMessage, setVerificationMessage] = useState('Verifying your payment...')
+  const [retryCount, setRetryCount] = useState(0)
   
-  const orderId = searchParams.get('order_id')
+  const orderId = searchParams.get('order_id')?.replace('order_', '').split('_')[0]
+  const cfOrderId = searchParams.get('order_id')
   const paymentId = searchParams.get('cf_payment_id')
 
   useEffect(() => {
     if (orderId) {
-      // Fetch order details
-      fetchOrderDetails(orderId)
+      verifyAndFetchOrder(orderId, cfOrderId || undefined)
     } else {
       setLoading(false)
+      setVerificationStatus('failed')
+      setVerificationMessage('No order ID provided')
     }
-  }, [orderId])
+  }, [orderId, cfOrderId])
 
-  const fetchOrderDetails = async (orderId: string) => {
+  const verifyAndFetchOrder = async (orderId: string, cfOrderId?: string, retry = 0) => {
     try {
-      const response = await fetch(`/api/orders/${orderId}`)
-      if (response.ok) {
-        const data = await response.json()
-        setOrderDetails(data.order)
+      console.log('🔍 Verifying payment for order:', orderId)
+      setVerificationMessage('Verifying your payment...')
+
+      // Step 1: Verify payment with our backend
+      const verifyResponse = await fetch('/api/payments/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderId, cfOrderId }),
+      })
+
+      const verifyData = await verifyResponse.json()
+      console.log('📦 Verification response:', verifyData)
+
+      if (verifyData.verified && verifyData.status === 'COMPLETED') {
+        // Payment verified successfully
+        setVerificationStatus('success')
+        setOrderDetails(verifyData.order)
+        setVerificationMessage('Payment verified successfully!')
+        setLoading(false)
+      } else if (verifyData.status === 'PENDING' && retry < 3) {
+        // Payment is still being processed, retry after 2 seconds
+        setVerificationMessage('Payment is being processed, please wait...')
+        setRetryCount(retry + 1)
+        setTimeout(() => {
+          verifyAndFetchOrder(orderId, cfOrderId, retry + 1)
+        }, 2000)
+      } else if (verifyData.status === 'FAILED') {
+        // Payment failed
+        setVerificationStatus('failed')
+        setVerificationMessage(verifyData.message || 'Payment verification failed')
+        setLoading(false)
+        
+        // Redirect to failure page after 2 seconds
+        setTimeout(() => {
+          router.push(`/payment/failure?order_id=${orderId}&error_message=${encodeURIComponent(verifyData.message || 'Payment failed')}`)
+        }, 2000)
+      } else {
+        // Pending but max retries reached
+        setVerificationStatus('pending')
+        setVerificationMessage('Payment is taking longer than expected. We will notify you once confirmed.')
+        setLoading(false)
       }
     } catch (error) {
-      console.error('Error fetching order details:', error)
-    } finally {
-      setLoading(false)
+      console.error('❌ Error verifying payment:', error)
+      
+      if (retry < 3) {
+        // Retry on error
+        setTimeout(() => {
+          verifyAndFetchOrder(orderId, cfOrderId, retry + 1)
+        }, 2000)
+      } else {
+        setVerificationStatus('failed')
+        setVerificationMessage('Failed to verify payment. Please contact support.')
+        setLoading(false)
+      }
     }
   }
 
-  if (loading) {
+  if (loading || verificationStatus === 'verifying') {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
         <div className="container mx-auto px-4 py-8">
           <div className="flex justify-center items-center min-h-[400px]">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading order details...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-800 font-semibold text-lg mb-2">{verificationMessage}</p>
+              {retryCount > 0 && (
+                <p className="text-sm text-gray-500">Attempt {retryCount} of 3</p>
+              )}
             </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
+  // Show failure message if verification failed
+  if (verificationStatus === 'failed') {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto">
+            <Card className="border-red-200 bg-red-50">
+              <CardContent className="p-8 text-center">
+                <CheckCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+                <h1 className="text-3xl font-bold text-red-800 mb-2">
+                  Payment Verification Failed
+                </h1>
+                <p className="text-red-600 text-lg">
+                  {verificationMessage}
+                </p>
+                <p className="text-sm text-gray-600 mt-4">
+                  Redirecting to payment failure page...
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
+  // Show pending message if payment is still processing
+  if (verificationStatus === 'pending') {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto">
+            <Card className="border-yellow-200 bg-yellow-50">
+              <CardContent className="p-8 text-center">
+                <CheckCircle className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
+                <h1 className="text-3xl font-bold text-yellow-800 mb-2">
+                  Payment Processing
+                </h1>
+                <p className="text-yellow-600 text-lg">
+                  {verificationMessage}
+                </p>
+                <div className="mt-6">
+                  <Link href="/orders">
+                    <Button>
+                      <Package className="h-4 w-4 mr-2" />
+                      Check Order Status
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
         <Footer />
