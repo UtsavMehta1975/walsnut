@@ -271,8 +271,17 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
               ) : (
                 <div className="text-center p-8 text-gray-500">
                   <Search className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p>Start typing to search for watches</p>
-                  <p className="text-sm mt-1">Search by brand, model, or description</p>
+                  <p className="font-medium text-gray-700 mb-2">Start typing to search for watches</p>
+                  <p className="text-sm mt-1 mb-6">Search by brand, model, or description</p>
+                  <Button
+                    onClick={() => {
+                      router.push('/watches')
+                      onClose()
+                    }}
+                    className="bg-yellow-400 text-black hover:bg-yellow-500"
+                  >
+                    Browse All Watches
+                  </Button>
                 </div>
               )}
             </div>
