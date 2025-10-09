@@ -36,6 +36,8 @@ function CheckoutContent() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [isLoadingLocation, setIsLoadingLocation] = useState(false)
+  const [addressSuggestions, setAddressSuggestions] = useState<string[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
   
   // Get product details from URL params (for Buy Now)
   const productId = searchParams.get('productId')
@@ -509,76 +511,140 @@ function CheckoutContent() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input
-                    name="firstName"
-                    placeholder="First Name"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    required
-                  />
-                  <Input
-                    name="lastName"
-                    placeholder="Last Name"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    required
-                  />
-                  <Input
-                    name="email"
-                    type="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                  />
-                  <Input
-                    name="phone"
-                    placeholder="Phone Number"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    required
-                  />
-                  <Input
-                    name="address"
-                    placeholder="Street Address / House No."
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    required
-                    className="md:col-span-2"
-                  />
-                  <Input
-                    name="city"
-                    placeholder="City (auto-filled from PIN)"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    required
-                    className="bg-gray-50"
-                  />
-                  <Input
-                    name="state"
-                    placeholder="State (auto-filled from PIN)"
-                    value={formData.state}
-                    onChange={handleInputChange}
-                    required
-                    className="bg-gray-50"
-                  />
-                  <Input
-                    name="zipCode"
-                    placeholder="ZIP Code (check above)"
-                    value={formData.zipCode}
-                    onChange={handleInputChange}
-                    required
-                    maxLength={6}
-                    className="bg-gray-50"
-                  />
-                  <Input
-                    name="country"
-                    placeholder="Country"
-                    value={formData.country}
-                    onChange={handleInputChange}
-                    required
-                  />
+                <div className="space-y-4">
+                  {/* Personal Info */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Input
+                      name="firstName"
+                      placeholder="First Name"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      required
+                    />
+                    <Input
+                      name="lastName"
+                      placeholder="Last Name"
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      required
+                    />
+                    <Input
+                      name="email"
+                      type="email"
+                      placeholder="Email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                    />
+                    <Input
+                      name="phone"
+                      placeholder="Phone Number"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+
+                  {/* Divider */}
+                  <div className="relative my-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="bg-white px-2 text-gray-600 font-semibold">Delivery Address</span>
+                    </div>
+                  </div>
+
+                  {/* Fields will be revealed as PIN code is entered */}
+                  {formData.city && formData.state && formData.zipCode && (
+                    <div className="relative">
+                      <Input
+                        name="address"
+                        placeholder="House No., Building, Street, Landmark"
+                        value={formData.address}
+                        onChange={(e) => {
+                          handleInputChange(e)
+                          // Get address suggestions based on PIN code and partial address
+                          if (e.target.value.length > 3 && formData.zipCode) {
+                            const suggestions = [
+                              `${e.target.value}, Near ${formData.city} Railway Station`,
+                              `${e.target.value}, ${formData.city} Main Road`,
+                              `${e.target.value}, Central ${formData.city}`
+                            ]
+                            setAddressSuggestions(suggestions)
+                            setShowSuggestions(true)
+                          } else {
+                            setShowSuggestions(false)
+                          }
+                        }}
+                        onFocus={() => {
+                          if (formData.address.length > 3) {
+                            setShowSuggestions(true)
+                          }
+                        }}
+                        onBlur={() => {
+                          // Delay to allow click on suggestion
+                          setTimeout(() => setShowSuggestions(false), 200)
+                        }}
+                        required
+                        className="md:col-span-2"
+                      />
+                      {/* Address Suggestions Dropdown */}
+                      {showSuggestions && addressSuggestions.length > 0 && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                          {addressSuggestions.map((suggestion, index) => (
+                            <button
+                              key={index}
+                              type="button"
+                              onClick={() => {
+                                setFormData(prev => ({ ...prev, address: suggestion }))
+                                setShowSuggestions(false)
+                              }}
+                              className="w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0"
+                            >
+                              <div className="flex items-start gap-2">
+                                <MapPin className="w-4 h-4 text-blue-600 mt-1 flex-shrink-0" />
+                                <span className="text-sm text-gray-700">{suggestion}</span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Auto-filled fields */}
+                  {formData.city && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <Input
+                        name="city"
+                        placeholder="City"
+                        value={formData.city}
+                        onChange={handleInputChange}
+                        required
+                        className="bg-green-50 border-green-300 font-semibold"
+                        readOnly
+                      />
+                      <Input
+                        name="state"
+                        placeholder="State"
+                        value={formData.state}
+                        onChange={handleInputChange}
+                        required
+                        className="bg-green-50 border-green-300 font-semibold"
+                        readOnly
+                      />
+                      <Input
+                        name="country"
+                        placeholder="Country"
+                        value={formData.country}
+                        onChange={handleInputChange}
+                        required
+                        className="bg-gray-50"
+                        readOnly
+                      />
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
