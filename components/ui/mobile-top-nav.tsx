@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Home, ShoppingCart, Heart, User, Search } from 'lucide-react'
+import { ArrowLeft, Home, ShoppingCart, Heart, User, Search, Gift } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/store/cart-store'
 import Link from 'next/link'
@@ -191,7 +191,7 @@ export function MobileBottomNav({ activeSection }: BottomNavProps) {
     { id: 'home', icon: Home, label: 'Home', href: '/', isInternal: true },
     { id: 'watches', icon: Search, label: 'Browse', href: '/watches', isInternal: true },
     { id: 'whatsapp', icon: null, label: 'WhatsApp', href: whatsappUrl, isInternal: false, isWhatsApp: true },
-    { id: 'cart', icon: ShoppingCart, label: 'Cart', href: '/cart', badge: cartCount, isInternal: true },
+    { id: 'refer', icon: Gift, label: 'Refer & Earn', href: '/refer-and-earn', isInternal: true },
     { id: 'account', icon: User, label: 'Account', href: '/account', isInternal: true },
   ]
 
