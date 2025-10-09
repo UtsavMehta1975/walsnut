@@ -638,7 +638,6 @@ function CheckoutContent() {
                             required
                             className="bg-green-50 border-green-300 focus:bg-white"
                           />
-                          <p className="text-xs text-gray-500 mt-1">Auto-filled from PIN, you can edit</p>
                         </div>
                         <div>
                           <Input
@@ -649,7 +648,6 @@ function CheckoutContent() {
                             required
                             className="bg-green-50 border-green-300 focus:bg-white"
                           />
-                          <p className="text-xs text-gray-500 mt-1">Auto-filled from PIN, you can edit</p>
                         </div>
                       </div>
                       <Input

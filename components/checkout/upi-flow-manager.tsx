@@ -5,6 +5,7 @@ import { UPIApps } from './upi-apps'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { PhonePeLogo, GooglePayLogo, PaytmLogo, GenericUPILogo } from './upi-app-logos'
 
 interface UPIFlowManagerProps {
   amount: number
@@ -164,12 +165,12 @@ export function UPIFlowManager({ amount, orderDetails }: UPIFlowManagerProps) {
     }
   }
 
-  // Show UPI app buttons with Cashfree integration
+  // Show UPI app buttons with Cashfree integration and REAL logos
   const upiApps = [
-    { id: 'phonepe', name: 'PhonePe', color: 'from-purple-600 to-purple-800', icon: '📱' },
-    { id: 'gpay', name: 'Google Pay', color: 'from-blue-500 to-blue-700', icon: '💳' },
-    { id: 'paytm', name: 'Paytm', color: 'from-cyan-500 to-blue-600', icon: '💰' },
-    { id: 'other', name: 'Other UPI', color: 'from-gray-700 to-gray-900', icon: '📲' }
+    { id: 'phonepe', name: 'PhonePe', color: 'from-purple-600 to-purple-800', Logo: PhonePeLogo },
+    { id: 'gpay', name: 'Google Pay', color: 'from-blue-500 to-blue-700', Logo: GooglePayLogo },
+    { id: 'paytm', name: 'Paytm', color: 'from-cyan-500 to-blue-600', Logo: PaytmLogo },
+    { id: 'other', name: 'Other UPI', color: 'from-gray-700 to-gray-900', Logo: GenericUPILogo }
   ]
 
   return (
@@ -184,27 +185,32 @@ export function UPIFlowManager({ amount, orderDetails }: UPIFlowManagerProps) {
       </div>
 
       <div className="grid grid-cols-2 gap-3 mb-4">
-        {upiApps.map((app) => (
-          <button
-            key={app.id}
-            onClick={() => handleUPIPayment(app.name)}
-            disabled={isProcessing}
-            className={`relative bg-gradient-to-br ${app.color} text-white rounded-xl p-4 shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200 active:scale-95 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            {isProcessing && selectedApp === app.name ? (
-              <div className="flex flex-col items-center justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent mb-2"></div>
-                <div className="text-xs">Opening...</div>
-              </div>
-            ) : (
-              <>
-                <div className="text-3xl mb-2">{app.icon}</div>
-                <div className="text-sm font-bold">{app.name}</div>
-                <div className="text-xs opacity-90 mt-1">Pay via Cashfree</div>
-              </>
-            )}
-          </button>
-        ))}
+        {upiApps.map((app) => {
+          const Logo = app.Logo
+          return (
+            <button
+              key={app.id}
+              onClick={() => handleUPIPayment(app.name)}
+              disabled={isProcessing}
+              className="relative bg-white border-2 border-gray-200 rounded-xl p-4 shadow-md hover:shadow-xl hover:border-yellow-400 transform hover:scale-105 transition-all duration-200 active:scale-95 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isProcessing && selectedApp === app.name ? (
+                <div className="flex flex-col items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent mb-2"></div>
+                  <div className="text-xs text-gray-600">Opening...</div>
+                </div>
+              ) : (
+                <>
+                  <div className="w-16 h-16 mx-auto mb-2">
+                    <Logo />
+                  </div>
+                  <div className="text-sm font-bold text-gray-900">{app.name}</div>
+                  <div className="text-xs text-gray-500 mt-1">Tap to Pay</div>
+                </>
+              )}
+            </button>
+          )
+        })}
       </div>
 
       <div className="mt-4 bg-white rounded-lg p-4 border border-gray-200">

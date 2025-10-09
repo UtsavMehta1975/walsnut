@@ -576,7 +576,6 @@ export default function MobileCheckout() {
                           className="bg-green-50 border-green-300 focus:bg-white"
                           required
                         />
-                        <p className="text-xs text-gray-500 mt-1">Auto-filled, you can edit</p>
                       </div>
                       <div>
                         <Label htmlFor="state">State</Label>
@@ -588,7 +587,6 @@ export default function MobileCheckout() {
                           className="bg-green-50 border-green-300 focus:bg-white"
                           required
                         />
-                        <p className="text-xs text-gray-500 mt-1">Auto-filled, you can edit</p>
                       </div>
                     </div>
                   )}
