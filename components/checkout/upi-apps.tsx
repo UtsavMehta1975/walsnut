@@ -78,87 +78,78 @@ export function UPIApps({ amount, orderDetails, onPaymentInitiated }: UPIAppsPro
     }
   ]
 
-  const handleUPIAppClick = async (app: UPIApp) => {
-    console.log(`🎯 User selected ${app.name} for UPI payment`)
+  // Generate direct UPI payment link to Walnut Store
+  const generateUPILink = (app: UPIApp) => {
+    const merchantVPA = '8755111258@jupiteraxis' // Your UPI ID
+    const merchantName = 'Walnut Store'
+    const transactionNote = `Order ${orderDetails.orderId}`
+    
+    const upiParams = new URLSearchParams({
+      pa: merchantVPA, // Your UPI ID
+      pn: merchantName, // Merchant name
+      am: amount.toFixed(2), // Amount
+      cu: 'INR', // Currency
+      tn: transactionNote, // Transaction note/reference
+      mc: '5311', // Merchant category code (Department Stores)
+    })
+
+    // App-specific deep links
+    const deepLinks: Record<string, string> = {
+      phonepe: `phonepe://pay?${upiParams.toString()}`,
+      gpay: `tez://upi/pay?${upiParams.toString()}`,
+      paytm: `paytmmp://pay?${upiParams.toString()}`,
+      fampay: `fampay://upi/pay?${upiParams.toString()}`,
+      upi: `upi://pay?${upiParams.toString()}` // Generic UPI
+    }
+
+    return deepLinks[app.id] || deepLinks.upi
+  }
+
+  const handleUPIAppClick = (app: UPIApp) => {
+    const upiLink = generateUPILink(app)
+    
+    console.log(`💳 Opening ${app.name} for UPI payment`)
+    console.log(`💰 Amount: ₹${amount.toFixed(2)}`)
+    console.log(`🏪 Merchant: Walnut Store (8755111258@jupiteraxis)`)
+    console.log(`🔗 UPI Link:`, upiLink)
     
     // Call the callback if provided
     onPaymentInitiated?.()
     
-    try {
-      // Create order first via your backend
-      const orderResponse = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customerName: orderDetails.customerName,
-          customerEmail: orderDetails.customerEmail,
-          amount: amount,
-          paymentMethod: 'upi'
-        })
-      })
-
-      if (!orderResponse.ok) {
-        throw new Error('Failed to create order')
-      }
-
-      const orderData = await orderResponse.json()
-      console.log('📦 Order created:', orderData.order.id)
-
-      // Now initiate Cashfree UPI payment with preferred app
-      const paymentResponse = await fetch('/api/payments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId: orderData.order.id,
-          paymentMethod: 'upi',
-          preferredApp: app.id // PhonePe, GPay, Paytm, etc.
-        })
-      })
-
-      if (!paymentResponse.ok) {
-        throw new Error('Failed to initialize payment')
-      }
-
-      const paymentData = await paymentResponse.json()
-      
-      // Initialize Cashfree UPI payment with app preference
-      const cashfree = new (window as any).Cashfree({
-        mode: process.env.NEXT_PUBLIC_CASHFREE_ENV || 'production'
-      })
-      
-      // Cashfree checkout with UPI app preference
-      cashfree.checkout({
-        paymentSessionId: paymentData.paymentSessionId,
-        returnUrl: `${window.location.origin}/payment/success?order_id={order_id}`,
-        redirectTarget: '_self',
-        appearance: {
-          theme: 'light',
-          width: '100%',
-          height: '100%'
-        },
-        // Cashfree will handle opening the specific UPI app
-        paymentMethods: {
-          upi: {
-            preferredApp: app.packageName
-          }
+    // Store payment details in session storage for verification
+    sessionStorage.setItem('pending_upi_payment', JSON.stringify({
+      app: app.name,
+      amount: amount,
+      orderDetails: orderDetails,
+      timestamp: new Date().toISOString()
+    }))
+    
+    // Open the UPI app
+    window.location.href = upiLink
+    
+    // Show instruction toast
+    toast.success(
+      `Opening ${app.name}... Pay ₹${amount.toFixed(2)} to Walnut Store`,
+      {
+        duration: 6000,
+        icon: '💳',
+        style: {
+          background: '#10B981',
+          color: '#fff',
         }
-      })
-
-      toast.success(
-        `Opening ${app.name} via Cashfree...`,
+      }
+    )
+    
+    // After 3 seconds, show return instruction
+    setTimeout(() => {
+      toast(
+        `After completing payment in ${app.name}, return here to confirm`,
         {
-          duration: 3000,
-          icon: '🔐',
+          duration: 5000,
+          icon: '👈',
         }
       )
-      
-    } catch (error) {
-      console.error('🔴 Payment initialization error:', error)
-      toast.error(
-        error instanceof Error ? error.message : 'Payment failed. Please try again.',
-        { duration: 4000 }
-      )
-    }
+    }, 3000)
   }
 
   if (!isMobile) {
