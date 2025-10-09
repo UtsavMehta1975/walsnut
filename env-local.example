@@ -9,6 +9,10 @@ NEXTAUTH_SECRET="your-nextauth-secret-key-here"
 GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="your-google-client-secret"
 
+# UPI Payment (for direct UPI app integration on mobile)
+NEXT_PUBLIC_UPI_ID="yourstore@paytm"
+NEXT_PUBLIC_UPI_MERCHANT_NAME="Walnut Store"
+
 # App
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
