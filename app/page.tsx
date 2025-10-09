@@ -11,12 +11,13 @@ import { AuthenticityBanner } from '@/components/home/authenticity-banner'
 import { WatchAdvisor } from '@/components/home/watch-advisor'
 import { WhyChooseWalnut } from '@/components/home/why-choose-walnut'
 import { Footer } from '@/components/layout/footer'
+import { MobileBottomNav } from '@/components/ui/mobile-top-nav'
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-      <main>
+      <main className="pb-20 lg:pb-0">
         <HeroSection />
         <ShopByBrands />
         <CategorySection />
@@ -27,6 +28,7 @@ export default function HomePage() {
         <WatchAdvisor />
         <WhyChooseWalnut />
       </main>
+      <MobileBottomNav activeSection="home" />
       <Footer />
     </div>
   )
