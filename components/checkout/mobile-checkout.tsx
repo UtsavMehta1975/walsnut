@@ -11,6 +11,8 @@ import { ChevronLeft, ChevronRight, MapPin, CreditCard, Check, Edit, Plus, Home 
 import { useCart } from '@/store/cart-store';
 import { useAuth } from '@/contexts/auth-context';
 import { UPIApps } from '@/components/checkout/upi-apps';
+import { DeliveryCheck } from '@/components/ui/delivery-check';
+import toast from 'react-hot-toast';
 
 interface CartItem {
   id: string;
@@ -428,7 +430,39 @@ export default function MobileCheckout() {
                   <p className="text-xs text-gray-500 text-center mt-2">
                     We'll auto-fill your address using GPS
                   </p>
+                  
+                  <div className="relative my-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div className="relative flex justify-center text-xs">
+                      <span className="bg-white px-2 text-gray-500">or check delivery by PIN code</span>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Delivery Check */}
+                <div className="mb-4">
+                  <DeliveryCheck
+                    variant="checkout"
+                    onPinCodeValidated={(data) => {
+                      // Auto-fill address fields from PIN code
+                      setShippingInfo(prev => ({
+                        ...prev,
+                        deliveryAddress: {
+                          ...prev.deliveryAddress,
+                          zipCode: data.pinCode,
+                          city: data.city,
+                          state: data.state
+                        }
+                      }))
+                      toast.success('📍 City & State auto-filled!', {
+                        duration: 2000
+                      })
+                    }}
+                  />
+                </div>
+
                 {savedAddresses.length > 0 && !showNewAddress && (
                   <div className="space-y-2 mb-4">
                     {savedAddresses.map((address, index) => (
