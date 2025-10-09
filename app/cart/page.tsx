@@ -9,7 +9,7 @@ import { Trash2, ShoppingBag, ArrowLeft, Minus, Plus } from 'lucide-react'
 import { useCart } from '@/store/cart-store'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
-import { MobileTopNav, MobileBottomNav } from '@/components/ui/mobile-top-nav'
+import { MobileBottomNav } from '@/components/ui/mobile-top-nav'
 import { formatPrice } from '@/lib/utils'
 
 export default function CartPage() {
@@ -34,7 +34,6 @@ export default function CartPage() {
     return (
       <div className="min-h-screen bg-white">
         <Navbar />
-        <MobileTopNav title="Shopping Cart" showBack={true} showCart={false} />
         <div className="flex items-center justify-center px-4 py-16 pb-24 lg:pb-16">
           <div className="text-center">
             <ShoppingBag className="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -60,12 +59,6 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-      <MobileTopNav 
-        title="Shopping Cart" 
-        showBack={true} 
-        showCart={false}
-        showWishlist={true}
-      />
       
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
