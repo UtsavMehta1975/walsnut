@@ -165,21 +165,24 @@ export default function MobileCheckout() {
 
   // Get current location and reverse geocode to address
   const useCurrentLocation = async () => {
+    console.log('📍 Requesting current location...');
     setIsLoadingLocation(true);
     
     try {
       // Check if geolocation is supported
       if (!navigator.geolocation) {
-        alert('Location services are not supported by your browser');
+        toast.error('Location services are not supported by your browser');
         setIsLoadingLocation(false);
         return;
       }
+
+      toast('📍 Getting your location...', { duration: 2000 });
 
       // Get current position
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          console.log('📍 Location obtained:', latitude, longitude);
+          console.log('✅ Location obtained:', latitude, longitude);
 
           try {
             // Use OpenStreetMap Nominatim for reverse geocoding (free, no API key needed)
@@ -191,6 +194,8 @@ export default function MobileCheckout() {
                 }
               }
             );
+
+            console.log('📡 Geocoding response status:', response.status);
 
             if (response.ok) {
               const data = await response.json();
@@ -216,43 +221,36 @@ export default function MobileCheckout() {
               }));
 
               // Show success notification
-              import('react-hot-toast').then(({ default: toast }) => {
-                toast.success('📍 Location detected! Please verify and edit if needed', {
-                  duration: 4000
-                });
+              toast.success('📍 Location detected! Please verify and edit if needed', {
+                duration: 4000
               });
             } else {
               throw new Error('Failed to get address from location');
             }
           } catch (geocodeError) {
-            console.error('Geocoding error:', geocodeError);
-            import('react-hot-toast').then(({ default: toast }) => {
-              toast.error('Could not get address from location. Please enter manually.');
-            });
+            console.error('❌ Geocoding error:', geocodeError);
+            toast.error('Could not get address from location. Please enter manually.');
           }
           
           setIsLoadingLocation(false);
         },
         (error) => {
-          console.error('Location error:', error);
+          console.error('❌ Location error:', error);
           let errorMessage = 'Could not get your location';
           
           switch (error.code) {
             case error.PERMISSION_DENIED:
-              errorMessage = 'Location permission denied. Please enable location access.';
+              errorMessage = 'Location permission denied. Please enable location access in your browser settings.';
               break;
             case error.POSITION_UNAVAILABLE:
-              errorMessage = 'Location information is unavailable.';
+              errorMessage = 'Location information is unavailable. Please try again.';
               break;
             case error.TIMEOUT:
-              errorMessage = 'Location request timed out.';
+              errorMessage = 'Location request timed out. Please try again.';
               break;
           }
           
-          import('react-hot-toast').then(({ default: toast }) => {
-            toast.error(errorMessage);
-          });
-          
+          toast.error(errorMessage, { duration: 4000 });
           setIsLoadingLocation(false);
         },
         {
@@ -262,10 +260,8 @@ export default function MobileCheckout() {
         }
       );
     } catch (error) {
-      console.error('Error getting location:', error);
-      import('react-hot-toast').then(({ default: toast }) => {
-        toast.error('Failed to get location');
-      });
+      console.error('❌ Error getting location:', error);
+      toast.error('Failed to get location. Please enter address manually.');
       setIsLoadingLocation(false);
     }
   };
@@ -488,6 +484,36 @@ export default function MobileCheckout() {
                   </div>
                 )}
 
+                {/* Use Current Location Button */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={useCurrentLocation}
+                  disabled={isLoadingLocation}
+                  className="w-full mb-4"
+                >
+                  {isLoadingLocation ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent mr-2"></div>
+                      Getting location...
+                    </>
+                  ) : (
+                    <>
+                      <MapPin className="w-4 h-4 mr-2" />
+                      📍 Use My Current Location
+                    </>
+                  )}
+                </Button>
+
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300"></div>
+                  </div>
+                  <div className="relative flex justify-center text-xs">
+                    <span className="bg-white px-2 text-gray-500">OR ENTER MANUALLY</span>
+                  </div>
+                </div>
+
                 <form onSubmit={handleShippingSubmit} className="space-y-4">
                   {/* Step 1: PIN Code First */}
                   <div>
@@ -507,26 +533,44 @@ export default function MobileCheckout() {
                           // Auto-fetch when 6 digits entered
                           if (value.length === 6) {
                             setIsCheckingPinCode(true)
+                            console.log('🔍 Fetching details for PIN:', value)
+                            
                             try {
                               const response = await fetch(`https://api.postalpincode.in/pincode/${value}`)
+                              console.log('📡 Response status:', response.status)
+                              
+                              if (!response.ok) {
+                                throw new Error('Network response was not ok')
+                              }
+                              
                               const data = await response.json()
+                              console.log('📦 API Response:', data)
                               
                               if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice?.length > 0) {
                                 const postOffice = data[0].PostOffice[0]
                                 const city = postOffice.District || postOffice.Block || ''
                                 const state = postOffice.State || ''
                                 
+                                console.log('✅ Found:', { city, state })
+                                
                                 updateDeliveryAddress('city', city)
                                 updateDeliveryAddress('state', state)
+                                updateDeliveryAddress('country', 'India')
                                 
                                 toast.success(`✅ ${city}, ${state} - Delivery in 2-5 days`, {
                                   duration: 3000
                                 })
                               } else {
-                                toast.error('Invalid PIN code', { duration: 2000 })
+                                console.log('❌ Invalid PIN or no data')
+                                toast.error('Invalid PIN code. Please check and try again.', { 
+                                  duration: 2000 
+                                })
                               }
                             } catch (error) {
-                              console.error('PIN lookup error:', error)
+                              console.error('❌ PIN lookup error:', error)
+                              toast.error('Failed to check PIN code. Please try again.', { 
+                                duration: 2000 
+                              })
                             } finally {
                               setIsCheckingPinCode(false)
                             }
