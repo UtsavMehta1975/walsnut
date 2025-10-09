@@ -484,36 +484,6 @@ export default function MobileCheckout() {
                   </div>
                 )}
 
-                {/* Use Current Location Button */}
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={useCurrentLocation}
-                  disabled={isLoadingLocation}
-                  className="w-full mb-4"
-                >
-                  {isLoadingLocation ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent mr-2"></div>
-                      Getting location...
-                    </>
-                  ) : (
-                    <>
-                      <MapPin className="w-4 h-4 mr-2" />
-                      📍 Use My Current Location
-                    </>
-                  )}
-                </Button>
-
-                <div className="relative my-4">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300"></div>
-                  </div>
-                  <div className="relative flex justify-center text-xs">
-                    <span className="bg-white px-2 text-gray-500">OR ENTER MANUALLY</span>
-                  </div>
-                </div>
-
                 <form onSubmit={handleShippingSubmit} className="space-y-4">
                   {/* Step 1: PIN Code First */}
                   <div>
@@ -593,30 +563,32 @@ export default function MobileCheckout() {
                     </p>
                   </div>
 
-                  {/* Step 2: Auto-filled City & State */}
+                  {/* Step 2: Auto-filled City & State (Editable) */}
                   {shippingInfo.deliveryAddress.zipCode.length === 6 && (
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="city">City (Auto-filled)</Label>
+                        <Label htmlFor="city">City</Label>
                         <Input
                           id="city"
+                          placeholder="City name"
                           value={shippingInfo.deliveryAddress.city}
                           onChange={(e) => updateDeliveryAddress('city', e.target.value)}
-                          className="bg-green-50 border-green-300"
+                          className="bg-green-50 border-green-300 focus:bg-white"
                           required
-                          readOnly={!!shippingInfo.deliveryAddress.city}
                         />
+                        <p className="text-xs text-gray-500 mt-1">Auto-filled, you can edit</p>
                       </div>
                       <div>
-                        <Label htmlFor="state">State (Auto-filled)</Label>
+                        <Label htmlFor="state">State</Label>
                         <Input
                           id="state"
+                          placeholder="State name"
                           value={shippingInfo.deliveryAddress.state}
                           onChange={(e) => updateDeliveryAddress('state', e.target.value)}
-                          className="bg-green-50 border-green-300"
+                          className="bg-green-50 border-green-300 focus:bg-white"
                           required
-                          readOnly={!!shippingInfo.deliveryAddress.state}
                         />
+                        <p className="text-xs text-gray-500 mt-1">Auto-filled, you can edit</p>
                       </div>
                     </div>
                   )}

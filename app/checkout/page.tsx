@@ -625,37 +625,43 @@ function CheckoutContent() {
                     </div>
                   )}
 
-                  {/* Auto-filled fields */}
+                  {/* Auto-filled fields (editable) */}
                   {formData.city && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <Input
-                        name="city"
-                        placeholder="City"
-                        value={formData.city}
-                        onChange={handleInputChange}
-                        required
-                        className="bg-green-50 border-green-300 font-semibold"
-                        readOnly
-                      />
-                      <Input
-                        name="state"
-                        placeholder="State"
-                        value={formData.state}
-                        onChange={handleInputChange}
-                        required
-                        className="bg-green-50 border-green-300 font-semibold"
-                        readOnly
-                      />
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Input
+                            name="city"
+                            placeholder="City"
+                            value={formData.city}
+                            onChange={handleInputChange}
+                            required
+                            className="bg-green-50 border-green-300 focus:bg-white"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">Auto-filled from PIN, you can edit</p>
+                        </div>
+                        <div>
+                          <Input
+                            name="state"
+                            placeholder="State"
+                            value={formData.state}
+                            onChange={handleInputChange}
+                            required
+                            className="bg-green-50 border-green-300 focus:bg-white"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">Auto-filled from PIN, you can edit</p>
+                        </div>
+                      </div>
                       <Input
                         name="country"
                         placeholder="Country"
                         value={formData.country}
                         onChange={handleInputChange}
                         required
-                        className="bg-gray-50"
+                        className="bg-gray-100"
                         readOnly
                       />
-                    </div>
+                    </>
                   )}
                 </div>
               </CardContent>

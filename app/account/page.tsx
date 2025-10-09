@@ -29,6 +29,8 @@ interface Order {
 export default function AccountPage() {
   const { user, isAuthenticated } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
+  const [recentOrders, setRecentOrders] = useState<Order[]>([])
+  const [isLoadingOrders, setIsLoadingOrders] = useState(true)
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -48,8 +50,52 @@ export default function AccountPage() {
     }
   }, [user])
 
-  // Mock order data
-  const recentOrders: Order[] = []
+  // Fetch user's orders
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (!user?.id) {
+        setIsLoadingOrders(false)
+        return
+      }
+
+      try {
+        console.log('📦 Fetching orders for user:', user.id)
+        const response = await fetch('/api/orders')
+        
+        if (response.ok) {
+          const data = await response.json()
+          console.log('✅ Orders fetched:', data.orders?.length || 0)
+          
+          // Map API response to Order interface
+          const orders: Order[] = (data.orders || []).map((order: any) => ({
+            id: order.id,
+            orderNumber: `#${order.id.slice(0, 8).toUpperCase()}`,
+            date: new Date(order.createdAt),
+            status: order.status || 'PENDING',
+            total: Number(order.totalAmount),
+            items: (order.orderItems || []).map((item: any) => ({
+              brand: item.product?.brand || 'Product',
+              model: item.product?.model || '',
+              quantity: item.quantity,
+              price: Number(item.price)
+            }))
+          }))
+          
+          setRecentOrders(orders)
+        } else {
+          console.error('Failed to fetch orders:', response.status)
+        }
+      } catch (error) {
+        console.error('Error fetching orders:', error)
+      } finally {
+        setIsLoadingOrders(false)
+      }
+    }
+
+    if (isAuthenticated) {
+      fetchOrders()
+    }
+  }, [user?.id, isAuthenticated])
 
   const handleSave = () => {
     setIsEditing(false)
@@ -265,10 +311,21 @@ export default function AccountPage() {
                 <CardTitle className="text-xl">Recent Orders</CardTitle>
               </CardHeader>
               <CardContent>
-                {recentOrders.length === 0 ? (
+                {isLoadingOrders ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-2 border-yellow-400 border-t-transparent mx-auto mb-3"></div>
+                    <p className="text-gray-600">Loading your orders...</p>
+                  </div>
+                ) : recentOrders.length === 0 ? (
                   <div className="text-center py-8">
                     <p className="text-gray-600 mb-4">No orders yet</p>
-                    <Button variant="luxury">Start Shopping</Button>
+                    <p className="text-sm text-gray-500 mb-4">Start exploring our collection!</p>
+                    <Button 
+                      onClick={() => window.location.href = '/watches'}
+                      className="bg-yellow-400 text-black hover:bg-yellow-500"
+                    >
+                      Start Shopping
+                    </Button>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -306,10 +363,22 @@ export default function AccountPage() {
                           ))}
                         </div>
                         
-                        <div className="mt-3 pt-3 border-t border-gray-200">
-                          <Button variant="outline" size="sm">
+                        <div className="mt-3 pt-3 border-t border-gray-200 flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => window.location.href = `/orders`}
+                          >
                             View Details
                           </Button>
+                          {order.status === 'CONFIRMED' && (
+                            <Button 
+                              size="sm"
+                              className="bg-blue-600 text-white hover:bg-blue-700"
+                            >
+                              Track Order
+                            </Button>
+                          )}
                         </div>
                       </div>
                     ))}
