@@ -56,6 +56,7 @@ export default function MobileCheckout() {
   const [savedAddresses, setSavedAddresses] = useState<DeliveryAddress[]>([]);
   const [showNewAddress, setShowNewAddress] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [isCheckingPinCode, setIsCheckingPinCode] = useState(false);
   
   // Pre-fill user information from account
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
@@ -488,56 +489,119 @@ export default function MobileCheckout() {
                 )}
 
                 <form onSubmit={handleShippingSubmit} className="space-y-4">
+                  {/* Step 1: PIN Code First */}
                   <div>
-                    <Label htmlFor="address">Street Address</Label>
-                    <Input
-                      id="address"
-                      value={shippingInfo.deliveryAddress.address}
-                      onChange={(e) => updateDeliveryAddress('address', e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="city">City</Label>
-                      <Input
-                        id="city"
-                        value={shippingInfo.deliveryAddress.city}
-                        onChange={(e) => updateDeliveryAddress('city', e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="state">State</Label>
-                      <Input
-                        id="state"
-                        value={shippingInfo.deliveryAddress.state}
-                        onChange={(e) => updateDeliveryAddress('state', e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="zipCode">ZIP Code</Label>
+                    <Label htmlFor="zipCode" className="text-base font-semibold">
+                      📍 Step 1: Enter Your PIN Code
+                    </Label>
+                    <div className="relative">
                       <Input
                         id="zipCode"
+                        type="text"
+                        placeholder="Enter 6-digit PIN code"
                         value={shippingInfo.deliveryAddress.zipCode}
-                        onChange={(e) => updateDeliveryAddress('zipCode', e.target.value)}
+                        onChange={async (e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 6)
+                          updateDeliveryAddress('zipCode', value)
+                          
+                          // Auto-fetch when 6 digits entered
+                          if (value.length === 6) {
+                            setIsCheckingPinCode(true)
+                            try {
+                              const response = await fetch(`https://api.postalpincode.in/pincode/${value}`)
+                              const data = await response.json()
+                              
+                              if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice?.length > 0) {
+                                const postOffice = data[0].PostOffice[0]
+                                const city = postOffice.District || postOffice.Block || ''
+                                const state = postOffice.State || ''
+                                
+                                updateDeliveryAddress('city', city)
+                                updateDeliveryAddress('state', state)
+                                
+                                toast.success(`✅ ${city}, ${state} - Delivery in 2-5 days`, {
+                                  duration: 3000
+                                })
+                              } else {
+                                toast.error('Invalid PIN code', { duration: 2000 })
+                              }
+                            } catch (error) {
+                              console.error('PIN lookup error:', error)
+                            } finally {
+                              setIsCheckingPinCode(false)
+                            }
+                          }
+                        }}
+                        className="text-center text-lg font-mono mt-2 pr-10"
+                        maxLength={6}
                         required
                       />
+                      {isCheckingPinCode && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-t-transparent"></div>
+                        </div>
+                      )}
                     </div>
+                    <p className="text-xs text-gray-500 mt-1 text-center">
+                      {shippingInfo.deliveryAddress.zipCode.length === 6 && shippingInfo.deliveryAddress.city 
+                        ? '✅ City & State auto-filled!'
+                        : 'We'll auto-fill your city and state'}
+                    </p>
+                  </div>
+
+                  {/* Step 2: Auto-filled City & State */}
+                  {shippingInfo.deliveryAddress.zipCode.length === 6 && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="city">City (Auto-filled)</Label>
+                        <Input
+                          id="city"
+                          value={shippingInfo.deliveryAddress.city}
+                          onChange={(e) => updateDeliveryAddress('city', e.target.value)}
+                          className="bg-green-50 border-green-300"
+                          required
+                          readOnly={!!shippingInfo.deliveryAddress.city}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="state">State (Auto-filled)</Label>
+                        <Input
+                          id="state"
+                          value={shippingInfo.deliveryAddress.state}
+                          onChange={(e) => updateDeliveryAddress('state', e.target.value)}
+                          className="bg-green-50 border-green-300"
+                          required
+                          readOnly={!!shippingInfo.deliveryAddress.state}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Step 3: Street Address (only after PIN code) */}
+                  {shippingInfo.deliveryAddress.city && (
                     <div>
-                      <Label htmlFor="country">Country</Label>
+                      <Label htmlFor="address" className="text-base font-semibold">
+                        🏠 Step 2: Enter Your Street Address
+                      </Label>
                       <Input
-                        id="country"
-                        value={shippingInfo.deliveryAddress.country}
-                        onChange={(e) => updateDeliveryAddress('country', e.target.value)}
+                        id="address"
+                        placeholder="House no., Building name, Street"
+                        value={shippingInfo.deliveryAddress.address}
+                        onChange={(e) => updateDeliveryAddress('address', e.target.value)}
+                        className="mt-2"
                         required
                       />
+                      <p className="text-xs text-gray-500 mt-1">
+                        e.g., "123, Apartment Name, Street Name"
+                      </p>
                     </div>
+                  )}
+                  
+                  <div className="hidden">
+                    <Input
+                      value={shippingInfo.deliveryAddress.country}
+                      onChange={(e) => updateDeliveryAddress('country', e.target.value)}
+                    />
                   </div>
                   
                   <Button type="submit" className="w-full">
