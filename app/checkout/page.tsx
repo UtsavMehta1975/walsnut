@@ -90,7 +90,19 @@ function CheckoutContent() {
   // Check if mobile device
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
+      const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+      const isSmallScreen = window.innerWidth < 768
+      const result = isMobileDevice || isSmallScreen
+      
+      console.log('📱 Mobile detection (checkout):', {
+        userAgent: navigator.userAgent,
+        isMobileDevice,
+        isSmallScreen,
+        screenWidth: window.innerWidth,
+        isMobile: result
+      })
+      
+      setIsMobile(result)
     }
     
     checkMobile()
@@ -686,9 +698,15 @@ function CheckoutContent() {
                 </div>
 
                 {/* UPI Payment Flow */}
+                {console.log('🔍 UPI button check:', { 
+                  paymentMethod, 
+                  isUPI: paymentMethod === 'upi',
+                  isMobile,
+                  willShow: paymentMethod === 'upi'
+                })}
                 {paymentMethod === 'upi' && (
                   <div className="mt-4">
-                    {console.log('🎯 Rendering UPI Flow Manager:', { paymentMethod, isMobile, amount })}
+                    {console.log('🎯 Rendering UPI Flow Manager:', { paymentMethod, isMobile, amount, total })}
                     <UPIFlowManager
                       amount={total}
                       orderDetails={{
@@ -699,7 +717,7 @@ function CheckoutContent() {
                     />
                     {!isMobile && (
                       <p className="text-xs text-gray-500 mt-2 text-center">
-                        💡 UPI works best on mobile. For desktop, use Card or Net Banking.
+                        💡 Testing UPI on desktop. Works best on mobile devices.
                       </p>
                     )}
                   </div>
