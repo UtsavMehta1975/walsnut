@@ -108,9 +108,9 @@ export function Navbar() {
               </Link>
             </div>
 
-            {/* Center: TheWalnutStore.in Text */}
+            {/* Center: TheWalnutStore Text */}
             <div className="flex-1 flex justify-center">
-              <h1 className="text-2xl font-abril font-bold text-black">TheWalnutStore.in</h1>
+              <h1 className="text-2xl font-abril font-bold text-black">TheWalnutStore</h1>
             </div>
 
             {/* Right side: Search + Cart */}
