@@ -62,52 +62,48 @@ export function UPIFlowManager({ amount, orderDetails }: UPIFlowManagerProps) {
       const upiData = await upiResponse.json()
       console.log('✅ UPI payment initialized:', upiData)
       
-      // If UPI link is available, open it directly
-      if (upiData.upiLink) {
-        console.log('🔗 Opening UPI intent link (Cashfree verified merchant)')
-        window.location.href = upiData.upiLink
-        
-        toast.success(`Opening ${appName} via verified payment gateway...`, {
-          duration: 6000,
-          icon: '✅'
-        })
-      } else if (upiData.paymentSessionId) {
-        // Fallback to Cashfree checkout
-        console.log('📱 Loading Cashfree payment page')
-        
-        // Load Cashfree SDK
-        const loadCashfreeSDK = () => {
-          return new Promise<void>((resolve, reject) => {
-            if ((window as any).Cashfree) {
-              resolve()
-              return
-            }
-            
-            const script = document.createElement('script')
-            script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js'
-            script.onload = () => resolve()
-            script.onerror = () => reject(new Error('Failed to load Cashfree SDK'))
-            document.head.appendChild(script)
-          })
-        }
-        
-        await loadCashfreeSDK()
-        
-        const cashfree = new (window as any).Cashfree({
-          mode: 'production'
-        })
-        
-        // Use Cashfree's payment page (verified merchant)
-        cashfree.checkout({
-          paymentSessionId: upiData.paymentSessionId,
-          returnUrl: `${window.location.origin}/payment/success?order_id=${upiData.orderId}`,
-        })
-        
-        toast.success('Opening secure payment page...', {
-          duration: 4000,
-          icon: '💳'
+      if (!upiData.paymentSessionId) {
+        throw new Error('Payment session not created')
+      }
+      
+      // Always use Cashfree's payment page (NO RISK WARNINGS!)
+      console.log('📱 Opening Cashfree payment page with UPI')
+      
+      // Load Cashfree SDK
+      const loadCashfreeSDK = () => {
+        return new Promise<void>((resolve, reject) => {
+          if ((window as any).Cashfree) {
+            resolve()
+            return
+          }
+          
+          const script = document.createElement('script')
+          script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js'
+          script.onload = () => resolve()
+          script.onerror = () => reject(new Error('Failed to load Cashfree SDK'))
+          document.head.appendChild(script)
         })
       }
+      
+      await loadCashfreeSDK()
+      console.log('✅ Cashfree SDK loaded')
+      
+      const cashfree = new (window as any).Cashfree({
+        mode: 'production'
+      })
+      
+      // Open Cashfree's verified payment page
+      cashfree.checkout({
+        paymentSessionId: upiData.paymentSessionId,
+        returnUrl: `${window.location.origin}/payment/success?order_id=${upiData.orderId}`,
+      })
+      
+      console.log('✅ Cashfree payment page opened')
+      
+      toast.success('Opening secure Cashfree payment page...', {
+        duration: 5000,
+        icon: '🔒'
+      })
       
     } catch (error: any) {
       console.error('❌ UPI payment error:', error)
@@ -130,10 +126,10 @@ export function UPIFlowManager({ amount, orderDetails }: UPIFlowManagerProps) {
     <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6 border-2 border-blue-200">
       <div className="mb-4">
         <h3 className="text-lg font-bold text-gray-900 mb-1">
-          ⚡ Pay with UPI (via Cashfree)
+          🔒 Pay with UPI - Cashfree Gateway
         </h3>
         <p className="text-sm text-gray-600">
-          Secure payment through verified payment gateway
+          Opens secure payment page • No risk warnings • Choose your UPI app
         </p>
       </div>
 
@@ -154,7 +150,7 @@ export function UPIFlowManager({ amount, orderDetails }: UPIFlowManagerProps) {
               <>
                 <div className="text-3xl mb-2">{app.icon}</div>
                 <div className="text-sm font-bold">{app.name}</div>
-                <div className="text-xs opacity-90 mt-1">Tap to Pay</div>
+                <div className="text-xs opacity-90 mt-1">Pay via Cashfree</div>
               </>
             )}
           </button>
@@ -174,11 +170,11 @@ export function UPIFlowManager({ amount, orderDetails }: UPIFlowManagerProps) {
         <div className="flex items-center justify-center gap-2 mb-1">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           <p className="text-xs text-green-800 font-bold">
-            ✅ VERIFIED MERCHANT PAYMENT
+            ✅ SECURE PAYMENT PAGE • NO RISK WARNINGS
           </p>
         </div>
         <p className="text-xs text-gray-600 text-center">
-          Powered by Cashfree • No Risk Warnings • 100% Secure
+          RBI Authorized Gateway • Verified Merchant • PCI DSS Certified
         </p>
       </div>
     </div>
