@@ -1,74 +1,103 @@
-// Realistic UPI App Logos matching official brand designs
+// Official-looking UPI App Logos matching real brand designs
 
 export const PhonePeLogo = () => (
-  <svg viewBox="0 0 64 64" className="w-full h-full">
+  <svg viewBox="0 0 120 120" className="w-full h-full">
     <defs>
-      <linearGradient id="phonePeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <linearGradient id="phonePeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
         <stop offset="0%" stopColor="#5F259F"/>
-        <stop offset="100%" stopColor="#3E1B6B"/>
+        <stop offset="100%" stopColor="#3C1A66"/>
       </linearGradient>
     </defs>
-    <rect width="64" height="64" rx="12" fill="url(#phonePeGrad)"/>
-    <circle cx="32" cy="26" r="10" fill="white" opacity="0.2"/>
-    <path d="M32 20 L32 32 L38 26 Z" fill="white"/>
-    <text x="32" y="48" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold" fontFamily="system-ui">
+    {/* Background */}
+    <rect width="120" height="120" rx="24" fill="url(#phonePeGrad)"/>
+    
+    {/* PhonePe iconic arrow/play symbol */}
+    <g transform="translate(60, 40)">
+      <path d="M -20 -15 L 20 0 L -20 15 L -20 10 L 10 0 L -20 -10 Z" fill="white"/>
+    </g>
+    
+    {/* PhonePe text */}
+    <text x="60" y="85" textAnchor="middle" fill="white" fontSize="18" fontWeight="700" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="0.5">
       PhonePe
     </text>
   </svg>
 )
 
 export const GooglePayLogo = () => (
-  <svg viewBox="0 0 64 64" className="w-full h-full">
-    <rect width="64" height="64" rx="12" fill="white"/>
-    <g transform="translate(16, 16)">
-      <path d="M16 8v12h11.5c-.5 2.8-3.4 8.1-11.5 8.1C8.5 28.1 2 21.6 2 14S8.5 0 16 0c4 0 6.7 1.7 8.2 3.2l5.1-4.9C26.3 -4 21.4-6 16-6c-10.6 0-19.3 8.6-19.3 19.3S5.4 32.6 16 32.6c11.1 0 18.5-7.8 18.5-18.8 0-1.3-.1-2.2-.3-3.1H16z" fill="#4285F4"/>
-      <path d="M0 14.5c0 3.7 1.4 7.1 3.6 9.7l5.1-4.2c-1.4-1.4-2.3-3.4-2.3-5.5 0-2.1.8-4.1 2.3-5.5L3.6 4.8C1.4 7.4 0 10.8 0 14.5z" fill="#34A853"/>
-      <path d="M16 6.4c2 0 3.7.7 5.1 2.1l3.8-3.8C22.3 2.1 19.4.6 16 .6 10.1.6 5 4 2.6 9l5.1 4.2C9.2 9.4 12.3 6.4 16 6.4z" fill="#FBBC04"/>
-      <path d="M16 28.1c3.4 0 6.3-1.1 8.4-3l-4.1-3.4c-1.1.7-2.5 1.2-4.3 1.2-3.3 0-6.1-2.2-7.1-5.2l-5.1 4.2C5.8 26.1 10.6 28.1 16 28.1z" fill="#EA4335"/>
+  <svg viewBox="0 0 120 120" className="w-full h-full">
+    {/* White background */}
+    <rect width="120" height="120" rx="24" fill="white"/>
+    <rect width="120" height="120" rx="24" fill="none" stroke="#E8EAED" strokeWidth="1"/>
+    
+    {/* Google G logo - official colors */}
+    <g transform="translate(60, 35)">
+      {/* Blue */}
+      <path d="M 20 0 L 20 8 L 14 8 C 14 16 8 22 0 22 C -8 22 -14 16 -14 8 C -14 0 -8 -6 0 -6 C 4 -6 7 -5 9 -3 L 4 2 C 3 1 1 0 0 0 C -4 0 -7 3 -7 8 C -7 12 -4 15 0 15 C 5 15 7 11 7 8 L 7 6 L 0 6 L 0 0 L 20 0 Z" fill="#4285F4"/>
     </g>
+    
+    {/* GPay text */}
+    <g transform="translate(30, 75)">
+      <text x="0" y="0" fill="#3C4043" fontSize="22" fontWeight="500" fontFamily="Google Sans, system-ui, sans-serif">
+        <tspan fill="#4285F4">G</tspan>
+        <tspan fill="#0F9D58">o</tspan>
+        <tspan fill="#F4B400">o</tspan>
+        <tspan fill="#DB4437">g</tspan>
+        <tspan fill="#4285F4">l</tspan>
+        <tspan fill="#0F9D58">e</tspan>
+      </text>
+    </g>
+    <text x="60" y="97" textAnchor="middle" fill="#5F6368" fontSize="18" fontWeight="500" fontFamily="system-ui, sans-serif">
+      Pay
+    </text>
   </svg>
 )
 
 export const PaytmLogo = () => (
-  <svg viewBox="0 0 64 64" className="w-full h-full">
+  <svg viewBox="0 0 120 120" className="w-full h-full">
     <defs>
-      <linearGradient id="paytmGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <linearGradient id="paytmGrad" x1="0%" y1="0%" x2="0%" y2="100%">
         <stop offset="0%" stopColor="#00BAF2"/>
-        <stop offset="50%" stopColor="#0099D8"/>
-        <stop offset="100%" stopColor="#0082CA"/>
+        <stop offset="100%" stopColor="#0084C7"/>
       </linearGradient>
     </defs>
-    <rect width="64" height="64" rx="12" fill="url(#paytmGrad)"/>
-    <g transform="translate(8, 18)">
-      <rect x="0" y="0" width="4" height="20" rx="2" fill="white"/>
-      <rect x="6" y="4" width="4" height="16" rx="2" fill="white"/>
-      <rect x="12" y="0" width="4" height="20" rx="2" fill="white"/>
-      <rect x="18" y="8" width="4" height="12" rx="2" fill="white"/>
-      <rect x="24" y="0" width="4" height="20" rx="2" fill="white"/>
-      <rect x="30" y="4" width="4" height="16" rx="2" fill="white"/>
-      <rect x="36" y="8" width="4" height="12" rx="2" fill="white"/>
-      <rect x="42" y="0" width="4" height="20" rx="2" fill="white"/>
+    {/* Background */}
+    <rect width="120" height="120" rx="24" fill="url(#paytmGrad)"/>
+    
+    {/* Paytm logo mark - simplified P */}
+    <g transform="translate(60, 45)">
+      <circle cx="0" cy="0" r="18" fill="white" opacity="0.95"/>
+      <path d="M -5 -12 L -5 12 L 3 12 L 3 2 L 8 2 C 12 2 15 -1 15 -5 C 15 -9 12 -12 8 -12 Z M 3 -6 L 3 -2 L 7 -2 C 8.5 -2 10 -3.5 10 -5 C 10 -6.5 8.5 -6 7 -6 Z" fill="#00BAF2"/>
     </g>
-    <text x="32" y="54" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold" fontFamily="system-ui" letterSpacing="1">
-      PAYTM
+    
+    {/* Paytm text */}
+    <text x="60" y="90" textAnchor="middle" fill="white" fontSize="20" fontWeight="700" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="1">
+      Paytm
     </text>
   </svg>
 )
 
 export const GenericUPILogo = () => (
-  <svg viewBox="0 0 64 64" className="w-full h-full">
+  <svg viewBox="0 0 120 120" className="w-full h-full">
     <defs>
       <linearGradient id="upiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#FF6B35"/>
-        <stop offset="100%" stopColor="#F7931E"/>
+        <stop offset="0%" stopColor="#097939"/>
+        <stop offset="100%" stopColor="#006428"/>
       </linearGradient>
     </defs>
-    <rect width="64" height="64" rx="12" fill="url(#upiGrad)"/>
-    <text x="32" y="28" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold" fontFamily="system-ui">
-      UPI
-    </text>
-    <text x="32" y="44" textAnchor="middle" fill="white" fontSize="8" fontFamily="system-ui" opacity="0.9">
-      All Apps
+    {/* Background - UPI official green */}
+    <rect width="120" height="120" rx="24" fill="url(#upiGrad)"/>
+    
+    {/* UPI logo elements */}
+    <g transform="translate(60, 50)">
+      <circle cx="0" cy="0" r="22" fill="white" opacity="0.2"/>
+      <text x="0" y="10" textAnchor="middle" fill="white" fontSize="28" fontWeight="700" fontFamily="system-ui, sans-serif">
+        UPI
+      </text>
+    </g>
+    
+    {/* Subtitle */}
+    <text x="60" y="95" textAnchor="middle" fill="white" fontSize="12" fontFamily="system-ui, sans-serif" opacity="0.95">
+      All UPI Apps
     </text>
   </svg>
 )
