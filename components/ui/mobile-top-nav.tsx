@@ -188,11 +188,11 @@ export function MobileBottomNav({ activeSection }: BottomNavProps) {
   const whatsappUrl = `https://wa.me/${phoneNumber.replace(/\D/g, '')}`
 
   const navItems = [
-    { id: 'home', icon: Home, label: 'Home', href: '/', isInternal: true },
-    { id: 'watches', icon: Search, label: 'Browse', href: '/watches', isInternal: true },
-    { id: 'whatsapp', icon: null, label: 'WhatsApp', href: whatsappUrl, isInternal: false, isWhatsApp: true },
-    { id: 'refer', icon: Gift, label: 'Refer & Earn', href: '/refer-and-earn', isInternal: true },
-    { id: 'account', icon: User, label: 'Account', href: '/account', isInternal: true },
+    { id: 'home', icon: Home, label: 'Home', href: '/', isInternal: true, badge: undefined },
+    { id: 'watches', icon: Search, label: 'Browse', href: '/watches', isInternal: true, badge: undefined },
+    { id: 'whatsapp', icon: null, label: 'WhatsApp', href: whatsappUrl, isInternal: false, isWhatsApp: true, badge: undefined },
+    { id: 'refer', icon: Gift, label: 'Refer & Earn', href: '/refer-and-earn', isInternal: true, badge: undefined },
+    { id: 'account', icon: User, label: 'Account', href: '/account', isInternal: true, badge: undefined },
   ]
 
   return (
