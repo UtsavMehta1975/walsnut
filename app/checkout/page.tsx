@@ -18,6 +18,7 @@ import { trackInitiateCheckout, trackPurchase } from '@/components/analytics/met
 import MobileCheckout from '@/components/checkout/mobile-checkout'
 import { UPIApps } from '@/components/checkout/upi-apps'
 import { DeliveryCheck } from '@/components/ui/delivery-check'
+import { MobileTopNav, StepProgress } from '@/components/ui/mobile-top-nav'
 
 interface CartItem {
   id: string
@@ -376,8 +377,22 @@ function CheckoutContent() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      {/* Mobile Top Navigation */}
+      <MobileTopNav 
+        title="Checkout" 
+        showBack={true}
+        customBackUrl={isBuyNow ? "/watches" : "/cart"}
+        showCart={false}
+      />
+
+      {/* Step Progress - Mobile Only */}
+      <StepProgress 
+        steps={['Address', 'Payment', 'Review']}
+        currentStep={1}
+      />
+      
+      {/* Header - Hide on Mobile */}
+      <div className="hidden lg:block bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center space-x-4">
             <Link href={isBuyNow ? "/watches" : "/cart"} className="text-gray-600 hover:text-gray-900">
