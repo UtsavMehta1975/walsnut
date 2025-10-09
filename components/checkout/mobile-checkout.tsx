@@ -58,6 +58,14 @@ export default function MobileCheckout() {
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [isCheckingPinCode, setIsCheckingPinCode] = useState(false);
   
+  // Debug logging for UPI
+  useEffect(() => {
+    if (paymentInfo.paymentMethod === 'upi') {
+      console.log('🎯 Mobile checkout - UPI selected, rendering Cashfree flow')
+      console.log('💰 Total amount:', total)
+    }
+  }, [paymentInfo.paymentMethod, total]);
+  
   // Pre-fill user information from account
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     firstName: user?.name?.split(' ')[0] || '',
@@ -758,7 +766,6 @@ export default function MobileCheckout() {
                 
                 {paymentInfo.paymentMethod === 'upi' && (
                   <div className="mt-4">
-                    {console.log('🎯 Mobile checkout - Rendering Cashfree UPI Flow')}
                     <UPIFlowManager
                       amount={total}
                       orderDetails={{

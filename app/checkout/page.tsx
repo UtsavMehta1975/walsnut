@@ -39,6 +39,17 @@ function CheckoutContent() {
   const [addressSuggestions, setAddressSuggestions] = useState<string[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   
+  // Debug logging for UPI
+  useEffect(() => {
+    console.log('🔍 Payment method changed:', paymentMethod)
+    if (paymentMethod === 'upi') {
+      console.log('🎯 UPI selected - will render UPIFlowManager with:', { 
+        amount: total, 
+        isMobile 
+      })
+    }
+  }, [paymentMethod, total, isMobile])
+  
   // Get product details from URL params (for Buy Now)
   const productId = searchParams.get('productId')
   const brand = searchParams.get('brand')
@@ -698,15 +709,8 @@ function CheckoutContent() {
                 </div>
 
                 {/* UPI Payment Flow */}
-                {console.log('🔍 UPI button check:', { 
-                  paymentMethod, 
-                  isUPI: paymentMethod === 'upi',
-                  isMobile,
-                  willShow: paymentMethod === 'upi'
-                })}
                 {paymentMethod === 'upi' && (
                   <div className="mt-4">
-                    {console.log('🎯 Rendering UPI Flow Manager:', { paymentMethod, isMobile, amount, total })}
                     <UPIFlowManager
                       amount={total}
                       orderDetails={{
