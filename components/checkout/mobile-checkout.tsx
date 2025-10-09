@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -57,14 +57,6 @@ export default function MobileCheckout() {
   const [showNewAddress, setShowNewAddress] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [isCheckingPinCode, setIsCheckingPinCode] = useState(false);
-  
-  // Debug logging for UPI
-  useEffect(() => {
-    if (paymentInfo.paymentMethod === 'upi') {
-      console.log('🎯 Mobile checkout - UPI selected, rendering Cashfree flow')
-      console.log('💰 Total amount:', total)
-    }
-  }, [paymentInfo.paymentMethod, total]);
   
   // Pre-fill user information from account
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
