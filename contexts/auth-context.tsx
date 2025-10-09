@@ -56,20 +56,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
     
-    // If no localStorage data, check our session API
-    fetch('/api/session')
-      .then(res => res.json())
-      .then(data => {
-        if (data.user) {
-          setUser(data.user)
-          saveUserSession(data.user)
+    // Check both NextAuth session and custom session API
+    const checkSessions = async () => {
+      try {
+        // First check NextAuth session (for Google OAuth)
+        const nextAuthRes = await fetch('/api/auth/session')
+        if (nextAuthRes.ok) {
+          const nextAuthData = await nextAuthRes.json()
+          if (nextAuthData?.user?.email) {
+            console.log('✅ User loaded from NextAuth session:', nextAuthData.user.email)
+            setUser(nextAuthData.user)
+            saveUserSession(nextAuthData.user)
+            setIsLoading(false)
+            return
+          }
         }
+        
+        // If no NextAuth session, check custom session API
+        const customRes = await fetch('/api/session')
+        if (customRes.ok) {
+          const customData = await customRes.json()
+          if (customData?.user) {
+            console.log('✅ User loaded from custom session:', customData.user.email)
+            setUser(customData.user)
+            saveUserSession(customData.user)
+          }
+        }
+        
         setIsLoading(false)
-      })
-      .catch(error => {
-        console.error('Session API error:', error)
+      } catch (error) {
+        console.error('Session check error:', error)
         setIsLoading(false)
-      })
+      }
+    }
+    
+    checkSessions()
   }, [mounted])
 
   const login = async (email: string, password: string): Promise<{ success: boolean; user?: User }> => {
@@ -152,10 +173,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       setIsLoading(false)
       
-      // Clear session data (no NextAuth signOut needed)
-      
       // Clear session data
       clearUserSession()
+      
+      // Also sign out from NextAuth (for Google OAuth sessions)
+      try {
+        const { signOut } = await import('next-auth/react')
+        await signOut({ redirect: false })
+        console.log('✅ NextAuth signOut successful')
+      } catch (nextAuthError) {
+        console.warn('NextAuth signOut skipped:', nextAuthError)
+      }
       
       console.log('✅ Auth context - Logout successful')
       
@@ -173,7 +201,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
     } catch (error) {
       console.error('❌ Auth context - Logout error:', error)
-      // Even if NextAuth logout fails, clear local state and redirect
+      // Even if logout fails, clear local state and redirect
       setUser(null)
       setIsLoading(false)
       
