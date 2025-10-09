@@ -48,11 +48,11 @@ export function DeliveryCheck({ onPinCodeValidated, variant = 'product', classNa
     try {
       console.log('🔍 Checking PIN code:', pinCode)
       
-      // Fetch PIN code details from India Post API with timeout
+      // Fetch PIN code details from our backend API (no CORS issues)
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
       
-      const response = await fetch(`https://api.postalpincode.in/pincode/${pinCode}`, {
+      const response = await fetch(`/api/pincode/${pinCode}`, {
         method: 'GET',
         signal: controller.signal,
         headers: {

@@ -536,7 +536,7 @@ export default function MobileCheckout() {
                             console.log('🔍 Fetching details for PIN:', value)
                             
                             try {
-                              const response = await fetch(`https://api.postalpincode.in/pincode/${value}`)
+                              const response = await fetch(`/api/pincode/${value}`)
                               console.log('📡 Response status:', response.status)
                               
                               if (!response.ok) {
