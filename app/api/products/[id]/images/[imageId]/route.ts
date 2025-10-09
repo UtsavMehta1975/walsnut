@@ -3,6 +3,36 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 
+// GET - Get a specific image
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string; imageId: string } }
+) {
+  try {
+    const image = await db.productImage.findFirst({
+      where: {
+        id: params.imageId,
+        productId: params.id
+      }
+    })
+
+    if (!image) {
+      return NextResponse.json(
+        { error: 'Image not found' },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json(image)
+  } catch (error) {
+    console.error('Error fetching product image:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch product image' },
+      { status: 500 }
+    )
+  }
+}
+
 // DELETE - Delete a specific image
 export async function DELETE(
   request: NextRequest,
