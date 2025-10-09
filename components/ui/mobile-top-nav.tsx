@@ -229,6 +229,8 @@ export function MobileBottomNav({ activeSection }: BottomNavProps) {
           }
 
           // Regular nav items
+          if (!Icon) return null // Skip if no icon
+          
           return (
             <Link key={item.id} href={item.href} className="flex-1">
               <button
