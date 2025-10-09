@@ -25,7 +25,7 @@ export function UPIFlowManager({ amount, orderDetails }: UPIFlowManagerProps) {
     setSelectedApp(appName)
     
     try {
-      console.log('🚀 Initiating Cashfree UPI payment via', appName)
+      console.log('🚀 Initiating proper Cashfree UPI payment (no risk warnings!)')
       
       // Create order first
       const createOrderResponse = await fetch('/api/orders', {
@@ -46,63 +46,68 @@ export function UPIFlowManager({ amount, orderDetails }: UPIFlowManagerProps) {
       const { order } = await createOrderResponse.json()
       console.log('✅ Order created:', order.id)
       
-      // Initialize Cashfree payment with UPI
-      const paymentResponse = await fetch('/api/payments', {
+      // Use Cashfree's UPI Collect/Intent API (proper merchant flow)
+      const upiResponse = await fetch('/api/payments/upi-collect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          orderId: order.id,
-          paymentMethod: 'upi'
+          orderId: order.id
         })
       })
       
-      if (!paymentResponse.ok) {
-        throw new Error('Failed to initialize payment')
+      if (!upiResponse.ok) {
+        throw new Error('Failed to initialize UPI payment')
       }
       
-      const paymentData = await paymentResponse.json()
-      console.log('💳 Payment session created:', paymentData.paymentSessionId)
+      const upiData = await upiResponse.json()
+      console.log('✅ UPI payment initialized:', upiData)
       
-      // Load Cashfree SDK dynamically
-      const loadCashfreeSDK = () => {
-        return new Promise<void>((resolve, reject) => {
-          if ((window as any).Cashfree) {
-            resolve()
-            return
-          }
-          
-          const script = document.createElement('script')
-          script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js'
-          script.onload = () => resolve()
-          script.onerror = () => reject(new Error('Failed to load Cashfree SDK'))
-          document.head.appendChild(script)
+      // If UPI link is available, open it directly
+      if (upiData.upiLink) {
+        console.log('🔗 Opening UPI intent link (Cashfree verified merchant)')
+        window.location.href = upiData.upiLink
+        
+        toast.success(`Opening ${appName} via verified payment gateway...`, {
+          duration: 6000,
+          icon: '✅'
         })
-      }
-      
-      await loadCashfreeSDK()
-      console.log('✅ Cashfree SDK loaded')
-      
-      // Initialize Cashfree with UPI-specific options
-      const cashfree = new (window as any).Cashfree({
-        mode: 'production' // Use production mode
-      })
-      
-      // Open payment with UPI preference
-      const paymentResult = await cashfree.checkout({
-        paymentSessionId: paymentData.paymentSessionId,
-        returnUrl: `${window.location.origin}/payment/success?order_id=${paymentData.orderId}`,
-        paymentMethod: 'upi', // Force UPI
-        components: {
-          paymentMethods: ['upi'] // Only show UPI
+      } else if (upiData.paymentSessionId) {
+        // Fallback to Cashfree checkout
+        console.log('📱 Loading Cashfree payment page')
+        
+        // Load Cashfree SDK
+        const loadCashfreeSDK = () => {
+          return new Promise<void>((resolve, reject) => {
+            if ((window as any).Cashfree) {
+              resolve()
+              return
+            }
+            
+            const script = document.createElement('script')
+            script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js'
+            script.onload = () => resolve()
+            script.onerror = () => reject(new Error('Failed to load Cashfree SDK'))
+            document.head.appendChild(script)
+          })
         }
-      })
-      
-      console.log('💳 Payment initiated:', paymentResult)
-      
-      toast.success(`Opening ${appName}... Complete payment and return here`, {
-        duration: 6000,
-        icon: '💳'
-      })
+        
+        await loadCashfreeSDK()
+        
+        const cashfree = new (window as any).Cashfree({
+          mode: 'production'
+        })
+        
+        // Use Cashfree's payment page (verified merchant)
+        cashfree.checkout({
+          paymentSessionId: upiData.paymentSessionId,
+          returnUrl: `${window.location.origin}/payment/success?order_id=${upiData.orderId}`,
+        })
+        
+        toast.success('Opening secure payment page...', {
+          duration: 4000,
+          icon: '💳'
+        })
+      }
       
     } catch (error: any) {
       console.error('❌ UPI payment error:', error)
@@ -166,11 +171,14 @@ export function UPIFlowManager({ amount, orderDetails }: UPIFlowManagerProps) {
       </div>
 
       <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3">
-        <p className="text-xs text-green-800 text-center font-semibold">
-          ✅ Secure payment via Cashfree Payment Gateway
-        </p>
-        <p className="text-xs text-gray-600 text-center mt-1">
-          No risk warnings • Instant verification • Trusted by thousands
+        <div className="flex items-center justify-center gap-2 mb-1">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <p className="text-xs text-green-800 font-bold">
+            ✅ VERIFIED MERCHANT PAYMENT
+          </p>
+        </div>
+        <p className="text-xs text-gray-600 text-center">
+          Powered by Cashfree • No Risk Warnings • 100% Secure
         </p>
       </div>
     </div>
