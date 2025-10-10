@@ -582,33 +582,65 @@ export default function MobileCheckout() {
                               )}
                             </div>
 
-                            {/* UPI Apps Tiles - Always visible for UPI */}
+                            {/* UPI Apps Tiles - Always visible and clickable for UPI */}
                             {method.id === 'upi' && method.showUPIApps && (
-                              <div className="grid grid-cols-4 gap-2 pt-2">
-                                <div className="flex flex-col items-center gap-1">
+                              <div className="grid grid-cols-4 gap-2 pt-2 border-t border-gray-200 mt-2">
+                                <button
+                                  type="button"
+                                  className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-blue-50 transition-colors active:scale-95"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    updatePaymentInfo('paymentMethod', 'upi');
+                                    toast.success('PhonePe selected! Proceed to payment', { duration: 2000 });
+                                  }}
+                                >
                                   <div className="w-14 h-14 relative">
                                     <PhonePeLogo />
                                   </div>
                                   <span className="text-[10px] text-gray-600 font-medium">PhonePe</span>
-                                </div>
-                                <div className="flex flex-col items-center gap-1">
+                                </button>
+                                <button
+                                  type="button"
+                                  className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-blue-50 transition-colors active:scale-95"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    updatePaymentInfo('paymentMethod', 'upi');
+                                    toast.success('Google Pay selected! Proceed to payment', { duration: 2000 });
+                                  }}
+                                >
                                   <div className="w-14 h-14 relative">
                                     <GooglePayLogo />
                                   </div>
                                   <span className="text-[10px] text-gray-600 font-medium">GPay</span>
-                                </div>
-                                <div className="flex flex-col items-center gap-1">
+                                </button>
+                                <button
+                                  type="button"
+                                  className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-blue-50 transition-colors active:scale-95"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    updatePaymentInfo('paymentMethod', 'upi');
+                                    toast.success('Paytm selected! Proceed to payment', { duration: 2000 });
+                                  }}
+                                >
                                   <div className="w-14 h-14 relative">
                                     <PaytmLogo />
                                   </div>
                                   <span className="text-[10px] text-gray-600 font-medium">Paytm</span>
-                                </div>
-                                <div className="flex flex-col items-center gap-1">
+                                </button>
+                                <button
+                                  type="button"
+                                  className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-blue-50 transition-colors active:scale-95"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    updatePaymentInfo('paymentMethod', 'upi');
+                                    toast.success('UPI app selected! Proceed to payment', { duration: 2000 });
+                                  }}
+                                >
                                   <div className="w-14 h-14 relative">
                                     <GenericUPILogo />
                                   </div>
                                   <span className="text-[10px] text-gray-600 font-medium">Others</span>
-                                </div>
+                                </button>
                               </div>
                             )}
                           </div>
