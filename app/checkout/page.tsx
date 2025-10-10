@@ -65,10 +65,10 @@ function CheckoutContent() {
 
   // Payment method options
   const paymentMethods = [
-    { id: 'upi', name: 'UPI', icon: '📱', description: 'Pay using UPI apps like PhonePe, Google Pay' },
-    { id: 'card', name: 'Credit/Debit Card', icon: '💳', description: 'Visa, Mastercard, RuPay cards' },
-    { id: 'netbanking', name: 'Net Banking', icon: '🏦', description: 'Direct bank transfer' },
-    { id: 'wallet', name: 'Digital Wallet', icon: '💰', description: 'Paytm, PhonePe, Google Pay wallet' }
+    { id: 'upi', name: 'UPI Payment', icon: '📱', description: 'Pay using UPI apps like PhonePe, Google Pay', payNow: total },
+    { id: 'cod', name: 'Cash on Delivery', icon: '💵', description: `Pay ₹200 now, ₹${(total - 200).toFixed(0)} at delivery`, payNow: 200, info: 'Secure your order with ₹200 advance via UPI' },
+    { id: 'card', name: 'Credit/Debit Card', icon: '💳', description: 'Visa, Mastercard, RuPay cards', payNow: total },
+    { id: 'netbanking', name: 'Net Banking', icon: '🏦', description: 'Direct bank transfer', payNow: total }
   ]
 
   // Determine if this is a Buy Now or Cart checkout
@@ -82,9 +82,9 @@ function CheckoutContent() {
   }] : items
 
   const subtotal = checkoutItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-  const shipping = 0 // Free shipping for luxury items
+  const deliveryCharge = 100 // ₹100 delivery charge
   const tax = subtotal * 0.18 // 18% GST (Indian tax rate)
-  const total = subtotal + shipping + tax
+  const total = subtotal + deliveryCharge + tax
 
   // Check if mobile device
   useEffect(() => {
@@ -215,7 +215,10 @@ function CheckoutContent() {
         body: JSON.stringify({
           items: orderData.items,
           shippingAddress: orderData.shippingAddress.fullAddress,
-          totalAmount: orderData.totalAmount
+          totalAmount: orderData.totalAmount,
+          paymentMethod: paymentMethod,
+          isCOD: paymentMethod === 'cod',
+          codAdvance: paymentMethod === 'cod' ? 200 : 0
         })
       })
 
@@ -227,6 +230,8 @@ function CheckoutContent() {
       const result = await response.json()
       
       // Initialize payment with Cashfree
+      const paymentAmount = paymentMethod === 'cod' ? 200 : total
+      
       const paymentResponse = await fetch('/api/payments', {
         method: 'POST',
         headers: {
@@ -234,7 +239,9 @@ function CheckoutContent() {
         },
         body: JSON.stringify({
           orderId: result.order.id,
-          paymentMethod
+          paymentMethod: 'upi', // Always use UPI for payment (even for COD advance)
+          amount: paymentAmount,
+          isCOD: paymentMethod === 'cod'
         })
       })
 
@@ -625,8 +632,8 @@ function CheckoutContent() {
                     <span>{formatPrice(subtotal)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Shipping</span>
-                    <span className="text-green-600">Free</span>
+                    <span>Delivery Charge</span>
+                    <span className="text-green-600">{formatPrice(deliveryCharge)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Tax (18% GST)</span>
@@ -638,6 +645,19 @@ function CheckoutContent() {
                       <span>{formatPrice(total)}</span>
                     </div>
                   </div>
+                  {paymentMethod === 'cod' && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-2">
+                      <p className="text-xs text-amber-800 font-medium mb-2">💰 Cash on Delivery:</p>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-amber-700">Pay now (advance)</span>
+                        <span className="font-semibold text-amber-900">₹200</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-amber-700">Pay at delivery</span>
+                        <span className="font-semibold text-amber-900">₹{total - 200}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <Button 
@@ -651,9 +671,16 @@ function CheckoutContent() {
                       Processing...
                     </>
                   ) : (
-                    'Place Order'
+                    paymentMethod === 'cod' 
+                      ? `Pay ₹200 Now & Confirm Order` 
+                      : `Pay ${formatPrice(total)} & Place Order`
                   )}
                 </Button>
+                {paymentMethod === 'cod' && (
+                  <p className="text-center text-xs text-gray-600 mt-2">
+                    You'll pay ₹{total - 200} in cash when your order is delivered
+                  </p>
+                )}
               </CardContent>
             </Card>
 
