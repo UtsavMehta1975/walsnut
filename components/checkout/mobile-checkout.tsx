@@ -449,60 +449,61 @@ export default function MobileCheckout() {
                     </p>
                   </div>
 
-                  {/* Step 2: City & State (Always Visible, Auto-filled after PIN) */}
+                  {/* City & State (Auto-filled from PIN code, always visible) */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="city" className="text-base font-semibold">
+                      <Label htmlFor="city" className="text-sm font-medium text-gray-700">
                         City {shippingInfo.deliveryAddress.city && shippingInfo.deliveryAddress.zipCode.length === 6 && '✅'}
                       </Label>
                       <Input
                         id="city"
-                        placeholder="Enter PIN first..."
+                        placeholder="Will auto-fill from PIN"
                         value={shippingInfo.deliveryAddress.city}
                         onChange={(e) => updateDeliveryAddress('city', e.target.value)}
                         className={shippingInfo.deliveryAddress.city && shippingInfo.deliveryAddress.zipCode.length === 6 
                           ? "bg-green-50 border-green-300" 
-                          : ""}
-                        disabled={!shippingInfo.deliveryAddress.zipCode || shippingInfo.deliveryAddress.zipCode.length !== 6}
+                          : "bg-gray-50"}
                         required
                       />
+                      <p className="text-xs text-gray-500 mt-1">
+                        {shippingInfo.deliveryAddress.city ? 'Auto-filled (editable)' : 'From PIN code'}
+                      </p>
                     </div>
                     <div>
-                      <Label htmlFor="state" className="text-base font-semibold">
+                      <Label htmlFor="state" className="text-sm font-medium text-gray-700">
                         State {shippingInfo.deliveryAddress.state && shippingInfo.deliveryAddress.zipCode.length === 6 && '✅'}
                       </Label>
                       <Input
                         id="state"
-                        placeholder="Enter PIN first..."
+                        placeholder="Will auto-fill from PIN"
                         value={shippingInfo.deliveryAddress.state}
                         onChange={(e) => updateDeliveryAddress('state', e.target.value)}
                         className={shippingInfo.deliveryAddress.state && shippingInfo.deliveryAddress.zipCode.length === 6 
                           ? "bg-green-50 border-green-300" 
-                          : ""}
-                        disabled={!shippingInfo.deliveryAddress.zipCode || shippingInfo.deliveryAddress.zipCode.length !== 6}
+                          : "bg-gray-50"}
                         required
                       />
+                      <p className="text-xs text-gray-500 mt-1">
+                        {shippingInfo.deliveryAddress.state ? 'Auto-filled (editable)' : 'From PIN code'}
+                      </p>
                     </div>
                   </div>
                   
-                  {/* Step 3: Street Address (Always Visible) */}
+                  {/* Step 2: Street Address (Always visible) */}
                   <div>
                     <Label htmlFor="address" className="text-base font-semibold">
-                      🏠 Step 2: Enter Your Street Address
+                      🏠 Step 2: Your Complete Street Address
                     </Label>
                     <Input
                       id="address"
-                      placeholder="House no., Building name, Street"
+                      placeholder="House/Flat No., Building, Street, Landmark"
                       value={shippingInfo.deliveryAddress.address}
                       onChange={(e) => updateDeliveryAddress('address', e.target.value)}
                       className="mt-2"
-                      disabled={!shippingInfo.deliveryAddress.city || !shippingInfo.deliveryAddress.state}
                       required
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      {!shippingInfo.deliveryAddress.city 
-                        ? 'Complete Step 1 first' 
-                        : 'e.g., "123, Apartment Name, Street Name"'}
+                      e.g., "B-301, Pearl Residency, MG Road, Near City Mall"
                     </p>
                   </div>
                   
