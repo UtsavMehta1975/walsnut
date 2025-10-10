@@ -53,9 +53,8 @@ export default function MobileCheckout() {
   const { items, getTotal, clearCart } = useCart();
   const { user } = useAuth();
   const subtotal = getTotal();
-  const deliveryCharge = 100; // ₹100 delivery charge
   const upiDiscount = 100; // ₹100 OFF on UPI payment
-  const total = subtotal + deliveryCharge;
+  const total = subtotal;
   const totalWithUPIDiscount = total - upiDiscount;
   const [savedAddresses, setSavedAddresses] = useState<DeliveryAddress[]>([]);
   const [showNewAddress, setShowNewAddress] = useState(false);
@@ -814,12 +813,8 @@ export default function MobileCheckout() {
                 </div>
                 <div className="border-t pt-3 mt-4 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Subtotal</span>
+                    <span className="text-gray-600">Product Total</span>
                     <span className="font-medium">₹{subtotal}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Delivery Charge</span>
-                    <span className="font-medium">₹{deliveryCharge}</span>
                   </div>
                   {paymentInfo.paymentMethod === 'upi' && (
                     <div className="flex justify-between text-sm">
