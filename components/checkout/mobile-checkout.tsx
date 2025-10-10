@@ -135,8 +135,7 @@ export default function MobileCheckout() {
 
       const orderResult = await orderResponse.json();
       
-      // Step 2: Initialize payment with the created order ID
-      
+      // Step 2: Initialize payment with the created order ID (using paymentAmount from line 112)
       const paymentResponse = await fetch('/api/payments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
