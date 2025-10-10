@@ -61,6 +61,8 @@ export async function POST(request: NextRequest) {
           totalAmount: order.totalAmount,
           shippingAddress: order.shippingAddress,
           paymentTransactionId: order.paymentTransactionId,
+          customerEmail: order.user.email,
+          customerName: order.user.name,
         },
       })
     }
@@ -114,6 +116,8 @@ export async function POST(request: NextRequest) {
                 totalAmount: order.totalAmount,
                 shippingAddress: order.shippingAddress,
                 paymentTransactionId: order.paymentTransactionId,
+                customerEmail: order.user.email,
+                customerName: order.user.name,
               },
             })
           } else if (cashfreeData.order_status === 'ACTIVE') {

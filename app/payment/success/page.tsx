@@ -225,14 +225,39 @@ export default function PaymentSuccessPage() {
                   </div>
                 </div>
                 
-                {orderDetails.shippingAddress && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-2">Shipping Address</p>
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <p className="font-medium">{orderDetails.shippingAddress}</p>
-                    </div>
+                {/* Customer Information */}
+                <div className="border-t pt-4">
+                  <p className="text-sm font-semibold text-gray-900 mb-3">Customer Information</p>
+                  <div className="space-y-2">
+                    {orderDetails.customerName && (
+                      <div className="flex items-start">
+                        <span className="text-sm text-gray-600 w-20">Name:</span>
+                        <span className="text-sm font-medium flex-1">{orderDetails.customerName}</span>
+                      </div>
+                    )}
+                    {orderDetails.customerEmail && (
+                      <div className="flex items-start">
+                        <span className="text-sm text-gray-600 w-20">Email:</span>
+                        <span className="text-sm font-medium flex-1 break-all">{orderDetails.customerEmail}</span>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
+
+                {/* Shipping Address */}
+                <div className="border-t pt-4">
+                  <p className="text-sm font-semibold text-gray-900 mb-2">Shipping Address</p>
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    {orderDetails.shippingAddress ? (
+                      <p className="font-medium text-sm">{orderDetails.shippingAddress}</p>
+                    ) : (
+                      <p className="text-sm text-amber-600 flex items-center">
+                        <span className="mr-2">⚠️</span>
+                        Shipping address not provided. Please contact support to update your delivery address.
+                      </p>
+                    )}
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}
