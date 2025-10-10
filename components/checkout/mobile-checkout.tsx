@@ -83,6 +83,25 @@ export default function MobileCheckout() {
   const handleFinalSubmit = async () => {
     setIsProcessing(true);
     try {
+      // Step 0: Save address for future use (fire and forget, don't block checkout)
+      if (user) {
+        fetch('/api/addresses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            firstName: shippingInfo.firstName,
+            lastName: shippingInfo.lastName,
+            phone: shippingInfo.phone,
+            address: shippingInfo.deliveryAddress.address,
+            city: shippingInfo.deliveryAddress.city,
+            state: shippingInfo.deliveryAddress.state,
+            zipCode: shippingInfo.deliveryAddress.zipCode,
+            country: shippingInfo.deliveryAddress.country,
+            isDefault: true // Make it default if it's the first address
+          })
+        }).catch(err => console.log('Address save failed (non-blocking):', err));
+      }
+
       // Step 1: Create the order with shipping address
       const fullAddress = `${shippingInfo.deliveryAddress.address}, ${shippingInfo.deliveryAddress.city}, ${shippingInfo.deliveryAddress.state} ${shippingInfo.deliveryAddress.zipCode}, ${shippingInfo.deliveryAddress.country}`;
       
