@@ -65,6 +65,7 @@ export default function MobileCheckout() {
   const [showNewAddress, setShowNewAddress] = useState(false);
   const [isCheckingPinCode, setIsCheckingPinCode] = useState(false);
   const [currentStep, setCurrentStep] = useState(1); // 1 = Address, 2 = Payment, 3 = Review
+  const [isLoadingSavedAddresses, setIsLoadingSavedAddresses] = useState(true);
   
   // Pre-fill user information from account
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
@@ -94,6 +95,39 @@ export default function MobileCheckout() {
   });
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Fetch saved addresses on mount
+  React.useEffect(() => {
+    const fetchSavedAddresses = async () => {
+      if (!user) {
+        setIsLoadingSavedAddresses(false);
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/addresses');
+        if (response.ok) {
+          const data = await response.json();
+          setSavedAddresses(data.addresses || []);
+          
+          // Auto-fill with default address if exists
+          const defaultAddress = data.addresses?.find((addr: DeliveryAddress) => addr.isDefault);
+          if (defaultAddress && !shippingInfo.deliveryAddress.zipCode) {
+            setShippingInfo(prev => ({
+              ...prev,
+              deliveryAddress: defaultAddress
+            }));
+            toast.success('✅ Default address loaded', { duration: 2000 });
+          }
+        }
+      } catch (error) {
+        console.log('Failed to fetch addresses:', error);
+      } finally {
+        setIsLoadingSavedAddresses(false);
+      }
+    };
+
+    fetchSavedAddresses();
+  }, [user]);
 
   const handleFinalSubmit = async () => {
     setIsProcessing(true);
@@ -354,19 +388,75 @@ export default function MobileCheckout() {
                     <Home className="w-5 h-5" />
                     Delivery Address
                   </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={addNewAddress}
-                    className="flex items-center gap-1"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Add New
-                  </Button>
+                  {savedAddresses.length > 0 && !showNewAddress && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addNewAddress}
+                      className="flex items-center gap-1"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add New
+                    </Button>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {/* Saved Addresses List */}
+                {!showNewAddress && savedAddresses.length > 0 && (
+                  <div className="space-y-3 mb-4">
+                    <Label className="text-sm font-medium text-gray-700">
+                      Saved Addresses
+                    </Label>
+                    {savedAddresses.map((addr) => (
+                      <div
+                        key={addr.id}
+                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                          shippingInfo.deliveryAddress.id === addr.id
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-200 hover:bg-gray-50'
+                        }`}
+                        onClick={() => selectSavedAddress(addr)}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              {addr.isDefault && (
+                                <Badge variant="secondary" className="text-xs">Default</Badge>
+                              )}
+                              <span className="text-sm font-medium">{addr.firstName} {addr.lastName}</span>
+                            </div>
+                            <p className="text-xs text-gray-600">
+                              {addr.houseNo}{addr.flatNo && `, ${addr.flatNo}`}
+                              {addr.building && `, ${addr.building}`}, {addr.street}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              {addr.city}, {addr.state} {addr.zipCode}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">{addr.phone}</p>
+                          </div>
+                          {shippingInfo.deliveryAddress.id === addr.id && (
+                            <div className="text-blue-600 text-sm font-medium">✓</div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addNewAddress}
+                      className="w-full flex items-center justify-center gap-1"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add New Address
+                    </Button>
+                  </div>
+                )}
+
+                {/* New Address Form (show when no saved addresses or user clicks Add New) */}
+                {(showNewAddress || savedAddresses.length === 0) && (
                 {/* Quick Delivery Check - PIN Code */}
                 <div className="mb-4">
                   <DeliveryCheck
