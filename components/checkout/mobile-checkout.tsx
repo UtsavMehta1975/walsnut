@@ -107,7 +107,7 @@ export default function MobileCheckout() {
       // Step 1: Create the order with shipping address
       const fullAddress = `${shippingInfo.deliveryAddress.address}, ${shippingInfo.deliveryAddress.city}, ${shippingInfo.deliveryAddress.state} ${shippingInfo.deliveryAddress.zipCode}, ${shippingInfo.deliveryAddress.country}`;
       
-      // Calculate payment amount based on method
+      // Calculate payment amount based on method (COD = ₹200, others = full amount)
       const paymentAmount = paymentInfo.paymentMethod === 'cod' ? 200 : total;
       
       const orderResponse = await fetch('/api/orders', {
@@ -135,7 +135,6 @@ export default function MobileCheckout() {
       const orderResult = await orderResponse.json();
       
       // Step 2: Initialize payment with the created order ID
-      const paymentAmount = paymentInfo.paymentMethod === 'cod' ? 200 : total;
       
       const paymentResponse = await fetch('/api/payments', {
         method: 'POST',
