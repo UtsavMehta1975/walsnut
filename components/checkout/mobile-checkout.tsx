@@ -117,9 +117,29 @@ export default function MobileCheckout() {
           if (defaultAddress && !shippingInfo.deliveryAddress.zipCode) {
             setShippingInfo(prev => ({
               ...prev,
-              deliveryAddress: defaultAddress
+              // Auto-fill ALL saved contact information
+              firstName: defaultAddress.firstName || prev.firstName,
+              lastName: defaultAddress.lastName || prev.lastName,
+              phone: defaultAddress.phone || prev.phone,
+              // Email stays from user account (prev.email)
+              // Auto-fill complete delivery address
+              deliveryAddress: {
+                houseNo: defaultAddress.houseNo || '',
+                flatNo: defaultAddress.flatNo || '',
+                building: defaultAddress.building || '',
+                street: defaultAddress.street || '',
+                landmark: defaultAddress.landmark || '',
+                address: defaultAddress.address || '',
+                city: defaultAddress.city || '',
+                state: defaultAddress.state || '',
+                zipCode: defaultAddress.zipCode || '',
+                country: defaultAddress.country || 'India'
+              }
             }));
-            toast.success('✅ Default address loaded', { duration: 2000 });
+            toast.success('✅ Your saved details loaded! Name, phone & address pre-filled', { 
+              duration: 3000,
+              icon: '📋'
+            });
           }
         }
       } catch (error) {
@@ -260,9 +280,29 @@ export default function MobileCheckout() {
   const selectSavedAddress = (address: DeliveryAddress) => {
     setShippingInfo(prev => ({
       ...prev,
-      deliveryAddress: address
+      // Fill contact information from saved address
+      firstName: address.firstName || prev.firstName,
+      lastName: address.lastName || prev.lastName,
+      phone: address.phone || prev.phone,
+      // Fill delivery address fields
+      deliveryAddress: {
+        houseNo: address.houseNo || '',
+        flatNo: address.flatNo || '',
+        building: address.building || '',
+        street: address.street || '',
+        landmark: address.landmark || '',
+        address: address.address || '',
+        city: address.city || '',
+        state: address.state || '',
+        zipCode: address.zipCode || '',
+        country: address.country || 'India'
+      }
     }));
     setShowNewAddress(false);
+    toast.success('✅ Address loaded! Name, phone & address filled', { 
+      duration: 2000,
+      icon: '📋'
+    });
   };
 
   const addNewAddress = () => {
@@ -834,64 +874,85 @@ export default function MobileCheckout() {
 
                             {/* UPI Apps Tiles - Always visible and clickable for UPI */}
                             {method.id === 'upi' && method.showUPIApps && (
-                              <div className="grid grid-cols-4 gap-2 pt-2 border-t border-gray-200 mt-2">
-                                <button
-                                  type="button"
-                                  className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-blue-50 transition-colors active:scale-95"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    updatePaymentInfo('paymentMethod', 'upi');
-                                    toast.success('PhonePe selected! Proceed to payment', { duration: 2000 });
-                                  }}
-                                >
-                                  <div className="w-14 h-14 relative">
-                                    <PhonePeLogo />
+                              <>
+                                <div className="grid grid-cols-4 gap-2 pt-2 border-t border-gray-200 mt-2">
+                                  <button
+                                    type="button"
+                                    className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-blue-50 transition-colors active:scale-95"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      updatePaymentInfo('paymentMethod', 'upi');
+                                      toast.success('🎉 PhonePe selected! You\'re saving ₹100', { duration: 3000 });
+                                    }}
+                                  >
+                                    <div className="w-14 h-14 relative">
+                                      <PhonePeLogo />
+                                    </div>
+                                    <span className="text-[10px] text-gray-600 font-medium">PhonePe</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-blue-50 transition-colors active:scale-95"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      updatePaymentInfo('paymentMethod', 'upi');
+                                      toast.success('🎉 Google Pay selected! You\'re saving ₹100', { duration: 3000 });
+                                    }}
+                                  >
+                                    <div className="w-14 h-14 relative">
+                                      <GooglePayLogo />
+                                    </div>
+                                    <span className="text-[10px] text-gray-600 font-medium">GPay</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-blue-50 transition-colors active:scale-95"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      updatePaymentInfo('paymentMethod', 'upi');
+                                      toast.success('🎉 Paytm selected! You\'re saving ₹100', { duration: 3000 });
+                                    }}
+                                  >
+                                    <div className="w-14 h-14 relative">
+                                      <PaytmLogo />
+                                    </div>
+                                    <span className="text-[10px] text-gray-600 font-medium">Paytm</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-blue-50 transition-colors active:scale-95"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      updatePaymentInfo('paymentMethod', 'upi');
+                                      toast.success('🎉 UPI app selected! You\'re saving ₹100', { duration: 3000 });
+                                    }}
+                                  >
+                                    <div className="w-14 h-14 relative">
+                                      <GenericUPILogo />
+                                    </div>
+                                    <span className="text-[10px] text-gray-600 font-medium">Others</span>
+                                  </button>
+                                </div>
+                                
+                                {/* UPI Discount Banner - Shown when UPI is selected */}
+                                {paymentInfo.paymentMethod === 'upi' && (
+                                  <div className="mt-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3">
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-2xl">🎉</span>
+                                        <div>
+                                          <p className="font-semibold text-green-800">You're Saving ₹100!</p>
+                                          <p className="text-xs text-green-600">Instant discount applied</p>
+                                        </div>
+                                      </div>
+                                      <div className="text-right">
+                                        <p className="text-lg font-bold text-green-700">₹{totalWithUPIDiscount}</p>
+                                        <p className="text-xs line-through text-gray-400">₹{total}</p>
+                                      </div>
+                                    </div>
                                   </div>
-                                  <span className="text-[10px] text-gray-600 font-medium">PhonePe</span>
-                                </button>
-                                <button
-                                  type="button"
-                                  className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-blue-50 transition-colors active:scale-95"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    updatePaymentInfo('paymentMethod', 'upi');
-                                    toast.success('Google Pay selected! Proceed to payment', { duration: 2000 });
-                                  }}
-                                >
-                                  <div className="w-14 h-14 relative">
-                                    <GooglePayLogo />
-                                  </div>
-                                  <span className="text-[10px] text-gray-600 font-medium">GPay</span>
-                                </button>
-                                <button
-                                  type="button"
-                                  className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-blue-50 transition-colors active:scale-95"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    updatePaymentInfo('paymentMethod', 'upi');
-                                    toast.success('Paytm selected! Proceed to payment', { duration: 2000 });
-                                  }}
-                                >
-                                  <div className="w-14 h-14 relative">
-                                    <PaytmLogo />
-                                  </div>
-                                  <span className="text-[10px] text-gray-600 font-medium">Paytm</span>
-                                </button>
-                                <button
-                                  type="button"
-                                  className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-blue-50 transition-colors active:scale-95"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    updatePaymentInfo('paymentMethod', 'upi');
-                                    toast.success('UPI app selected! Proceed to payment', { duration: 2000 });
-                                  }}
-                                >
-                                  <div className="w-14 h-14 relative">
-                                    <GenericUPILogo />
-                                  </div>
-                                  <span className="text-[10px] text-gray-600 font-medium">Others</span>
-                                </button>
-                              </div>
+                                )}
+                              </>
                             )}
                           </div>
                         </div>
