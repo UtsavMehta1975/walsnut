@@ -199,7 +199,7 @@ function CheckoutContent() {
         },
         orderSummary: {
           subtotal: subtotal,
-          shipping: shipping,
+          deliveryCharge: deliveryCharge,
           tax: tax,
           total: total
         },
