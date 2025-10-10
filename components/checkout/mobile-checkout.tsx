@@ -952,6 +952,23 @@ export default function MobileCheckout() {
                                     </div>
                                   </div>
                                 )}
+                                
+                                {/* Cashfree UPI Payment Gateway - Right next to UPI tiles */}
+                                {paymentInfo.paymentMethod === 'upi' && (
+                                  <div className="mt-3">
+                                    <UPIFlowManager
+                                      amount={totalWithUPIDiscount}
+                                      orderDetails={{
+                                        orderId: `ORDER_${Date.now()}`,
+                                        customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+                                        customerEmail: shippingInfo.email
+                                      }}
+                                    />
+                                    <p className="text-xs text-green-700 font-semibold text-center mt-3 bg-green-50 p-2 rounded">
+                                      ✅ Secure Cashfree Payment Gateway • No Risk Warnings
+                                    </p>
+                                  </div>
+                                )}
                               </>
                             )}
                           </div>
@@ -1036,22 +1053,6 @@ export default function MobileCheckout() {
                       </div>
                     </div>
                   </>
-                )}
-                
-                {paymentInfo.paymentMethod === 'upi' && (
-                  <div className="mt-4">
-                    <UPIFlowManager
-                      amount={total}
-                      orderDetails={{
-                        orderId: `ORDER_${Date.now()}`,
-                        customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
-                        customerEmail: shippingInfo.email
-                      }}
-                    />
-                    <p className="text-xs text-green-700 font-semibold text-center mt-3 bg-green-50 p-2 rounded">
-                      ✅ Secure Cashfree Payment Gateway • No Risk Warnings
-                    </p>
-                  </div>
                 )}
                 
               </div>
