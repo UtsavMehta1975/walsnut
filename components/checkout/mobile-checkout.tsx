@@ -12,6 +12,7 @@ import { useCart } from '@/store/cart-store';
 import { useAuth } from '@/contexts/auth-context';
 import { UPIFlowManager } from '@/components/checkout/upi-flow-manager';
 import { DeliveryCheck } from '@/components/ui/delivery-check';
+import { PhonePeLogo, GooglePayLogo, PaytmLogo, GenericUPILogo } from '@/components/checkout/upi-app-logos';
 import toast from 'react-hot-toast';
 
 interface CartItem {
@@ -209,8 +210,16 @@ export default function MobileCheckout() {
     {
       id: 'upi',
       name: 'UPI Payment',
-      logos: ['phonepe', 'gpay', 'paytm', 'bhim'],
-      description: 'PhonePe, Google Pay, Paytm, BHIM',
+      logos: [],
+      showUPIApps: true, // Show PhonePe, GPay, Paytm tiles
+      description: 'Pay with any UPI app',
+      payNow: total
+    },
+    {
+      id: 'card',
+      name: 'Credit/Debit Card',
+      logos: [],
+      description: 'Visa, Mastercard, RuPay accepted',
       payNow: total
     },
     {
@@ -221,13 +230,6 @@ export default function MobileCheckout() {
       payNow: 200,
       payLater: total - 200,
       info: 'Secure your order with ₹200 advance payment via UPI'
-    },
-    {
-      id: 'card',
-      name: 'Credit/Debit Card',
-      logos: ['visa', 'mastercard', 'rupay'],
-      description: 'Visa, Mastercard, RuPay',
-      payNow: total
     }
   ];
 
@@ -558,24 +560,6 @@ export default function MobileCheckout() {
                                 </div>
                               )}
                             </div>
-                            {method.logos.length > 0 && (
-                              <div className="flex gap-1">
-                                {method.logos.map((logo) => (
-                                  <div
-                                    key={logo}
-                                    className="w-8 h-5 bg-gray-200 rounded flex items-center justify-center text-xs font-bold"
-                                  >
-                                    {logo === 'visa' && 'VISA'}
-                                    {logo === 'mastercard' && 'MC'}
-                                    {logo === 'rupay' && 'RUPAY'}
-                                    {logo === 'phonepe' && 'PP'}
-                                    {logo === 'gpay' && 'GP'}
-                                    {logo === 'paytm' && 'PT'}
-                                    {logo === 'bhim' && 'BHIM'}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
                             {method.id === 'cod' && (
                               <div className="text-right ml-2">
                                 <div className="text-lg font-bold text-amber-600">₹200</div>
@@ -584,6 +568,36 @@ export default function MobileCheckout() {
                             )}
                           </div>
                         </div>
+                        
+                        {/* UPI Apps Tiles - Show when UPI selected */}
+                        {method.id === 'upi' && method.showUPIApps && paymentInfo.paymentMethod === 'upi' && (
+                          <div className="mt-3 grid grid-cols-4 gap-3">
+                            <div className="flex flex-col items-center gap-2">
+                              <div className="w-16 h-16 relative">
+                                <PhonePeLogo />
+                              </div>
+                              <span className="text-xs text-gray-700 font-medium">PhonePe</span>
+                            </div>
+                            <div className="flex flex-col items-center gap-2">
+                              <div className="w-16 h-16 relative">
+                                <GooglePayLogo />
+                              </div>
+                              <span className="text-xs text-gray-700 font-medium">Google Pay</span>
+                            </div>
+                            <div className="flex flex-col items-center gap-2">
+                              <div className="w-16 h-16 relative">
+                                <PaytmLogo />
+                              </div>
+                              <span className="text-xs text-gray-700 font-medium">Paytm</span>
+                            </div>
+                            <div className="flex flex-col items-center gap-2">
+                              <div className="w-16 h-16 relative">
+                                <GenericUPILogo />
+                              </div>
+                              <span className="text-xs text-gray-700 font-medium">Other UPI</span>
+                            </div>
+                          </div>
+                        )}
                         
                         {/* COD Explanation */}
                         {method.id === 'cod' && paymentInfo.paymentMethod === 'cod' && (
