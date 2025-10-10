@@ -128,6 +128,23 @@ export async function POST(request: NextRequest) {
               status: 'PENDING',
               message: 'Payment is being processed',
             })
+          } else if (cashfreeData.order_status === 'EXPIRED' || cashfreeData.order_status === 'TERMINATED' || cashfreeData.order_status === 'USER_DROPPED') {
+            // Payment cancelled or expired by user
+            console.log('🚫 Payment cancelled/dropped by user:', cashfreeData.order_status)
+            
+            await db.order.update({
+              where: { id: orderId },
+              data: {
+                paymentStatus: 'CANCELLED',
+                status: 'CANCELLED',
+              },
+            })
+
+            return NextResponse.json({
+              verified: false,
+              status: 'CANCELLED',
+              message: 'Payment was cancelled. You can retry payment from your orders page.',
+            })
           } else {
             // Payment failed
             console.log('❌ Payment failed in Cashfree:', cashfreeData.order_status)
@@ -143,7 +160,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({
               verified: false,
               status: 'FAILED',
-              message: 'Payment verification failed',
+              message: 'Payment failed. Please try again from your orders page.',
             })
           }
         } else {

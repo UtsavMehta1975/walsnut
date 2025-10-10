@@ -62,10 +62,20 @@ export default function PaymentSuccessPage() {
         setTimeout(() => {
           verifyAndFetchOrder(orderId, cfOrderId, retry + 1)
         }, 2000)
+      } else if (verifyData.status === 'CANCELLED') {
+        // Payment cancelled by user
+        setVerificationStatus('failed')
+        setVerificationMessage('Payment cancelled. You can retry payment from your orders page.')
+        setLoading(false)
+        
+        // Redirect to orders page after 3 seconds
+        setTimeout(() => {
+          router.push('/orders')
+        }, 3000)
       } else if (verifyData.status === 'FAILED') {
         // Payment failed
         setVerificationStatus('failed')
-        setVerificationMessage(verifyData.message || 'Payment verification failed')
+        setVerificationMessage(verifyData.message || 'Payment failed. Please try again.')
         setLoading(false)
         
         // Redirect to failure page after 2 seconds
