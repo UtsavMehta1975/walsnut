@@ -204,14 +204,14 @@ export default function PaymentSuccessPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-600">Order ID</p>
-                    <p className="font-semibold">{orderDetails.id}</p>
+                    <p className="font-semibold break-all">{orderDetails.id}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Payment ID</p>
-                    <p className="font-semibold">{paymentId || 'N/A'}</p>
+                    <p className="font-semibold break-all">{paymentId || 'N/A'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Total Amount</p>
