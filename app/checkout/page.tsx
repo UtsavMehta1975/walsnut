@@ -75,14 +75,16 @@ function CheckoutContent() {
 
   const subtotal = checkoutItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
   const deliveryCharge = 100 // ₹100 delivery charge
+  const upiDiscount = 100 // ₹100 OFF on UPI payment
   const tax = subtotal * 0.18 // 18% GST (Indian tax rate)
   const total = subtotal + deliveryCharge + tax
+  const totalWithUPIDiscount = total - upiDiscount
 
   // Payment method options (defined after total calculation)
   const paymentMethods = [
-    { id: 'upi', name: 'UPI Payment', icon: '📱', description: 'Pay using UPI apps like PhonePe, Google Pay', payNow: total },
-    { id: 'cod', name: 'Cash on Delivery', icon: '💵', description: `Pay ₹200 now, ₹${(total - 200).toFixed(0)} at delivery`, payNow: 200, info: 'Secure your order with ₹200 advance via UPI' },
+    { id: 'upi', name: 'UPI Payment', icon: '📱', description: `Save ₹${upiDiscount} with UPI`, payNow: totalWithUPIDiscount, isPopular: true, discount: upiDiscount },
     { id: 'card', name: 'Credit/Debit Card', icon: '💳', description: 'Visa, Mastercard, RuPay cards', payNow: total },
+    { id: 'cod', name: 'Cash on Delivery', icon: '💵', description: `Pay ₹200 now, ₹${(total - 200).toFixed(0)} at delivery`, payNow: 200, info: 'Secure your order with ₹200 advance via UPI' },
     { id: 'netbanking', name: 'Net Banking', icon: '🏦', description: 'Direct bank transfer', payNow: total }
   ]
 
@@ -229,8 +231,12 @@ function CheckoutContent() {
 
       const result = await response.json()
       
-      // Initialize payment with Cashfree
-      const paymentAmount = paymentMethod === 'cod' ? 200 : total
+      // Initialize payment with Cashfree (with UPI discount)
+      const paymentAmount = paymentMethod === 'cod' 
+        ? 200 
+        : paymentMethod === 'upi' 
+          ? totalWithUPIDiscount 
+          : total
       
       const paymentResponse = await fetch('/api/payments', {
         method: 'POST',
@@ -576,7 +582,7 @@ function CheckoutContent() {
                       key={method.id} 
                       className={`flex items-center space-x-3 p-4 border rounded-lg cursor-pointer transition-colors ${
                         paymentMethod === method.id 
-                          ? 'border-yellow-400 bg-yellow-50' 
+                          ? 'border-green-500 bg-green-50' 
                           : 'border-gray-200 hover:bg-gray-50'
                       }`}
                     >
@@ -586,12 +592,26 @@ function CheckoutContent() {
                         value={method.id}
                         checked={paymentMethod === method.id}
                         onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="text-yellow-400 focus:ring-yellow-400"
+                        className="text-green-500 focus:ring-green-400"
                       />
                       <span className="text-2xl">{method.icon}</span>
                       <div className="flex-1">
-                        <div className="font-medium">{method.name}</div>
-                        <div className="text-sm text-gray-600">{method.description}</div>
+                        <div className="font-medium flex items-center gap-2">
+                          {method.name}
+                          {method.isPopular && (
+                            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-semibold">
+                              ⚡ POPULAR - Save ₹{method.discount}
+                            </span>
+                          )}
+                        </div>
+                        <div className={`text-sm mt-1 ${method.isPopular ? 'text-green-600 font-semibold' : 'text-gray-600'}`}>
+                          {method.description}
+                        </div>
+                        {method.info && (
+                          <div className="text-xs text-blue-600 mt-1">
+                            ℹ️ {method.info}
+                          </div>
+                        )}
                       </div>
                     </label>
                   ))}
@@ -633,18 +653,40 @@ function CheckoutContent() {
                   </div>
                   <div className="flex justify-between">
                     <span>Delivery Charge</span>
-                    <span className="text-green-600">{formatPrice(deliveryCharge)}</span>
+                    <span>{formatPrice(deliveryCharge)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Tax (18% GST)</span>
                     <span>{formatPrice(tax)}</span>
                   </div>
+                  {paymentMethod === 'upi' && (
+                    <div className="flex justify-between text-green-600 font-semibold">
+                      <span>UPI Discount</span>
+                      <span>- ₹{upiDiscount}</span>
+                    </div>
+                  )}
                   <div className="border-t pt-3">
                     <div className="flex justify-between font-bold text-lg">
                       <span>Total</span>
-                      <span>{formatPrice(total)}</span>
+                      <span>
+                        {paymentMethod === 'upi' ? (
+                          <>
+                            <span className="line-through text-gray-400 text-sm mr-2">{formatPrice(total)}</span>
+                            <span className="text-green-600">{formatPrice(totalWithUPIDiscount)}</span>
+                          </>
+                        ) : (
+                          formatPrice(total)
+                        )}
+                      </span>
                     </div>
                   </div>
+                  {paymentMethod === 'upi' && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-2">
+                      <p className="text-sm text-green-800 font-medium text-center">
+                        🎉 You're saving ₹{upiDiscount} with UPI payment!
+                      </p>
+                    </div>
+                  )}
                   {paymentMethod === 'cod' && (
                     <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-2">
                       <p className="text-xs text-amber-800 font-medium mb-2">💰 Cash on Delivery:</p>
@@ -673,12 +715,19 @@ function CheckoutContent() {
                   ) : (
                     paymentMethod === 'cod' 
                       ? `Pay ₹200 Now & Confirm Order` 
-                      : `Pay ${formatPrice(total)} & Place Order`
+                      : paymentMethod === 'upi'
+                        ? `Pay ${formatPrice(totalWithUPIDiscount)} & Place Order (Save ₹${upiDiscount})`
+                        : `Pay ${formatPrice(total)} & Place Order`
                   )}
                 </Button>
                 {paymentMethod === 'cod' && (
                   <p className="text-center text-xs text-gray-600 mt-2">
                     You'll pay ₹{total - 200} in cash when your order is delivered
+                  </p>
+                )}
+                {paymentMethod === 'upi' && (
+                  <p className="text-center text-xs text-green-600 font-medium mt-2">
+                    🎉 You're saving ₹{upiDiscount} with UPI payment!
                   </p>
                 )}
               </CardContent>
@@ -717,6 +766,7 @@ export default function CheckoutPage() {
     </Suspense>
   )
 }
+
 
 
 
