@@ -107,7 +107,12 @@ export default function MobileCheckout() {
             firstName: shippingInfo.firstName,
             lastName: shippingInfo.lastName,
             phone: shippingInfo.phone,
-            address: shippingInfo.deliveryAddress.address,
+            houseNo: shippingInfo.deliveryAddress.houseNo,
+            flatNo: shippingInfo.deliveryAddress.flatNo,
+            building: shippingInfo.deliveryAddress.building,
+            street: shippingInfo.deliveryAddress.street,
+            landmark: shippingInfo.deliveryAddress.landmark,
+            address: buildFullAddress(),
             city: shippingInfo.deliveryAddress.city,
             state: shippingInfo.deliveryAddress.state,
             zipCode: shippingInfo.deliveryAddress.zipCode,
@@ -118,7 +123,7 @@ export default function MobileCheckout() {
       }
 
       // Step 1: Create the order with shipping address
-      const fullAddress = `${shippingInfo.deliveryAddress.address}, ${shippingInfo.deliveryAddress.city}, ${shippingInfo.deliveryAddress.state} ${shippingInfo.deliveryAddress.zipCode}, ${shippingInfo.deliveryAddress.country}`;
+      const fullAddress = `${buildFullAddress()}, ${shippingInfo.deliveryAddress.city}, ${shippingInfo.deliveryAddress.state} ${shippingInfo.deliveryAddress.zipCode}, ${shippingInfo.deliveryAddress.country}`;
       
       // Calculate payment amount based on method
       const paymentAmount = paymentInfo.paymentMethod === 'cod' 
@@ -280,9 +285,10 @@ export default function MobileCheckout() {
         <p className="text-sm text-gray-600">Complete your order</p>
       </div>
 
-      {/* Single Page Content - All Sections Visible */}
+      {/* Step-based Content */}
       <div className="max-w-md mx-auto space-y-6">
-          {/* Section 1: Contact & Delivery Information */}
+          {/* Step 1: Contact & Delivery Information */}
+          {currentStep === 1 && (
           <div className="space-y-4">
             {/* Contact Information */}
             <Card>
@@ -526,22 +532,83 @@ export default function MobileCheckout() {
                     </div>
                   </div>
                   
-                  {/* Step 2: Street Address (Always visible) */}
-                  <div>
-                    <Label htmlFor="address" className="text-base font-semibold">
-                      🏠 Step 2: Your Complete Street Address
+                  {/* Step 2: Detailed Address Fields */}
+                  <div className="space-y-4 pt-4 border-t border-gray-200">
+                    <Label className="text-base font-semibold text-gray-900">
+                      🏠 Step 2: Your Complete Address
                     </Label>
-                    <Input
-                      id="address"
-                      placeholder="House/Flat No., Building, Street, Landmark"
-                      value={shippingInfo.deliveryAddress.address}
-                      onChange={(e) => updateDeliveryAddress('address', e.target.value)}
-                      className="mt-2"
-                      required
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      e.g., "B-301, Pearl Residency, MG Road, Near City Mall"
-                    </p>
+                    
+                    {/* Row 1: House No */}
+                    <div>
+                      <Label htmlFor="houseNo" className="text-sm font-medium">
+                        House/Flat No. *
+                      </Label>
+                      <Input
+                        id="houseNo"
+                        placeholder="e.g., 123, B-301"
+                        value={shippingInfo.deliveryAddress.houseNo}
+                        onChange={(e) => updateDeliveryAddress('houseNo', e.target.value)}
+                        className="mt-1"
+                        required
+                      />
+                    </div>
+
+                    {/* Row 2: Flat No (Optional) */}
+                    <div>
+                      <Label htmlFor="flatNo" className="text-sm font-medium">
+                        Flat/Unit No. (Optional)
+                      </Label>
+                      <Input
+                        id="flatNo"
+                        placeholder="e.g., 301, A-Wing"
+                        value={shippingInfo.deliveryAddress.flatNo}
+                        onChange={(e) => updateDeliveryAddress('flatNo', e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+
+                    {/* Row 3: Building */}
+                    <div>
+                      <Label htmlFor="building" className="text-sm font-medium">
+                        Building/Apartment Name (Optional)
+                      </Label>
+                      <Input
+                        id="building"
+                        placeholder="e.g., Pearl Residency, Green Tower"
+                        value={shippingInfo.deliveryAddress.building}
+                        onChange={(e) => updateDeliveryAddress('building', e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+
+                    {/* Row 4: Street */}
+                    <div>
+                      <Label htmlFor="street" className="text-sm font-medium">
+                        Street/Road Name *
+                      </Label>
+                      <Input
+                        id="street"
+                        placeholder="e.g., MG Road, Main Street"
+                        value={shippingInfo.deliveryAddress.street}
+                        onChange={(e) => updateDeliveryAddress('street', e.target.value)}
+                        className="mt-1"
+                        required
+                      />
+                    </div>
+
+                    {/* Row 5: Landmark */}
+                    <div>
+                      <Label htmlFor="landmark" className="text-sm font-medium">
+                        Nearby Landmark (Optional)
+                      </Label>
+                      <Input
+                        id="landmark"
+                        placeholder="e.g., Near City Mall, Opposite Park"
+                        value={shippingInfo.deliveryAddress.landmark}
+                        onChange={(e) => updateDeliveryAddress('landmark', e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
                   </div>
                   
                   <div className="hidden">
@@ -553,9 +620,50 @@ export default function MobileCheckout() {
                 </div>
               </CardContent>
             </Card>
-          </div>
 
-        {/* Section 2: Payment Method */}
+            {/* Next Button to go to Payment */}
+            <Button
+              onClick={() => {
+                // Validate required fields
+                if (!shippingInfo.firstName || !shippingInfo.lastName || !shippingInfo.email || !shippingInfo.phone) {
+                  toast.error('Please fill all contact information');
+                  return;
+                }
+                if (!shippingInfo.deliveryAddress.zipCode || !shippingInfo.deliveryAddress.city || !shippingInfo.deliveryAddress.state) {
+                  toast.error('Please enter valid PIN code and city/state');
+                  return;
+                }
+                if (!shippingInfo.deliveryAddress.houseNo || !shippingInfo.deliveryAddress.street) {
+                  toast.error('Please enter house number and street name');
+                  return;
+                }
+                
+                // Build full address
+                shippingInfo.deliveryAddress.address = buildFullAddress();
+                
+                // Move to payment step
+                setCurrentStep(2);
+                toast.success('✅ Address saved! Select payment method');
+              }}
+              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+            >
+              Next: Payment Method →
+            </Button>
+          </div>
+          )}
+
+        {/* Step 2: Payment Method */}
+        {currentStep === 2 && (
+          <div className="space-y-4">
+            {/* Back Button */}
+            <Button
+              variant="outline"
+              onClick={() => setCurrentStep(1)}
+              className="w-full"
+            >
+              ← Back to Address
+            </Button>
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -775,7 +883,35 @@ export default function MobileCheckout() {
             </CardContent>
           </Card>
 
-        {/* Section 3: Order Summary & Review */}
+          {/* Next Button to Review */}
+          <Button
+            onClick={() => {
+              if (!paymentInfo.paymentMethod) {
+                toast.error('Please select a payment method');
+                return;
+              }
+              setCurrentStep(3);
+              toast.success('✅ Review your order');
+            }}
+            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+          >
+            Next: Review Order →
+          </Button>
+          </div>
+        )}
+
+        {/* Step 3: Order Summary & Review */}
+        {currentStep === 3 && (
+          <div className="space-y-4">
+            {/* Back Button */}
+            <Button
+              variant="outline"
+              onClick={() => setCurrentStep(2)}
+              className="w-full"
+            >
+              ← Back to Payment
+            </Button>
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -914,6 +1050,8 @@ export default function MobileCheckout() {
               </div>
             </CardContent>
           </Card>
+          </div>
+        )}
       </div>
     </div>
   );
