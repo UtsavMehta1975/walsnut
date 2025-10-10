@@ -51,7 +51,9 @@ interface PaymentInfo {
 export default function MobileCheckout() {
   const { items, getTotal, clearCart } = useCart();
   const { user } = useAuth();
-  const total = getTotal();
+  const subtotal = getTotal();
+  const deliveryCharge = 100; // ₹100 delivery charge
+  const total = subtotal + deliveryCharge;
   const [savedAddresses, setSavedAddresses] = useState<DeliveryAddress[]>([]);
   const [showNewAddress, setShowNewAddress] = useState(false);
   const [isCheckingPinCode, setIsCheckingPinCode] = useState(false);
@@ -105,6 +107,9 @@ export default function MobileCheckout() {
       // Step 1: Create the order with shipping address
       const fullAddress = `${shippingInfo.deliveryAddress.address}, ${shippingInfo.deliveryAddress.city}, ${shippingInfo.deliveryAddress.state} ${shippingInfo.deliveryAddress.zipCode}, ${shippingInfo.deliveryAddress.country}`;
       
+      // Calculate payment amount based on method
+      const paymentAmount = paymentInfo.paymentMethod === 'cod' ? 200 : total;
+      
       const orderResponse = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -115,7 +120,10 @@ export default function MobileCheckout() {
             price: item.price
           })),
           shippingAddress: fullAddress,
-          totalAmount: total
+          totalAmount: total,
+          paymentMethod: paymentInfo.paymentMethod,
+          isCOD: paymentInfo.paymentMethod === 'cod',
+          codAdvance: paymentInfo.paymentMethod === 'cod' ? 200 : 0
         })
       });
 
@@ -127,12 +135,16 @@ export default function MobileCheckout() {
       const orderResult = await orderResponse.json();
       
       // Step 2: Initialize payment with the created order ID
+      const paymentAmount = paymentInfo.paymentMethod === 'cod' ? 200 : total;
+      
       const paymentResponse = await fetch('/api/payments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           orderId: orderResult.order.id,
-          paymentMethod: paymentInfo.paymentMethod
+          paymentMethod: 'upi', // Always use UPI for payment (even for COD advance)
+          amount: paymentAmount,
+          isCOD: paymentInfo.paymentMethod === 'cod'
         })
       });
 
@@ -196,16 +208,27 @@ export default function MobileCheckout() {
   // Payment method options with logos
   const paymentMethods = [
     {
+      id: 'upi',
+      name: 'UPI Payment',
+      logos: ['phonepe', 'gpay', 'paytm', 'bhim'],
+      description: 'PhonePe, Google Pay, Paytm, BHIM',
+      payNow: total
+    },
+    {
+      id: 'cod',
+      name: 'Cash on Delivery (COD)',
+      logos: [],
+      description: `Pay ₹200 now, ₹${(total - 200).toFixed(0)} at delivery`,
+      payNow: 200,
+      payLater: total - 200,
+      info: 'Secure your order with ₹200 advance payment via UPI'
+    },
+    {
       id: 'card',
       name: 'Credit/Debit Card',
       logos: ['visa', 'mastercard', 'rupay'],
-      description: 'Visa, Mastercard, RuPay'
-    },
-    {
-      id: 'upi',
-      name: 'UPI',
-      logos: ['phonepe', 'gpay', 'paytm', 'bhim'],
-      description: 'PhonePe, Google Pay, Paytm, BHIM'
+      description: 'Visa, Mastercard, RuPay',
+      payNow: total
     }
   ];
 
@@ -427,53 +450,62 @@ export default function MobileCheckout() {
                     </p>
                   </div>
 
-                  {/* Step 2: Auto-filled City & State (Editable) */}
-                  {shippingInfo.deliveryAddress.zipCode.length === 6 && (
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="city">City</Label>
-                        <Input
-                          id="city"
-                          placeholder="City name"
-                          value={shippingInfo.deliveryAddress.city}
-                          onChange={(e) => updateDeliveryAddress('city', e.target.value)}
-                          className="bg-green-50 border-green-300 focus:bg-white"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="state">State</Label>
-                        <Input
-                          id="state"
-                          placeholder="State name"
-                          value={shippingInfo.deliveryAddress.state}
-                          onChange={(e) => updateDeliveryAddress('state', e.target.value)}
-                          className="bg-green-50 border-green-300 focus:bg-white"
-                          required
-                        />
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Step 3: Street Address (only after PIN code) */}
-                  {shippingInfo.deliveryAddress.city && (
+                  {/* Step 2: City & State (Always Visible, Auto-filled after PIN) */}
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="address" className="text-base font-semibold">
-                        🏠 Step 2: Enter Your Street Address
+                      <Label htmlFor="city" className="text-base font-semibold">
+                        City {shippingInfo.deliveryAddress.city && shippingInfo.deliveryAddress.zipCode.length === 6 && '✅'}
                       </Label>
                       <Input
-                        id="address"
-                        placeholder="House no., Building name, Street"
-                        value={shippingInfo.deliveryAddress.address}
-                        onChange={(e) => updateDeliveryAddress('address', e.target.value)}
-                        className="mt-2"
+                        id="city"
+                        placeholder="Enter PIN first..."
+                        value={shippingInfo.deliveryAddress.city}
+                        onChange={(e) => updateDeliveryAddress('city', e.target.value)}
+                        className={shippingInfo.deliveryAddress.city && shippingInfo.deliveryAddress.zipCode.length === 6 
+                          ? "bg-green-50 border-green-300" 
+                          : ""}
+                        disabled={!shippingInfo.deliveryAddress.zipCode || shippingInfo.deliveryAddress.zipCode.length !== 6}
                         required
                       />
-                      <p className="text-xs text-gray-500 mt-1">
-                        e.g., "123, Apartment Name, Street Name"
-                      </p>
                     </div>
-                  )}
+                    <div>
+                      <Label htmlFor="state" className="text-base font-semibold">
+                        State {shippingInfo.deliveryAddress.state && shippingInfo.deliveryAddress.zipCode.length === 6 && '✅'}
+                      </Label>
+                      <Input
+                        id="state"
+                        placeholder="Enter PIN first..."
+                        value={shippingInfo.deliveryAddress.state}
+                        onChange={(e) => updateDeliveryAddress('state', e.target.value)}
+                        className={shippingInfo.deliveryAddress.state && shippingInfo.deliveryAddress.zipCode.length === 6 
+                          ? "bg-green-50 border-green-300" 
+                          : ""}
+                        disabled={!shippingInfo.deliveryAddress.zipCode || shippingInfo.deliveryAddress.zipCode.length !== 6}
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Step 3: Street Address (Always Visible) */}
+                  <div>
+                    <Label htmlFor="address" className="text-base font-semibold">
+                      🏠 Step 2: Enter Your Street Address
+                    </Label>
+                    <Input
+                      id="address"
+                      placeholder="House no., Building name, Street"
+                      value={shippingInfo.deliveryAddress.address}
+                      onChange={(e) => updateDeliveryAddress('address', e.target.value)}
+                      className="mt-2"
+                      disabled={!shippingInfo.deliveryAddress.city || !shippingInfo.deliveryAddress.state}
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      {!shippingInfo.deliveryAddress.city 
+                        ? 'Complete Step 1 first' 
+                        : 'e.g., "123, Apartment Name, Street Name"'}
+                    </p>
+                  </div>
                   
                   <div className="hidden">
                     <Input
@@ -500,37 +532,87 @@ export default function MobileCheckout() {
                   <Label>Payment Method</Label>
                   <div className="space-y-3 mt-2">
                     {paymentMethods.map((method) => (
-                      <div
-                        key={method.id}
-                        className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                          paymentInfo.paymentMethod === method.id
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 hover:bg-gray-50'
-                        }`}
-                        onClick={() => updatePaymentInfo('paymentMethod', method.id)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="font-medium">{method.name}</div>
-                            <div className="text-sm text-gray-600">{method.description}</div>
-                          </div>
-                          <div className="flex gap-1">
-                            {method.logos.map((logo) => (
-                              <div
-                                key={logo}
-                                className="w-8 h-5 bg-gray-200 rounded flex items-center justify-center text-xs font-bold"
-                              >
-                                {logo === 'visa' && 'VISA'}
-                                {logo === 'mastercard' && 'MC'}
-                                {logo === 'rupay' && 'RUPAY'}
-                                {logo === 'phonepe' && 'PP'}
-                                {logo === 'gpay' && 'GP'}
-                                {logo === 'paytm' && 'PT'}
-                                {logo === 'bhim' && 'BHIM'}
+                      <div key={method.id}>
+                        <div
+                          className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                            paymentInfo.paymentMethod === method.id
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:bg-gray-50'
+                          }`}
+                          onClick={() => updatePaymentInfo('paymentMethod', method.id)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="font-medium flex items-center gap-2">
+                                {method.name}
+                                {method.id === 'cod' && (
+                                  <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
+                                    Popular
+                                  </span>
+                                )}
                               </div>
-                            ))}
+                              <div className="text-sm text-gray-600 mt-1">{method.description}</div>
+                              {method.info && (
+                                <div className="text-xs text-blue-600 mt-1">
+                                  ℹ️ {method.info}
+                                </div>
+                              )}
+                            </div>
+                            {method.logos.length > 0 && (
+                              <div className="flex gap-1">
+                                {method.logos.map((logo) => (
+                                  <div
+                                    key={logo}
+                                    className="w-8 h-5 bg-gray-200 rounded flex items-center justify-center text-xs font-bold"
+                                  >
+                                    {logo === 'visa' && 'VISA'}
+                                    {logo === 'mastercard' && 'MC'}
+                                    {logo === 'rupay' && 'RUPAY'}
+                                    {logo === 'phonepe' && 'PP'}
+                                    {logo === 'gpay' && 'GP'}
+                                    {logo === 'paytm' && 'PT'}
+                                    {logo === 'bhim' && 'BHIM'}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            {method.id === 'cod' && (
+                              <div className="text-right ml-2">
+                                <div className="text-lg font-bold text-amber-600">₹200</div>
+                                <div className="text-xs text-gray-500">now</div>
+                              </div>
+                            )}
                           </div>
                         </div>
+                        
+                        {/* COD Explanation */}
+                        {method.id === 'cod' && paymentInfo.paymentMethod === 'cod' && (
+                          <div className="mt-2 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4">
+                            <h4 className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
+                              <span>💳</span> How Cash on Delivery Works:
+                            </h4>
+                            <ol className="text-sm space-y-2 text-gray-700">
+                              <li className="flex gap-2">
+                                <span className="font-bold text-amber-600">1.</span>
+                                <span>Pay <strong className="text-amber-700">₹200 advance</strong> now via UPI to confirm your order</span>
+                              </li>
+                              <li className="flex gap-2">
+                                <span className="font-bold text-amber-600">2.</span>
+                                <span>Your order will be processed and shipped to your address</span>
+                              </li>
+                              <li className="flex gap-2">
+                                <span className="font-bold text-amber-600">3.</span>
+                                <span>Pay the remaining <strong className="text-amber-700">₹{total - 200}</strong> in cash when delivered</span>
+                              </li>
+                            </ol>
+                            <div className="mt-3 pt-3 border-t border-amber-300">
+                              <p className="text-xs text-amber-800 flex items-center gap-1">
+                                <span>✅</span>
+                                <span className="font-medium">The ₹200 advance secures your order and prevents fake orders.</span>
+                              </p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -669,22 +751,59 @@ export default function MobileCheckout() {
                     </div>
                   ))}
                 </div>
-                <div className="border-t pt-2 mt-4">
-                  <div className="flex justify-between font-semibold text-lg">
-                    <span>Total</span>
+                <div className="border-t pt-3 mt-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Subtotal</span>
+                    <span className="font-medium">₹{subtotal}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Delivery Charge</span>
+                    <span className="font-medium text-green-600">₹{deliveryCharge}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-lg border-t pt-2">
+                    <span>Total Amount</span>
                     <span>₹{total}</span>
                   </div>
+                  {paymentInfo.paymentMethod === 'cod' && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-2">
+                      <p className="text-xs text-amber-800 font-medium mb-1">💰 Cash on Delivery:</p>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-amber-700">Pay now (advance)</span>
+                        <span className="font-semibold text-amber-900">₹200</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-amber-700">Pay at delivery</span>
+                        <span className="font-semibold text-amber-900">₹{total - 200}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="space-y-3">
                 <Button
                   onClick={handleFinalSubmit}
                   disabled={isProcessing}
-                  className="flex-1"
+                  className="w-full h-12 text-lg font-semibold"
                 >
-                  {isProcessing ? 'Processing...' : 'Place Order'}
+                  {isProcessing ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      {paymentInfo.paymentMethod === 'cod' 
+                        ? `Pay ₹200 Now & Confirm Order` 
+                        : `Pay ₹${total} & Place Order`}
+                    </>
+                  )}
                 </Button>
+                {paymentInfo.paymentMethod === 'cod' && (
+                  <p className="text-center text-xs text-gray-600">
+                    You'll pay ₹{total - 200} in cash when your order is delivered
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
