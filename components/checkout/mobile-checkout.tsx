@@ -457,8 +457,9 @@ export default function MobileCheckout() {
 
                 {/* New Address Form (show when no saved addresses or user clicks Add New) */}
                 {(showNewAddress || savedAddresses.length === 0) && (
+                <div className="space-y-4">
                 {/* Quick Delivery Check - PIN Code */}
-                <div className="mb-4">
+                <div>
                   <DeliveryCheck
                     variant="checkout"
                     onPinCodeValidated={(data) => {
@@ -708,6 +709,8 @@ export default function MobileCheckout() {
                     />
                   </div>
                 </div>
+                </div>
+                )}
               </CardContent>
             </Card>
 
