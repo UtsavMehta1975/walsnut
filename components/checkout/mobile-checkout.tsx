@@ -25,6 +25,9 @@ interface CartItem {
 
 interface DeliveryAddress {
   id?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
   houseNo: string;
   flatNo: string;
   building: string;
