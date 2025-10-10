@@ -54,7 +54,6 @@ export default function MobileCheckout() {
   const total = getTotal();
   const [savedAddresses, setSavedAddresses] = useState<DeliveryAddress[]>([]);
   const [showNewAddress, setShowNewAddress] = useState(false);
-  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [isCheckingPinCode, setIsCheckingPinCode] = useState(false);
   
   // Pre-fill user information from account
