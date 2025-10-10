@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
     const userId = firstUser.id
 
-    const { orderId, paymentMethod } = await request.json()
+    const { orderId, paymentMethod, amount, isCOD } = await request.json()
     
     // Get order details
     const order = await db.order.findUnique({
@@ -51,10 +51,21 @@ export async function POST(request: NextRequest) {
     // Generate unique order ID for Cashfree
     const cashfreeOrderId = `order_${order.id}_${Date.now()}`
     
+    // Use custom amount for COD (₹200 advance) or full amount for other methods
+    const paymentAmount = amount || Number(order.totalAmount)
+    
+    console.log('💳 Payment details:', {
+      orderId,
+      isCOD,
+      totalOrderAmount: Number(order.totalAmount),
+      paymentAmount,
+      method: paymentMethod
+    })
+    
     // Create payment session using Cashfree API directly
     const paymentSessionRequest = {
       order_id: cashfreeOrderId,
-      order_amount: Number(order.totalAmount),
+      order_amount: paymentAmount,
       order_currency: 'INR',
       customer_details: {
         customer_id: userId,
@@ -66,10 +77,14 @@ export async function POST(request: NextRequest) {
         return_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/success?order_id={order_id}`,
         notify_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/webhook`
       },
-      order_note: `Order for ${order.orderItems.length} items`,
+      order_note: isCOD 
+        ? `COD Order - ₹${paymentAmount} advance (Total: ₹${order.totalAmount})` 
+        : `Order for ${order.orderItems.length} items`,
       order_tags: {
         order_type: 'ecommerce',
-        payment_method: paymentMethod
+        payment_method: paymentMethod,
+        is_cod: isCOD ? 'true' : 'false',
+        full_amount: String(order.totalAmount)
       }
     }
 
@@ -110,7 +125,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       paymentSessionId: paymentSession.payment_session_id,
       orderId: cashfreeOrderId,
-      amount: Number(order.totalAmount),
+      amount: paymentAmount,
+      totalAmount: Number(order.totalAmount),
+      isCOD: isCOD || false,
       currency: 'INR'
     })
 
