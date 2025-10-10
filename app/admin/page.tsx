@@ -450,6 +450,7 @@ export default function AdminPage() {
           previousPrice: newProduct.previousPrice ? parseFloat(newProduct.previousPrice) : undefined,
           condition: newProduct.condition,
           year: parseInt(newProduct.year),
+          gender: newProduct.gender,
           description: newProduct.description,
           stockQuantity: parseInt(newProduct.stockQuantity),
           specifications: newProduct.specifications,
