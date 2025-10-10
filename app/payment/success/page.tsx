@@ -30,6 +30,7 @@ export default function PaymentSuccessPage() {
       setVerificationStatus('failed')
       setVerificationMessage('No order ID provided')
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId, cfOrderId])
 
   const verifyAndFetchOrder = async (orderId: string, cfOrderId?: string, retry = 0) => {

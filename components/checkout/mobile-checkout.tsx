@@ -130,6 +130,7 @@ export default function MobileCheckout() {
     };
 
     fetchSavedAddresses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const handleFinalSubmit = async () => {
