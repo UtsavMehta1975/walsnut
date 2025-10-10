@@ -63,14 +63,6 @@ function CheckoutContent() {
   
   const [paymentMethod, setPaymentMethod] = useState('')
 
-  // Payment method options
-  const paymentMethods = [
-    { id: 'upi', name: 'UPI Payment', icon: '📱', description: 'Pay using UPI apps like PhonePe, Google Pay', payNow: total },
-    { id: 'cod', name: 'Cash on Delivery', icon: '💵', description: `Pay ₹200 now, ₹${(total - 200).toFixed(0)} at delivery`, payNow: 200, info: 'Secure your order with ₹200 advance via UPI' },
-    { id: 'card', name: 'Credit/Debit Card', icon: '💳', description: 'Visa, Mastercard, RuPay cards', payNow: total },
-    { id: 'netbanking', name: 'Net Banking', icon: '🏦', description: 'Direct bank transfer', payNow: total }
-  ]
-
   // Determine if this is a Buy Now or Cart checkout
   const isBuyNow = productId && brand && model && price
   const checkoutItems = isBuyNow ? [{
@@ -85,6 +77,14 @@ function CheckoutContent() {
   const deliveryCharge = 100 // ₹100 delivery charge
   const tax = subtotal * 0.18 // 18% GST (Indian tax rate)
   const total = subtotal + deliveryCharge + tax
+
+  // Payment method options (defined after total calculation)
+  const paymentMethods = [
+    { id: 'upi', name: 'UPI Payment', icon: '📱', description: 'Pay using UPI apps like PhonePe, Google Pay', payNow: total },
+    { id: 'cod', name: 'Cash on Delivery', icon: '💵', description: `Pay ₹200 now, ₹${(total - 200).toFixed(0)} at delivery`, payNow: 200, info: 'Secure your order with ₹200 advance via UPI' },
+    { id: 'card', name: 'Credit/Debit Card', icon: '💳', description: 'Visa, Mastercard, RuPay cards', payNow: total },
+    { id: 'netbanking', name: 'Net Banking', icon: '🏦', description: 'Direct bank transfer', payNow: total }
+  ]
 
   // Check if mobile device
   useEffect(() => {
