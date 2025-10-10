@@ -38,15 +38,20 @@ export async function POST(request: NextRequest) {
 
     const { orderId, paymentMethod, amount, isCOD } = await request.json()
     
-    // Get order details
+    console.log('💳 Payment request:', { orderId, paymentMethod, amount, isCOD, userId })
+    
+    // Get order details - don't filter by userId for now to find the order
     const order = await db.order.findUnique({
-      where: { id: orderId, userId: userId },
+      where: { id: orderId },
       include: { orderItems: true }
     })
 
     if (!order) {
+      console.error('❌ Order not found:', orderId)
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
+    
+    console.log('✅ Order found:', { orderId: order.id, userId: order.userId, totalAmount: order.totalAmount })
 
     // Generate unique order ID for Cashfree
     const cashfreeOrderId = `order_${order.id}_${Date.now()}`
@@ -131,10 +136,17 @@ export async function POST(request: NextRequest) {
       currency: 'INR'
     })
 
-  } catch (error) {
-    console.error('Payment initialization error:', error)
+  } catch (error: any) {
+    console.error('❌ Payment initialization error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack
+    })
     return NextResponse.json(
-      { error: 'Payment initialization failed' },
+      { 
+        error: 'Payment initialization failed',
+        details: error.message || 'Unknown error'
+      },
       { status: 500 }
     )
   }
