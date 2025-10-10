@@ -542,61 +542,62 @@ export default function MobileCheckout() {
                           }`}
                           onClick={() => updatePaymentInfo('paymentMethod', method.id)}
                         >
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="font-medium flex items-center gap-2">
-                                {method.name}
-                                {method.id === 'cod' && (
-                                  <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
-                                    Popular
-                                  </span>
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <div className="font-medium flex items-center gap-2">
+                                  {method.name}
+                                  {method.id === 'cod' && (
+                                    <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
+                                      Popular
+                                    </span>
+                                  )}
+                                </div>
+                                {method.info && (
+                                  <div className="text-xs text-blue-600 mt-1">
+                                    ℹ️ {method.info}
+                                  </div>
                                 )}
                               </div>
-                              <div className="text-sm text-gray-600 mt-1">{method.description}</div>
-                              {method.info && (
-                                <div className="text-xs text-blue-600 mt-1">
-                                  ℹ️ {method.info}
+                              {method.id === 'cod' && (
+                                <div className="text-right ml-2">
+                                  <div className="text-lg font-bold text-amber-600">₹200</div>
+                                  <div className="text-xs text-gray-500">now</div>
                                 </div>
                               )}
                             </div>
-                            {method.id === 'cod' && (
-                              <div className="text-right ml-2">
-                                <div className="text-lg font-bold text-amber-600">₹200</div>
-                                <div className="text-xs text-gray-500">now</div>
+
+                            {/* UPI Apps Tiles - Always visible for UPI */}
+                            {method.id === 'upi' && method.showUPIApps && (
+                              <div className="grid grid-cols-4 gap-2 pt-2">
+                                <div className="flex flex-col items-center gap-1">
+                                  <div className="w-14 h-14 relative">
+                                    <PhonePeLogo />
+                                  </div>
+                                  <span className="text-[10px] text-gray-600 font-medium">PhonePe</span>
+                                </div>
+                                <div className="flex flex-col items-center gap-1">
+                                  <div className="w-14 h-14 relative">
+                                    <GooglePayLogo />
+                                  </div>
+                                  <span className="text-[10px] text-gray-600 font-medium">GPay</span>
+                                </div>
+                                <div className="flex flex-col items-center gap-1">
+                                  <div className="w-14 h-14 relative">
+                                    <PaytmLogo />
+                                  </div>
+                                  <span className="text-[10px] text-gray-600 font-medium">Paytm</span>
+                                </div>
+                                <div className="flex flex-col items-center gap-1">
+                                  <div className="w-14 h-14 relative">
+                                    <GenericUPILogo />
+                                  </div>
+                                  <span className="text-[10px] text-gray-600 font-medium">Others</span>
+                                </div>
                               </div>
                             )}
                           </div>
                         </div>
-                        
-                        {/* UPI Apps Tiles - Show when UPI selected */}
-                        {method.id === 'upi' && method.showUPIApps && paymentInfo.paymentMethod === 'upi' && (
-                          <div className="mt-3 grid grid-cols-4 gap-3">
-                            <div className="flex flex-col items-center gap-2">
-                              <div className="w-16 h-16 relative">
-                                <PhonePeLogo />
-                              </div>
-                              <span className="text-xs text-gray-700 font-medium">PhonePe</span>
-                            </div>
-                            <div className="flex flex-col items-center gap-2">
-                              <div className="w-16 h-16 relative">
-                                <GooglePayLogo />
-                              </div>
-                              <span className="text-xs text-gray-700 font-medium">Google Pay</span>
-                            </div>
-                            <div className="flex flex-col items-center gap-2">
-                              <div className="w-16 h-16 relative">
-                                <PaytmLogo />
-                              </div>
-                              <span className="text-xs text-gray-700 font-medium">Paytm</span>
-                            </div>
-                            <div className="flex flex-col items-center gap-2">
-                              <div className="w-16 h-16 relative">
-                                <GenericUPILogo />
-                              </div>
-                              <span className="text-xs text-gray-700 font-medium">Other UPI</span>
-                            </div>
-                          </div>
-                        )}
                         
                         {/* COD Explanation */}
                         {method.id === 'cod' && paymentInfo.paymentMethod === 'cod' && (
