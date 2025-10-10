@@ -35,7 +35,6 @@ function CheckoutContent() {
   const { items, clearCart } = useCart()
   const [isProcessing, setIsProcessing] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [isLoadingLocation, setIsLoadingLocation] = useState(false)
   const [addressSuggestions, setAddressSuggestions] = useState<string[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   
