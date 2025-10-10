@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, ChevronRight, MapPin, CreditCard, Check, Edit, Plus, Home } from 'lucide-react';
+import { MapPin, CreditCard, Check, Edit, Plus, Home } from 'lucide-react';
 import { useCart } from '@/store/cart-store';
 import { useAuth } from '@/contexts/auth-context';
 import { UPIFlowManager } from '@/components/checkout/upi-flow-manager';
@@ -52,7 +52,6 @@ export default function MobileCheckout() {
   const { items, getTotal, clearCart } = useCart();
   const { user } = useAuth();
   const total = getTotal();
-  const [currentStep, setCurrentStep] = useState(1);
   const [savedAddresses, setSavedAddresses] = useState<DeliveryAddress[]>([]);
   const [showNewAddress, setShowNewAddress] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
@@ -81,21 +80,6 @@ export default function MobileCheckout() {
   });
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const steps = [
-    { id: 1, title: 'Shipping', icon: MapPin },
-    { id: 2, title: 'Payment', icon: CreditCard },
-    { id: 3, title: 'Review', icon: Check }
-  ];
-
-  const handleShippingSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCurrentStep(2);
-  };
-
-  const handlePaymentSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCurrentStep(3);
-  };
 
   const handleFinalSubmit = async () => {
     setIsProcessing(true);
@@ -287,45 +271,16 @@ export default function MobileCheckout() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      {/* Progress Indicator */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          {steps.map((step, index) => {
-            const Icon = step.icon;
-            const isActive = currentStep === step.id;
-            const isCompleted = currentStep > step.id;
-            
-            return (
-              <div key={step.id} className="flex items-center">
-                <div className={`
-                  flex items-center justify-center w-10 h-10 rounded-full border-2
-                  ${isActive ? 'bg-blue-600 border-blue-600 text-white' : ''}
-                  ${isCompleted ? 'bg-green-600 border-green-600 text-white' : ''}
-                  ${!isActive && !isCompleted ? 'bg-white border-gray-300 text-gray-500' : ''}
-                `}>
-                  {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
-                </div>
-                {index < steps.length - 1 && (
-                  <div className={`
-                    w-12 h-0.5 mx-2
-                    ${isCompleted ? 'bg-green-600' : 'bg-gray-300'}
-                  `} />
-                )}
-              </div>
-            );
-          })}
-        </div>
-        <div className="text-center">
-          <h2 className="text-lg font-semibold text-gray-900">
-            {steps[currentStep - 1]?.title}
-          </h2>
-        </div>
+    <div className="min-h-screen bg-gray-50 p-4 pb-24">
+      {/* Page Title */}
+      <div className="mb-6 text-center">
+        <h1 className="text-2xl font-bold text-gray-900">Checkout</h1>
+        <p className="text-sm text-gray-600">Complete your order</p>
       </div>
 
-      {/* Step Content */}
-      <div className="max-w-md mx-auto">
-        {currentStep === 1 && (
+      {/* Single Page Content - All Sections Visible */}
+      <div className="max-w-md mx-auto space-y-6">
+          {/* Section 1: Contact & Delivery Information */}
           <div className="space-y-4">
             {/* Contact Information */}
             <Card>
@@ -484,7 +439,7 @@ export default function MobileCheckout() {
                   </div>
                 )}
 
-                <form onSubmit={handleShippingSubmit} className="space-y-4">
+                <div className="space-y-4">
                   {/* Step 1: PIN Code First */}
                   <div>
                     <Label htmlFor="zipCode" className="text-base font-semibold">
@@ -617,18 +572,12 @@ export default function MobileCheckout() {
                       onChange={(e) => updateDeliveryAddress('country', e.target.value)}
                     />
                   </div>
-                  
-                  <Button type="submit" className="w-full">
-                    Continue to Payment
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </form>
+                </div>
               </CardContent>
             </Card>
           </div>
-        )}
 
-        {currentStep === 2 && (
+        {/* Section 2: Payment Method */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -637,7 +586,7 @@ export default function MobileCheckout() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handlePaymentSubmit} className="space-y-4">
+              <div className="space-y-4">
                 <div>
                   <Label>Payment Method</Label>
                   <div className="space-y-3 mt-2">
@@ -742,27 +691,11 @@ export default function MobileCheckout() {
                   </div>
                 )}
                 
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setCurrentStep(1)}
-                    className="flex-1"
-                  >
-                    <ChevronLeft className="w-4 h-4 mr-2" />
-                    Back
-                  </Button>
-                  <Button type="submit" className="flex-1">
-                    Review Order
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
-              </form>
+              </div>
             </CardContent>
           </Card>
-        )}
 
-        {currentStep === 3 && (
+        {/* Section 3: Order Summary & Review */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -837,15 +770,6 @@ export default function MobileCheckout() {
 
               <div className="flex gap-2">
                 <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setCurrentStep(2)}
-                  className="flex-1"
-                >
-                  <ChevronLeft className="w-4 h-4 mr-2" />
-                  Back
-                </Button>
-                <Button
                   onClick={handleFinalSubmit}
                   disabled={isProcessing}
                   className="flex-1"
@@ -855,7 +779,6 @@ export default function MobileCheckout() {
               </div>
             </CardContent>
           </Card>
-        )}
       </div>
     </div>
   );
