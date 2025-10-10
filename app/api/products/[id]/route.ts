@@ -61,3 +61,131 @@ export async function GET(
     )
   }
 }
+
+// PUT - Update product
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader) {
+      return NextResponse.json(
+        { error: 'Authorization header required' },
+        { status: 401 }
+      )
+    }
+
+    const userEmail = authHeader.replace('Bearer ', '')
+    const user = await db.user.findUnique({
+      where: { email: userEmail },
+      select: { role: true }
+    })
+
+    if (!user || user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Admin access required' },
+        { status: 403 }
+      )
+    }
+
+    const body = await request.json()
+    const {
+      brand,
+      model,
+      referenceNumber,
+      price,
+      previousPrice,
+      condition,
+      year,
+      gender,
+      description,
+      stockQuantity,
+      specifications,
+      authenticity
+    } = body
+
+    const updatedProduct = await db.product.update({
+      where: { id: params.id },
+      data: {
+        brand,
+        model,
+        referenceNumber,
+        price,
+        previousPrice,
+        condition,
+        year,
+        gender,
+        description,
+        stockQuantity,
+        caseMaterial: specifications?.case || '',
+        bandMaterial: specifications?.bracelet || '',
+        movement: specifications?.movement || 'QUARTZ',
+        waterResistance: specifications?.waterResistance || 'N/A',
+        diameter: specifications?.diameter || 'N/A'
+      },
+      include: {
+        images: {
+          orderBy: { sortOrder: 'asc' }
+        }
+      }
+    })
+
+    // Convert Decimal fields to numbers
+    const serializedProduct = {
+      ...updatedProduct,
+      price: Number(updatedProduct.price),
+      previousPrice: updatedProduct.previousPrice ? Number(updatedProduct.previousPrice) : null,
+    }
+
+    return NextResponse.json(serializedProduct)
+  } catch (error) {
+    console.error('Update product error:', error)
+    return NextResponse.json(
+      { error: 'Failed to update product' },
+      { status: 500 }
+    )
+  }
+}
+
+// DELETE - Delete product
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader) {
+      return NextResponse.json(
+        { error: 'Authorization header required' },
+        { status: 401 }
+      )
+    }
+
+    const userEmail = authHeader.replace('Bearer ', '')
+    const user = await db.user.findUnique({
+      where: { email: userEmail },
+      select: { role: true }
+    })
+
+    if (!user || user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Admin access required' },
+        { status: 403 }
+      )
+    }
+
+    // Delete product (images will cascade delete)
+    await db.product.delete({
+      where: { id: params.id }
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Delete product error:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete product' },
+      { status: 500 }
+    )
+  }
+}
