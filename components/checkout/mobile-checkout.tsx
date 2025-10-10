@@ -175,12 +175,17 @@ export default function MobileCheckout() {
       // Step 1: Create the order with shipping address
       const fullAddress = `${buildFullAddress()}, ${shippingInfo.deliveryAddress.city}, ${shippingInfo.deliveryAddress.state} ${shippingInfo.deliveryAddress.zipCode}, ${shippingInfo.deliveryAddress.country}`;
       
-      // Calculate payment amount based on method
+      // Calculate final amounts based on method
+      // - UPI: Full cart total MINUS ₹100 discount
+      // - Card: Full cart total (no discount)
+      // - COD: Full cart total saved, but only ₹200 charged as advance
+      const finalOrderTotal = paymentInfo.paymentMethod === 'upi' 
+        ? totalWithUPIDiscount  // Apply ₹100 discount for UPI
+        : total;                // No discount for Card/COD
+      
       const paymentAmount = paymentInfo.paymentMethod === 'cod' 
-        ? 200 
-        : paymentInfo.paymentMethod === 'upi' 
-          ? totalWithUPIDiscount 
-          : total;
+        ? 200                   // COD: Pay ₹200 advance now
+        : finalOrderTotal;      // UPI/Card: Pay full discounted amount
       
       const orderResponse = await fetch('/api/orders', {
         method: 'POST',
@@ -192,7 +197,7 @@ export default function MobileCheckout() {
             price: item.price
           })),
           shippingAddress: fullAddress,
-          totalAmount: total,
+          totalAmount: finalOrderTotal, // Save the correct discounted total
           paymentMethod: paymentInfo.paymentMethod,
           isCOD: paymentInfo.paymentMethod === 'cod',
           codAdvance: paymentInfo.paymentMethod === 'cod' ? 200 : 0
