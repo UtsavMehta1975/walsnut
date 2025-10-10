@@ -25,7 +25,12 @@ interface CartItem {
 
 interface DeliveryAddress {
   id?: string;
-  address: string;
+  houseNo: string;
+  flatNo: string;
+  building: string;
+  street: string;
+  landmark: string;
+  address: string; // Full formatted string
   city: string;
   state: string;
   zipCode: string;
@@ -59,6 +64,7 @@ export default function MobileCheckout() {
   const [savedAddresses, setSavedAddresses] = useState<DeliveryAddress[]>([]);
   const [showNewAddress, setShowNewAddress] = useState(false);
   const [isCheckingPinCode, setIsCheckingPinCode] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1); // 1 = Address, 2 = Payment, 3 = Review
   
   // Pre-fill user information from account
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
@@ -67,6 +73,11 @@ export default function MobileCheckout() {
     email: user?.email || '',
     phone: user?.phone || '',
     deliveryAddress: {
+      houseNo: '',
+      flatNo: '',
+      building: '',
+      street: '',
+      landmark: '',
       address: '',
       city: '',
       state: '',
@@ -199,6 +210,11 @@ export default function MobileCheckout() {
     setShippingInfo(prev => ({
       ...prev,
       deliveryAddress: {
+        houseNo: '',
+        flatNo: '',
+        building: '',
+        street: '',
+        landmark: '',
         address: '',
         city: '',
         state: '',
@@ -206,6 +222,19 @@ export default function MobileCheckout() {
         country: 'India'
       }
     }));
+  };
+
+  // Build full address from separate fields
+  const buildFullAddress = () => {
+    const parts = [
+      shippingInfo.deliveryAddress.houseNo && `H.No: ${shippingInfo.deliveryAddress.houseNo}`,
+      shippingInfo.deliveryAddress.flatNo && `Flat: ${shippingInfo.deliveryAddress.flatNo}`,
+      shippingInfo.deliveryAddress.building,
+      shippingInfo.deliveryAddress.street && `Street: ${shippingInfo.deliveryAddress.street}`,
+      shippingInfo.deliveryAddress.landmark && `Near ${shippingInfo.deliveryAddress.landmark}`,
+    ].filter(Boolean);
+    
+    return parts.join(', ');
   };
 
 

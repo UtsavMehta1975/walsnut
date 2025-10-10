@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { firstName, lastName, phone, address, city, state, zipCode, country, isDefault } = body
+    const { firstName, lastName, phone, houseNo, flatNo, building, street, landmark, address, city, state, zipCode, country, isDefault } = body
 
     // If this is set as default, unset all other defaults for this user
     if (isDefault) {
@@ -77,7 +77,12 @@ export async function POST(request: NextRequest) {
         firstName,
         lastName,
         phone,
-        address,
+        houseNo: houseNo || '',
+        flatNo: flatNo || null,
+        building: building || null,
+        street: street || address, // Use street if provided, fallback to address
+        landmark: landmark || null,
+        address: address || street, // Full formatted address
         city,
         state,
         zipCode,
