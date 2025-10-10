@@ -933,10 +933,23 @@ export default function MobileCheckout() {
               {/* Shipping Summary */}
               <div>
                 <h3 className="font-semibold mb-2">Delivery Address</h3>
-                <div className="bg-gray-50 p-3 rounded-lg text-sm">
-                  <p>{shippingInfo.deliveryAddress.address}</p>
-                  <p>{shippingInfo.deliveryAddress.city}, {shippingInfo.deliveryAddress.state} {shippingInfo.deliveryAddress.zipCode}</p>
-                  <p>{shippingInfo.deliveryAddress.country}</p>
+                <div className="bg-gray-50 p-3 rounded-lg text-sm space-y-1">
+                  {shippingInfo.deliveryAddress.houseNo && (
+                    <p className="font-medium">{shippingInfo.deliveryAddress.houseNo}{shippingInfo.deliveryAddress.flatNo && `, ${shippingInfo.deliveryAddress.flatNo}`}</p>
+                  )}
+                  {shippingInfo.deliveryAddress.building && (
+                    <p>{shippingInfo.deliveryAddress.building}</p>
+                  )}
+                  {shippingInfo.deliveryAddress.street && (
+                    <p>{shippingInfo.deliveryAddress.street}</p>
+                  )}
+                  {shippingInfo.deliveryAddress.landmark && (
+                    <p className="text-gray-600">Near {shippingInfo.deliveryAddress.landmark}</p>
+                  )}
+                  <p className="font-medium text-gray-900 pt-1 border-t border-gray-200">
+                    {shippingInfo.deliveryAddress.city}, {shippingInfo.deliveryAddress.state} {shippingInfo.deliveryAddress.zipCode}
+                  </p>
+                  <p className="text-gray-600">{shippingInfo.deliveryAddress.country}</p>
                 </div>
               </div>
 
