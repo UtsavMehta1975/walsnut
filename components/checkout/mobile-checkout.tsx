@@ -54,7 +54,9 @@ export default function MobileCheckout() {
   const { user } = useAuth();
   const subtotal = getTotal();
   const deliveryCharge = 100; // ₹100 delivery charge
+  const upiDiscount = 100; // ₹100 OFF on UPI payment
   const total = subtotal + deliveryCharge;
+  const totalWithUPIDiscount = total - upiDiscount;
   const [savedAddresses, setSavedAddresses] = useState<DeliveryAddress[]>([]);
   const [showNewAddress, setShowNewAddress] = useState(false);
   const [isCheckingPinCode, setIsCheckingPinCode] = useState(false);
@@ -108,8 +110,12 @@ export default function MobileCheckout() {
       // Step 1: Create the order with shipping address
       const fullAddress = `${shippingInfo.deliveryAddress.address}, ${shippingInfo.deliveryAddress.city}, ${shippingInfo.deliveryAddress.state} ${shippingInfo.deliveryAddress.zipCode}, ${shippingInfo.deliveryAddress.country}`;
       
-      // Calculate payment amount based on method (COD = ₹200, others = full amount)
-      const paymentAmount = paymentInfo.paymentMethod === 'cod' ? 200 : total;
+      // Calculate payment amount based on method
+      const paymentAmount = paymentInfo.paymentMethod === 'cod' 
+        ? 200 
+        : paymentInfo.paymentMethod === 'upi' 
+          ? totalWithUPIDiscount 
+          : total;
       
       const orderResponse = await fetch('/api/orders', {
         method: 'POST',
@@ -211,8 +217,10 @@ export default function MobileCheckout() {
       name: 'UPI Payment',
       logos: [],
       showUPIApps: true, // Show PhonePe, GPay, Paytm tiles
-      description: 'Pay with any UPI app',
-      payNow: total
+      description: `₹${totalWithUPIDiscount} (Save ₹${upiDiscount})`,
+      payNow: totalWithUPIDiscount,
+      isPopular: true,
+      discount: upiDiscount
     },
     {
       id: 'card',
@@ -547,10 +555,17 @@ export default function MobileCheckout() {
                               <div className="flex-1">
                                 <div className="font-medium flex items-center gap-2">
                                   {method.name}
-                                  {method.id === 'cod' && (
-                                    <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
-                                      Popular
+                                  {method.isPopular && (
+                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-semibold">
+                                      ⚡ POPULAR - Save ₹{method.discount}
                                     </span>
+                                  )}
+                                </div>
+                                <div className="text-sm mt-1">
+                                  {method.isPopular ? (
+                                    <span className="text-green-600 font-semibold">{method.description}</span>
+                                  ) : (
+                                    <span className="text-gray-600">{method.description}</span>
                                   )}
                                 </div>
                                 {method.info && (
@@ -772,11 +787,26 @@ export default function MobileCheckout() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Delivery Charge</span>
-                    <span className="font-medium text-green-600">₹{deliveryCharge}</span>
+                    <span className="font-medium">₹{deliveryCharge}</span>
                   </div>
+                  {paymentInfo.paymentMethod === 'upi' && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-green-600 font-medium">UPI Discount</span>
+                      <span className="font-semibold text-green-600">- ₹{upiDiscount}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-bold text-lg border-t pt-2">
                     <span>Total Amount</span>
-                    <span>₹{total}</span>
+                    <span>
+                      {paymentInfo.paymentMethod === 'upi' ? (
+                        <>
+                          <span className="line-through text-gray-400 text-sm mr-2">₹{total}</span>
+                          <span className="text-green-600">₹{totalWithUPIDiscount}</span>
+                        </>
+                      ) : (
+                        `₹${total}`
+                      )}
+                    </span>
                   </div>
                   {paymentInfo.paymentMethod === 'cod' && (
                     <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-2">
@@ -809,13 +839,20 @@ export default function MobileCheckout() {
                     <>
                       {paymentInfo.paymentMethod === 'cod' 
                         ? `Pay ₹200 Now & Confirm Order` 
-                        : `Pay ₹${total} & Place Order`}
+                        : paymentInfo.paymentMethod === 'upi'
+                          ? `Pay ₹${totalWithUPIDiscount} & Place Order (Save ₹100)`
+                          : `Pay ₹${total} & Place Order`}
                     </>
                   )}
                 </Button>
                 {paymentInfo.paymentMethod === 'cod' && (
                   <p className="text-center text-xs text-gray-600">
                     You'll pay ₹{total - 200} in cash when your order is delivered
+                  </p>
+                )}
+                {paymentInfo.paymentMethod === 'upi' && (
+                  <p className="text-center text-xs text-green-600 font-medium">
+                    🎉 You're saving ₹100 with UPI payment!
                   </p>
                 )}
               </div>
