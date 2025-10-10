@@ -83,31 +83,58 @@ export default function MobileCheckout() {
   const handleFinalSubmit = async () => {
     setIsProcessing(true);
     try {
-      // Process payment and create order
-      const orderData = {
-        shippingInfo,
-        paymentInfo,
-        items,
-        total
-      };
+      // Step 1: Create the order with shipping address
+      const fullAddress = `${shippingInfo.deliveryAddress.address}, ${shippingInfo.deliveryAddress.city}, ${shippingInfo.deliveryAddress.state} ${shippingInfo.deliveryAddress.zipCode}, ${shippingInfo.deliveryAddress.country}`;
       
-      // Call your payment API here
-      const response = await fetch('/api/payments', {
+      const orderResponse = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
+        body: JSON.stringify({
+          items: items.map(item => ({
+            productId: item.id,
+            quantity: item.quantity,
+            price: item.price
+          })),
+          shippingAddress: fullAddress,
+          totalAmount: total
+        })
       });
 
-      if (response.ok) {
-        clearCart();
-        // Redirect to success page
-        window.location.href = '/payment/success';
+      if (!orderResponse.ok) {
+        const errorData = await orderResponse.json();
+        throw new Error(errorData.error || 'Failed to create order');
+      }
+
+      const orderResult = await orderResponse.json();
+      
+      // Step 2: Initialize payment with the created order ID
+      const paymentResponse = await fetch('/api/payments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: orderResult.order.id,
+          paymentMethod: paymentInfo.paymentMethod
+        })
+      });
+
+      if (!paymentResponse.ok) {
+        throw new Error('Failed to initialize payment');
+      }
+
+      const paymentData = await paymentResponse.json();
+      
+      // Clear cart and redirect to payment page
+      clearCart();
+      
+      // Redirect to Cashfree payment page
+      if (paymentData.paymentSessionId) {
+        window.location.href = `https://payments.cashfree.com/order/${paymentData.paymentSessionId}`;
       } else {
-        throw new Error('Payment failed');
+        throw new Error('No payment session ID received');
       }
     } catch (error) {
-      console.error('Payment error:', error);
-      // Handle error
+      console.error('❌ Checkout error:', error);
+      toast.error('Failed to process order. Please try again.');
     } finally {
       setIsProcessing(false);
     }
