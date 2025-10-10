@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
             id: true,
             email: true,
             name: true,
+            phone: true,
           },
         },
         orderItems: {
@@ -63,6 +64,7 @@ export async function POST(request: NextRequest) {
           paymentTransactionId: order.paymentTransactionId,
           customerEmail: order.user.email,
           customerName: order.user.name,
+          customerPhone: order.user.phone,
         },
       })
     }
@@ -118,6 +120,7 @@ export async function POST(request: NextRequest) {
                 paymentTransactionId: order.paymentTransactionId,
                 customerEmail: order.user.email,
                 customerName: order.user.name,
+                customerPhone: order.user.phone,
               },
             })
           } else if (cashfreeData.order_status === 'ACTIVE') {

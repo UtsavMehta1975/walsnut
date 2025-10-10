@@ -237,18 +237,24 @@ export default function PaymentSuccessPage() {
                 
                 {/* Customer Information */}
                 <div className="border-t pt-4">
-                  <p className="text-sm font-semibold text-gray-900 mb-3">Customer Information</p>
-                  <div className="space-y-2">
+                  <p className="text-sm font-semibold text-gray-900 mb-3">📞 Customer Information</p>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
                     {orderDetails.customerName && (
                       <div className="flex items-start">
-                        <span className="text-sm text-gray-600 w-20">Name:</span>
-                        <span className="text-sm font-medium flex-1">{orderDetails.customerName}</span>
+                        <span className="text-sm text-gray-600 w-24 flex-shrink-0">Name:</span>
+                        <span className="text-sm font-semibold flex-1">{orderDetails.customerName}</span>
                       </div>
                     )}
                     {orderDetails.customerEmail && (
                       <div className="flex items-start">
-                        <span className="text-sm text-gray-600 w-20">Email:</span>
+                        <span className="text-sm text-gray-600 w-24 flex-shrink-0">Email:</span>
                         <span className="text-sm font-medium flex-1 break-all">{orderDetails.customerEmail}</span>
+                      </div>
+                    )}
+                    {orderDetails.customerPhone && (
+                      <div className="flex items-start">
+                        <span className="text-sm text-gray-600 w-24 flex-shrink-0">Phone:</span>
+                        <span className="text-sm font-semibold flex-1">{orderDetails.customerPhone}</span>
                       </div>
                     )}
                   </div>
@@ -256,10 +262,16 @@ export default function PaymentSuccessPage() {
 
                 {/* Shipping Address */}
                 <div className="border-t pt-4">
-                  <p className="text-sm font-semibold text-gray-900 mb-2">Shipping Address</p>
-                  <div className="bg-gray-50 p-3 rounded-lg">
+                  <p className="text-sm font-semibold text-gray-900 mb-2">🏠 Delivery Address</p>
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                     {orderDetails.shippingAddress ? (
-                      <p className="font-medium text-sm">{orderDetails.shippingAddress}</p>
+                      <div className="text-sm space-y-1">
+                        {orderDetails.shippingAddress.split(',').map((line: string, index: number) => (
+                          <p key={index} className="font-medium text-gray-800">
+                            {line.trim()}
+                          </p>
+                        ))}
+                      </div>
                     ) : (
                       <p className="text-sm text-amber-600 flex items-center">
                         <span className="mr-2">⚠️</span>
