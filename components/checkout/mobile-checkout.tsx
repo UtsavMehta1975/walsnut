@@ -138,6 +138,7 @@ export default function MobileCheckout() {
     try {
       // Step 0: Save address for future use (fire and forget, don't block checkout)
       if (user) {
+        console.log('💾 Saving address for future checkouts...');
         fetch('/api/addresses', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -157,7 +158,18 @@ export default function MobileCheckout() {
             country: shippingInfo.deliveryAddress.country,
             isDefault: true // Make it default if it's the first address
           })
-        }).catch(err => console.log('Address save failed (non-blocking):', err));
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            console.log('✅ Address saved successfully for future use!', data);
+          } else if (data.warning) {
+            console.log('⚠️ Address not saved:', data.warning);
+          }
+        })
+        .catch(err => console.log('❌ Address save failed (non-blocking):', err));
+      } else {
+        console.log('ℹ️ User not logged in, address will not be saved for future use');
       }
 
       // Step 1: Create the order with shipping address
