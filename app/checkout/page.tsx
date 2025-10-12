@@ -75,8 +75,7 @@ function CheckoutContent() {
 
   const subtotal = checkoutItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
   const upiDiscount = 100 // ₹100 OFF on UPI payment
-  const tax = subtotal * 0.18 // 18% GST (Indian tax rate)
-  const total = subtotal + tax
+  const total = subtotal // No tax added
   const totalWithUPIDiscount = total - upiDiscount
 
   // Payment method options (defined after total calculation)
@@ -200,7 +199,7 @@ function CheckoutContent() {
         },
         orderSummary: {
           subtotal: subtotal,
-          tax: tax,
+          tax: 0,
           total: total
         },
         totalAmount: total
@@ -648,10 +647,6 @@ function CheckoutContent() {
                   <div className="flex justify-between">
                     <span>Subtotal</span>
                     <span>{formatPrice(subtotal)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Tax (18% GST)</span>
-                    <span>{formatPrice(tax)}</span>
                   </div>
                   {paymentMethod === 'upi' && (
                     <div className="flex justify-between text-green-600 font-semibold">
