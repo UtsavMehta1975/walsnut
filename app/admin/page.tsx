@@ -147,24 +147,50 @@ export default function AdminPage() {
     
     
     // Fetch data only once when admin access is confirmed
-    const fetchAllData = async () => {
+    const initializeAdminData = async () => {
       await Promise.all([
         fetchProducts(),
         fetchOrders(),
-        fetchCustomers()
+        fetchCustomers(),
+        fetchDashboardStats()
       ])
     }
     
-    fetchAllData()
+    initializeAdminData()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isAuthenticated, isLoading, router])
+
+  // Fetch dashboard statistics
+  const fetchDashboardStats = async () => {
+    try {
+      console.log('📊 [ADMIN] Fetching dashboard statistics...')
+      setIsLoadingStats(true)
+      const response = await fetch('/api/admin/stats', {
+        headers: {
+          'Authorization': `Bearer ${user?.email}`,
+        },
+      })
+      if (response.ok) {
+        const stats = await response.json()
+        console.log('✅ [ADMIN] Stats fetched:', stats)
+        setDashboardStats(stats)
+      } else {
+        console.error('🔴 [ADMIN] Failed to fetch stats')
+      }
+    } catch (error) {
+      console.error('🔴 [ADMIN] Stats fetch error:', error)
+    } finally {
+      setIsLoadingStats(false)
+    }
+  }
 
   // Fetch all data from database (for manual refresh)
   const fetchAllData = async () => {
     await Promise.all([
       fetchProducts(),
       fetchOrders(),
-      fetchCustomers()
+      fetchCustomers(),
+      fetchDashboardStats()
     ])
   }
 
@@ -190,23 +216,28 @@ export default function AdminPage() {
     }
   }
 
-  // Fetch orders from database
+  // Fetch orders from database (ALL orders for admin)
   const fetchOrders = async () => {
     try {
+      console.log('📦 [ADMIN] Fetching all orders...')
       setIsLoadingOrders(true)
-      const response = await fetch('/api/orders', {
+      const response = await fetch('/api/admin/orders', {
         headers: {
           'Authorization': `Bearer ${user?.email}`,
         },
       })
       if (response.ok) {
         const data = await response.json()
-        setOrders(data)
+        console.log('✅ [ADMIN] Orders fetched:', data.orders?.length || 0)
+        setOrders(data.orders || [])
       } else {
-        toast.error('Failed to fetch orders')
+        const error = await response.json().catch(() => ({}))
+        console.error('🔴 [ADMIN] Failed to fetch orders:', error)
+        toast.error(error.error || 'Failed to fetch orders')
       }
     } catch (error) {
-      toast.error('Failed to fetch orders')
+      console.error('🔴 [ADMIN] Fetch orders error:', error)
+      toast.error('Network error while fetching orders')
     } finally {
       setIsLoadingOrders(false)
     }
@@ -545,10 +576,25 @@ export default function AdminPage() {
     toast.success('Order status updated!')
   }
 
-  const totalRevenue = Array.isArray(orders) ? orders.reduce((sum, order) => sum + order.total, 0) : 0
-  const totalOrders = Array.isArray(orders) ? orders.length : 0
-  const totalCustomers = Array.isArray(customers) ? customers.length : 0
-  const totalProducts = Array.isArray(products) ? products.length : 0
+  // Dashboard statistics state
+  const [dashboardStats, setDashboardStats] = useState({
+    totalRevenue: 0,
+    totalOrders: 0,
+    totalCustomers: 0,
+    totalProducts: 0,
+    averageOrderValue: 0,
+    recentActivity: {
+      ordersLast7Days: 0,
+      revenueLast7Days: 0
+    }
+  })
+  const [isLoadingStats, setIsLoadingStats] = useState(true)
+
+  // Use real-time calculated stats
+  const totalRevenue = dashboardStats.totalRevenue
+  const totalOrders = dashboardStats.totalOrders
+  const totalCustomers = dashboardStats.totalCustomers
+  const totalProducts = dashboardStats.totalProducts
 
   const tabItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -679,7 +725,7 @@ export default function AdminPage() {
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Total Products</p>
                       <p className="text-xl lg:text-2xl font-bold text-gray-900">
-                        {isLoadingProducts ? (
+                        {isLoadingStats ? (
                           <span className="animate-pulse bg-gray-200 h-8 w-16 rounded-none"></span>
                         ) : (
                           totalProducts
@@ -702,7 +748,7 @@ export default function AdminPage() {
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Total Customers</p>
                       <p className="text-xl lg:text-2xl font-bold text-gray-900">
-                        {isLoadingCustomers ? (
+                        {isLoadingStats ? (
                           <span className="animate-pulse bg-gray-200 h-8 w-16 rounded-none"></span>
                         ) : (
                           totalCustomers
@@ -725,7 +771,7 @@ export default function AdminPage() {
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Total Orders</p>
                       <p className="text-xl lg:text-2xl font-bold text-gray-900">
-                        {isLoadingOrders ? (
+                        {isLoadingStats ? (
                           <span className="animate-pulse bg-gray-200 h-8 w-16 rounded-none"></span>
                         ) : (
                           totalOrders
@@ -743,11 +789,17 @@ export default function AdminPage() {
                 <CardContent className="p-4 lg:p-6">
                   <div className="flex items-center">
                     <div className="p-2 bg-purple-100 rounded-lg">
-                      <BarChart3 className="h-6 w-6 text-purple-600" />
+                      <TrendingUp className="h-6 w-6 text-purple-600" />
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                      <p className="text-xl lg:text-2xl font-bold text-gray-900">{formatPrice(totalRevenue)}</p>
+                      <p className="text-xl lg:text-2xl font-bold text-gray-900">
+                        {isLoadingStats ? (
+                          <span className="animate-pulse bg-gray-200 h-8 w-24 rounded-none"></span>
+                        ) : (
+                          formatPrice(totalRevenue)
+                        )}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -799,6 +851,31 @@ export default function AdminPage() {
                       >
                         Refresh Customers
                       </Button>
+                      <Button 
+                        onClick={fetchDashboardStats}
+                        className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                        size="sm"
+                      >
+                        Refresh Stats
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+                    <div className="bg-blue-50 p-3 rounded-lg">
+                      <p className="text-blue-600 font-medium">Products</p>
+                      <p className="text-2xl font-bold text-blue-900">{totalProducts}</p>
+                    </div>
+                    <div className="bg-green-50 p-3 rounded-lg">
+                      <p className="text-green-600 font-medium">Orders</p>
+                      <p className="text-2xl font-bold text-green-900">{totalOrders}</p>
+                    </div>
+                    <div className="bg-purple-50 p-3 rounded-lg">
+                      <p className="text-purple-600 font-medium">Revenue</p>
+                      <p className="text-xl font-bold text-purple-900">{formatPrice(totalRevenue)}</p>
+                    </div>
+                    <div className="bg-orange-50 p-3 rounded-lg">
+                      <p className="text-orange-600 font-medium">Customers</p>
+                      <p className="text-2xl font-bold text-orange-900">{totalCustomers}</p>
                     </div>
                   </div>
                 </div>
