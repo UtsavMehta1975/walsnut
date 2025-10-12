@@ -52,7 +52,7 @@ export async function POST(
       )
     }
     const body = await request.json()
-    const { imageUrl, altText, isPrimary, sortOrder } = body
+    const { imageUrl, altText, isPrimary, sortOrder, colorName, colorCode, variantSku, isSelectable } = body
 
     if (!imageUrl) {
       return NextResponse.json(
@@ -100,7 +100,7 @@ export async function POST(
       })
     }
 
-    // Create the image record
+    // Create the image record with color variant info
     const image = await db.productImage.create({
       data: {
         productId: params.id,
@@ -108,7 +108,11 @@ export async function POST(
         imageUrl: sanitizedImageUrl,
         altText: altText || '',
         isPrimary: isPrimary || false,
-        sortOrder: newSortOrder
+        sortOrder: newSortOrder,
+        colorName: colorName || null,
+        colorCode: colorCode || null,
+        variantSku: variantSku || null,
+        isSelectable: isSelectable !== undefined ? isSelectable : true
       }
     })
 

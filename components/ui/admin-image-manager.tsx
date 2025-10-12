@@ -19,6 +19,10 @@ interface ProductImage {
   altText: string
   isPrimary: boolean
   sortOrder: number
+  colorName?: string | null
+  colorCode?: string | null
+  variantSku?: string | null
+  isSelectable: boolean
   createdAt: string
 }
 
@@ -35,6 +39,9 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
   const [editAltText, setEditAltText] = useState('')
   const [newImageUrl, setNewImageUrl] = useState('')
   const [newAltText, setNewAltText] = useState('')
+  const [newColorName, setNewColorName] = useState('')
+  const [newColorCode, setNewColorCode] = useState('')
+  const [newVariantSku, setNewVariantSku] = useState('')
   const [isAddingImage, setIsAddingImage] = useState(false)
   
   // Drag and drop states
@@ -124,7 +131,11 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
           imageUrl: sanitizedUrl,
           altText: newAltText.trim() || 'Product image',
           isPrimary: images.length === 0, // First image is primary
-          sortOrder: images.length
+          sortOrder: images.length,
+          colorName: newColorName.trim() || null,
+          colorCode: newColorCode.trim() || null,
+          variantSku: newVariantSku.trim() || null,
+          isSelectable: true
         }),
       })
 
@@ -133,6 +144,9 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
         setImages([...images, newImage])
         setNewImageUrl('')
         setNewAltText('')
+        setNewColorName('')
+        setNewColorCode('')
+        setNewVariantSku('')
         setIsAddingImage(false)
         toast.success('Image added successfully!')
       } else {
@@ -322,6 +336,53 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
                   className="w-full"
                 />
               </div>
+              
+              {/* Color Variant Fields */}
+              <div className="border-t pt-3 mt-2">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">Color Variant (Optional)</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      Color Name
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="Black, Blue, Silver, Gold"
+                      value={newColorName}
+                      onChange={(e) => setNewColorName(e.target.value)}
+                      className="w-full"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">e.g., Black Dial, Blue Strap</p>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      Color Code
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="BLK, BLU, SLV"
+                      value={newColorCode}
+                      onChange={(e) => setNewColorCode(e.target.value.toUpperCase())}
+                      className="w-full"
+                      maxLength={3}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">3-letter code</p>
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      Variant SKU (Optional)
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="WATCH-BLK-001"
+                      value={newVariantSku}
+                      onChange={(e) => setNewVariantSku(e.target.value.toUpperCase())}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+              
               <div className="flex space-x-2">
                 <Button onClick={handleAddImage} size="sm">
                   <Save className="h-4 w-4 mr-2" />
@@ -334,6 +395,9 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
                     setIsAddingImage(false)
                     setNewImageUrl('')
                     setNewAltText('')
+                    setNewColorName('')
+                    setNewColorCode('')
+                    setNewVariantSku('')
                   }}
                 >
                   <CloseIcon className="h-4 w-4 mr-2" />
@@ -387,11 +451,21 @@ export default function AdminImageManager({ productId, className }: AdminImageMa
 
                 {/* Image info */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-2 mb-1">
+                  <div className="flex items-center flex-wrap gap-2 mb-1">
                     {image.isPrimary && (
                       <Badge variant="secondary" className="text-xs">
                         <Star className="h-3 w-3 mr-1" />
                         Primary
+                      </Badge>
+                    )}
+                    {image.colorName && (
+                      <Badge className="text-xs bg-blue-100 text-blue-800">
+                        {image.colorName}
+                      </Badge>
+                    )}
+                    {image.colorCode && (
+                      <Badge variant="outline" className="text-xs">
+                        {image.colorCode}
                       </Badge>
                     )}
                     <span className="text-xs text-gray-500">Order: {image.sortOrder + 1}</span>

@@ -368,66 +368,10 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-          {/* Product Images - Vertical Carousel Style */}
-          <div className="flex gap-4">
-            {/* Mini Carousel - Left Side */}
-            {product.images && product.images.length > 1 && (
-              <div className="flex flex-col items-center">
-                {/* Up Arrow */}
-                {product.images && product.images.length > 6 && (
-                  <button
-                    onClick={() => scrollCarousel('up')}
-                    className="p-1 mb-2 text-gray-400 hover:text-gray-600 transition-colors"
-                    disabled={carouselScrollTop === 0}
-                  >
-                    <ChevronUp className="w-4 h-4" />
-                  </button>
-                )}
-
-                {/* Thumbnail Carousel */}
-                <div 
-                  id="image-carousel"
-                  className="flex flex-col space-y-2 max-h-[500px] overflow-y-auto scrollbar-hide"
-                  onScroll={(e) => setCarouselScrollTop(e.currentTarget.scrollTop)}
-                >
-                  {product.images.map((image, index) => (
-                    <div 
-                      key={index} 
-                      className={`w-16 h-16 overflow-hidden cursor-pointer transition-all border-2 rounded ${
-                        selectedImageIndex === index 
-                          ? 'border-black shadow-md' 
-                          : 'border-gray-200 hover:border-gray-400'
-                      }`}
-                      onClick={() => {
-                        setSelectedImageIndex(index)
-                        setIsImageLoading(true) // Show loader when switching images
-                      }}
-                    >
-                      <Image
-                        src={image.imageUrl}
-                        alt={image.altText || `${product.name} - View ${index + 1}`}
-                        width={64}
-                        height={64}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
-
-                {/* Down Arrow */}
-                {product.images && product.images.length > 6 && (
-                  <button
-                    onClick={() => scrollCarousel('down')}
-                    className="p-1 mt-2 text-gray-400 hover:text-gray-600 transition-colors"
-                  >
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            )}
-
-            {/* Main Image - Professional display */}
-            <div className="flex-1 aspect-square overflow-hidden bg-gray-50 border border-gray-200 relative">
+          {/* Product Images - NEW LAYOUT: Main on Top, Thumbnails Below */}
+          <div className="space-y-4">
+            {/* Main Image - Full Size on Top */}
+            <div className="w-full relative bg-gray-50 border border-gray-200 rounded-lg overflow-hidden" style={{ aspectRatio: '1/1' }}>
               {/* Image Loader */}
               {isImageLoading && (
                 <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
@@ -441,12 +385,12 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               <Image
                 src={product.images?.[selectedImageIndex]?.imageUrl || product.image}
                 alt={selectedVariant ? `${product.name} - ${selectedVariant.colorName}` : product.name}
-                width={800}
-                height={800}
-                className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                fill
+                className="object-contain cursor-pointer hover:opacity-95 transition-opacity p-4"
                 onClick={() => setShowImageModal(true)}
                 onLoad={handleImageLoad}
                 onError={handleImageError}
+                priority
               />
               
               {/* Selected Variant Badge */}
@@ -455,7 +399,59 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                   {selectedVariant.colorName}
                 </div>
               )}
+              
+              {/* Image Counter */}
+              {product.images && product.images.length > 1 && (
+                <div className="absolute bottom-4 right-4 bg-black bg-opacity-75 text-white px-3 py-1 rounded-full text-xs">
+                  {selectedImageIndex + 1} / {product.images.length}
+                </div>
+              )}
             </div>
+
+            {/* Thumbnail Carousel - Horizontal Below Main Image */}
+            {product.images && product.images.length > 1 && (
+              <div className="w-full">
+                <div className="relative">
+                  <div 
+                    className="flex gap-2 overflow-x-auto scrollbar-hide scroll-smooth pb-2"
+                    id="thumbnail-carousel"
+                  >
+                    {product.images.map((image, index) => (
+                      <button
+                        key={image.id}
+                        onClick={() => {
+                          setSelectedImageIndex(index)
+                          setIsImageLoading(true)
+                        }}
+                        className={`
+                          relative flex-shrink-0 w-20 h-20 overflow-hidden cursor-pointer transition-all border-2 rounded-lg
+                          ${selectedImageIndex === index 
+                            ? 'border-black shadow-lg scale-105' 
+                            : 'border-gray-300 hover:border-gray-400 hover:scale-105'
+                          }
+                        `}
+                      >
+                        <Image
+                          src={image.imageUrl}
+                          alt={image.altText || `View ${index + 1}`}
+                          fill
+                          className="object-cover"
+                          sizes="80px"
+                        />
+                        {/* Check mark for selected */}
+                        {selectedImageIndex === index && (
+                          <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                            <div className="bg-black rounded-full p-1">
+                              <Check className="w-4 h-4 text-white" />
+                            </div>
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Product Details - Helios Style */}
@@ -514,54 +510,81 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               )}
             </div>
 
-            {/* Unified Image-Color Selector */}
-            {product.images && product.images.length > 1 && (
+            {/* Color Variants - Show only if products have color names */}
+            {product.images && product.images.some((img: ProductImage) => img.colorName) && (
               <div className="mb-6">
-                <h3 className="text-sm font-medium text-black mb-3 uppercase tracking-wide">Select Color & Style</h3>
-                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
-                  {product.images.map((image: ProductImage, index: number) => {
-                    const isSelected = selectedImageIndex === index
-                    const variantSku = image.variantSku || `${product.sku}-${index + 1}`
-                    const colorName = image.colorName || `Variant ${index + 1}`
-                    
-                    return (
-                      <button
-                        key={image.id}
-                        onClick={() => {
-                          setSelectedImageIndex(index)
-                          setSelectedVariant({
-                            id: image.id,
-                            sku: variantSku,
-                            colorName: colorName,
-                            colorCode: image.colorCode || `VAR${index + 1}`,
-                            imageUrl: image.imageUrl,
-                            isAvailable: true
-                          })
-                          setSelectedColor(colorName)
-                        }}
-                        className={`
-                          relative aspect-square rounded-lg border-2 transition-all duration-200 overflow-hidden
-                          ${isSelected 
-                            ? 'border-yellow-500 ring-2 ring-yellow-200 scale-105' 
-                            : 'border-gray-300 hover:border-gray-400 hover:scale-105'
-                          }
-                        `}
-                        title={`${colorName} - ${variantSku}`}
-                      >
-                        <Image
-                          src={getOptimizedImageUrl(image.imageUrl)}
-                          alt={image.altText || `${product.name} - ${colorName}`}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 640px) 25vw, (max-width: 768px) 16vw, 12vw"
-                        />
-                        
-                        {/* Selected Indicator */}
-                        {isSelected && (
-                          <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center">
-                            <Check className="w-3 h-3 text-white" />
+                <h3 className="text-sm font-medium text-black mb-3 uppercase tracking-wide">
+                  Select Color
+                  {selectedVariant && <span className="ml-2 text-gray-600 normal-case">- {selectedVariant.colorName}</span>}
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  {product.images
+                    .filter((img: ProductImage) => img.colorName && img.isSelectable !== false)
+                    .map((image: ProductImage, index: number) => {
+                      const actualIndex = product.images.findIndex((img: ProductImage) => img.id === image.id)
+                      const isSelected = selectedImageIndex === actualIndex
+                      const variantSku = image.variantSku || `${product.sku}-${image.colorCode || index + 1}`
+                      const colorName = image.colorName || `Variant ${index + 1}`
+                      
+                      return (
+                        <button
+                          key={image.id}
+                          onClick={() => {
+                            setSelectedImageIndex(actualIndex)
+                            setSelectedVariant({
+                              id: image.id,
+                              sku: variantSku,
+                              colorName: colorName,
+                              colorCode: image.colorCode || `VAR${index + 1}`,
+                              imageUrl: image.imageUrl,
+                              isAvailable: true
+                            })
+                            setSelectedColor(colorName)
+                            setIsImageLoading(true)
+                          }}
+                          className={`
+                            group relative w-16 h-16 rounded-lg border-2 transition-all duration-200 overflow-hidden
+                            ${isSelected 
+                              ? 'border-yellow-500 ring-2 ring-yellow-200 scale-110' 
+                              : 'border-gray-300 hover:border-gray-400 hover:scale-105'
+                            }
+                          `}
+                          title={colorName}
+                        >
+                          <Image
+                            src={getOptimizedImageUrl(image.imageUrl)}
+                            alt={`${product.name} - ${colorName}`}
+                            fill
+                            className="object-cover"
+                            sizes="64px"
+                          />
+                          
+                            {/* Selected Indicator */}
+                          {isSelected && (
+                            <div className="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center">
+                              <div className="bg-yellow-500 rounded-full p-1 shadow-lg">
+                                <Check className="w-4 h-4 text-white" />
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Color Name Label */}
+                          <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent py-1 px-1 
+                            ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
+                            <p className="text-xs text-white font-medium text-center truncate">
+                              {colorName}
+                            </p>
                           </div>
-                        )}
+                        </button>
+                      )
+                    })
+                  }
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Click to see product in different colors
+                </p>
+              </div>
+            )}
                         
                         {/* Color Name Overlay */}
                         <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white text-xs p-1 text-center">
