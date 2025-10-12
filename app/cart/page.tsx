@@ -16,11 +16,11 @@ export default function CartPage() {
   const { user } = useAuth()
   const { items, removeFromCart, updateQuantity, clearCart, getTotal } = useCart()
 
-  const handleQuantityChange = (id: string, newQuantity: number) => {
+  const handleQuantityChange = (id: string, newQuantity: number, variantSku?: string) => {
     if (newQuantity <= 0) {
-      removeFromCart(id)
+      removeFromCart(id, variantSku)
     } else {
-      updateQuantity(id, newQuantity)
+      updateQuantity(id, newQuantity, variantSku)
     }
   }
 
@@ -87,7 +87,7 @@ export default function CartPage() {
           <div className="lg:col-span-2">
             <div className="space-y-4">
               {items.map((item) => (
-                <div key={item.id} className="bg-white border border-gray-200 rounded-lg p-4">
+                <div key={`${item.id}-${item.variantSku || 'default'}`} className="bg-white border border-gray-200 rounded-lg p-4">
                   <div className="flex space-x-4">
                     {/* Product Image */}
                     <div className="relative w-20 h-20 md:w-24 md:h-24 flex-shrink-0">
@@ -104,6 +104,16 @@ export default function CartPage() {
                       <h3 className="font-semibold text-black text-sm md:text-base truncate">
                         {item.name}
                       </h3>
+                      {item.selectedColor && (
+                        <p className="text-xs text-gray-500 mb-1">
+                          Color: {item.selectedColor}
+                        </p>
+                      )}
+                      {item.variantSku && (
+                        <p className="text-xs text-gray-500 mb-1">
+                          SKU: {item.variantSku}
+                        </p>
+                      )}
                       <p className="text-sm text-gray-600 mb-2">
                         {formatPrice(item.price)}
                       </p>
@@ -113,7 +123,7 @@ export default function CartPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                          onClick={() => handleQuantityChange(item.id, item.quantity - 1, item.variantSku)}
                           className="w-8 h-8 p-0 border-gray-300"
                         >
                           <Minus className="h-3 w-3" />
@@ -124,7 +134,7 @@ export default function CartPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                          onClick={() => handleQuantityChange(item.id, item.quantity + 1, item.variantSku)}
                           className="w-8 h-8 p-0 border-gray-300"
                         >
                           <Plus className="h-3 w-3" />
@@ -137,7 +147,10 @@ export default function CartPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => {
+                          console.log('🗑️ [CART] Removing item:', item.id, 'Variant:', item.variantSku)
+                          removeFromCart(item.id, item.variantSku)
+                        }}
                         className="text-red-600 hover:text-red-700"
                       >
                         <Trash2 className="h-4 w-4" />
