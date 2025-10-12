@@ -128,11 +128,43 @@ export default function AccountPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Please sign in to view your account</h1>
-          <Button className="btn-walnut">Sign In</Button>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        
+        <div className="flex items-center justify-center" style={{ minHeight: 'calc(100vh - 200px)' }}>
+          <div className="text-center px-4">
+            <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <User className="h-10 w-10 text-yellow-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Sign in to view your account</h1>
+            <p className="text-gray-600 mb-6">Access your orders, wishlist, and profile information</p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button 
+                className="btn-walnut"
+                onClick={() => window.location.href = '/auth/signin'}
+              >
+                Sign In
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => window.location.href = '/auth/signup'}
+              >
+                Create Account
+              </Button>
+            </div>
+            <div className="mt-8">
+              <Button 
+                variant="ghost"
+                onClick={() => window.location.href = '/watches'}
+                className="text-gray-600"
+              >
+                ← Continue Shopping
+              </Button>
+            </div>
+          </div>
         </div>
+        
+        <Footer />
       </div>
     )
   }
