@@ -16,6 +16,7 @@ model User {
   hashedPassword String?   // Optional for Google users
   name           String?
   phone          String?
+  phoneVerified  DateTime? // Phone verification timestamp
   address        String?
   image          String?   // Profile picture from Google
   role           UserRole  @default(CUSTOMER)
@@ -30,6 +31,7 @@ model User {
   accounts       Account[] // OAuth accounts
   sessions       Session[] // User sessions
   savedAddresses SavedAddress[]
+  otps           OTP[]     // OTP verification records
 
   @@map("users")
 }
@@ -71,6 +73,28 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+model OTP {
+  id         String      @id @default(cuid())
+  userId     String?     // Optional - for logged-in users
+  email      String?     // For email verification
+  phone      String?     // For phone verification
+  otp        String      // The OTP code (hashed)
+  type       OTPType     // EMAIL or PHONE
+  purpose    OTPPurpose  // SIGNUP, LOGIN, RESET_PASSWORD, etc.
+  attempts   Int         @default(0) // Failed verification attempts
+  maxAttempts Int        @default(3) // Maximum allowed attempts
+  isVerified Boolean     @default(false)
+  expiresAt  DateTime    // OTP expiration time
+  createdAt  DateTime    @default(now())
+  
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([phone])
+  @@map("otps")
 }
 
 model SavedAddress {
@@ -306,5 +330,19 @@ enum PaymentStatus {
   FAILED
   REFUNDED
   CANCELLED
+}
+
+enum OTPType {
+  EMAIL
+  PHONE
+}
+
+enum OTPPurpose {
+  SIGNUP
+  LOGIN
+  RESET_PASSWORD
+  VERIFY_EMAIL
+  VERIFY_PHONE
+  TWO_FACTOR_AUTH
 }
 

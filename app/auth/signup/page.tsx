@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/auth-context'
 import toast from 'react-hot-toast'
 import { trackCompleteRegistration } from '@/components/analytics/meta-pixel'
 import { signIn } from 'next-auth/react'
+import { OTPVerification } from '@/components/auth/otp-verification'
 
 export default function SignUpPage() {
   const [name, setName] = useState('')
@@ -19,8 +20,55 @@ export default function SignUpPage() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [showOTPVerification, setShowOTPVerification] = useState(false)
+  const [verificationType, setVerificationType] = useState<'EMAIL' | 'PHONE'>('EMAIL')
+  const [emailVerified, setEmailVerified] = useState(false)
+  const [phoneVerified, setPhoneVerified] = useState(false)
   const router = useRouter()
   const { signup } = useAuth()
+
+  const handleSendOTP = async (type: 'EMAIL' | 'PHONE') => {
+    setIsLoading(true)
+
+    try {
+      const response = await fetch('/api/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: type === 'EMAIL' ? email : undefined,
+          phone: type === 'PHONE' ? phone : undefined,
+          type,
+          purpose: 'SIGNUP'
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        toast.success(`OTP sent to your ${type.toLowerCase()}!`)
+        setVerificationType(type)
+        setShowOTPVerification(true)
+      } else {
+        toast.error(data.error || 'Failed to send OTP')
+      }
+    } catch (error) {
+      console.error('Send OTP error:', error)
+      toast.error('Failed to send OTP. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleOTPVerified = () => {
+    if (verificationType === 'EMAIL') {
+      setEmailVerified(true)
+      toast.success('✅ Email verified!')
+    } else {
+      setPhoneVerified(true)
+      toast.success('✅ Phone verified!')
+    }
+    setShowOTPVerification(false)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -40,14 +88,32 @@ export default function SignUpPage() {
       return
     }
 
-    // Validate phone number (optional but if provided, should be valid)
-    if (phone && phone.length > 0) {
-      const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/
-      if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
-        toast.error('Please enter a valid phone number')
-        setIsLoading(false)
-        return
-      }
+    // Validate phone number (required and must be valid)
+    if (!phone || phone.length === 0) {
+      toast.error('Phone number is required')
+      setIsLoading(false)
+      return
+    }
+
+    const phoneRegex = /^[6-9]\d{9}$/
+    if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+      toast.error('Please enter a valid 10-digit Indian mobile number')
+      setIsLoading(false)
+      return
+    }
+
+    // Check if email is verified
+    if (!emailVerified) {
+      toast.error('Please verify your email first')
+      setIsLoading(false)
+      return
+    }
+
+    // Check if phone is verified
+    if (!phoneVerified) {
+      toast.error('Please verify your phone number first')
+      setIsLoading(false)
+      return
     }
 
     try {
@@ -58,7 +124,6 @@ export default function SignUpPage() {
         trackCompleteRegistration('email')
         
         toast.success('Account created successfully! Welcome to The Walnut Store!')
-        // Signup typically creates regular users, so redirect to dashboard
         console.log('New user account created, redirecting to dashboard...')
         router.push('/dashboard')
       } else {
@@ -69,6 +134,26 @@ export default function SignUpPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Show OTP verification modal
+  if (showOTPVerification) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="flex min-h-screen items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+          <OTPVerification
+            email={verificationType === 'EMAIL' ? email : undefined}
+            phone={verificationType === 'PHONE' ? phone : undefined}
+            type={verificationType}
+            purpose="SIGNUP"
+            onVerified={handleOTPVerified}
+            onCancel={() => setShowOTPVerification(false)}
+          />
+        </div>
+        <Footer />
+      </div>
+    )
   }
 
   return (
@@ -112,36 +197,76 @@ export default function SignUpPage() {
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                   Email address
                 </label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1"
-                  placeholder="Enter your email"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="mt-1 flex-1"
+                    placeholder="Enter your email"
+                    disabled={emailVerified}
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => handleSendOTP('EMAIL')}
+                    disabled={!email || isLoading || emailVerified}
+                    className="mt-1 bg-yellow-400 hover:bg-yellow-500 text-black"
+                  >
+                    {emailVerified ? '✓ Verified' : 'Verify'}
+                  </Button>
+                </div>
+                {emailVerified && (
+                  <p className="mt-1 text-xs text-green-600 flex items-center">
+                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    Email verified successfully
+                  </p>
+                )}
               </div>
               
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                  Phone Number <span className="text-gray-500 text-sm">(Optional)</span>
+                  Phone Number <span className="text-red-500">*</span>
                 </label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  autoComplete="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="mt-1"
-                  placeholder="Enter your phone number"
-                />
-                <p className="mt-1 text-xs text-gray-500">
-                  We'll use this to send you order updates and important notifications
-                </p>
+                <div className="flex gap-2">
+                  <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    autoComplete="tel"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="mt-1 flex-1"
+                    placeholder="10-digit mobile number"
+                    disabled={phoneVerified}
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => handleSendOTP('PHONE')}
+                    disabled={!phone || phone.length !== 10 || isLoading || phoneVerified}
+                    className="mt-1 bg-yellow-400 hover:bg-yellow-500 text-black"
+                  >
+                    {phoneVerified ? '✓ Verified' : 'Verify'}
+                  </Button>
+                </div>
+                {phoneVerified ? (
+                  <p className="mt-1 text-xs text-green-600 flex items-center">
+                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    Phone verified successfully
+                  </p>
+                ) : (
+                  <p className="mt-1 text-xs text-gray-500">
+                    We'll send you a verification code via SMS
+                  </p>
+                )}
               </div>
               
               <div>
@@ -183,7 +308,7 @@ export default function SignUpPage() {
               <Button
                 type="submit"
                 className="w-full btn-walnut disabled:opacity-75 transition-all duration-200"
-                disabled={isLoading}
+                disabled={isLoading || !emailVerified || !phoneVerified}
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center">
@@ -197,6 +322,11 @@ export default function SignUpPage() {
                   'Create account'
                 )}
               </Button>
+              {(!emailVerified || !phoneVerified) && (
+                <p className="mt-2 text-xs text-center text-red-600">
+                  Please verify your email and phone number before creating account
+                </p>
+              )}
             </div>
           </form>
 
