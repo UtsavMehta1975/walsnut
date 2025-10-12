@@ -408,23 +408,37 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               )}
               
               <div className="absolute inset-0 p-4">
-                <Image
-                  src={product.images?.[selectedImageIndex]?.imageUrl || product.image}
-                  alt={selectedVariant ? `${product.name} - ${selectedVariant.colorName}` : product.name}
-                  fill
-                  className="object-contain cursor-pointer hover:opacity-95 transition-opacity"
-                  onClick={() => setShowImageModal(true)}
-                  onLoad={handleImageLoad}
-                  onError={(e) => {
-                    console.error('Main image failed to load:', product.images?.[selectedImageIndex]?.imageUrl)
-                    handleImageError()
-                    // Try fallback image
-                    const img = e.target as HTMLImageElement
-                    img.src = product.image || '/web-banner.png'
-                  }}
-                  priority
-                  unoptimized
-                />
+                {(() => {
+                  const currentImage = product.images?.[selectedImageIndex]
+                  const imageSrc = currentImage?.imageUrl || product.image || '/web-banner.png'
+                  
+                  console.log('🖼️ [RENDER] Rendering main image')
+                  console.log('🖼️ [RENDER] Selected index:', selectedImageIndex)
+                  console.log('🖼️ [RENDER] Current image object:', currentImage)
+                  console.log('🖼️ [RENDER] Image URL:', imageSrc)
+                  console.log('🖼️ [RENDER] Product.image fallback:', product.image)
+                  
+                  return (
+                    <Image
+                      src={imageSrc}
+                      alt={selectedVariant ? `${product.name} - ${selectedVariant.colorName}` : product.name}
+                      fill
+                      className="object-contain cursor-pointer hover:opacity-95 transition-opacity"
+                      onClick={() => setShowImageModal(true)}
+                      onLoad={() => {
+                        console.log('✅ [IMAGE] Loaded successfully:', imageSrc)
+                        handleImageLoad()
+                      }}
+                      onError={(e) => {
+                        console.error('🔴 [IMAGE] Failed to load:', imageSrc)
+                        console.error('🔴 [IMAGE] Error event:', e)
+                        handleImageError()
+                      }}
+                      priority
+                      unoptimized
+                    />
+                  )
+                })()}
               </div>
               
               {/* Selected Variant Badge */}
