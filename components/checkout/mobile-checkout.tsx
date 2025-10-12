@@ -61,9 +61,7 @@ export default function MobileCheckout() {
   const { items, getTotal, clearCart } = useCart();
   const { user } = useAuth();
   const subtotal = getTotal();
-  const upiDiscount = 100; // ₹100 OFF on UPI payment
-  const total = subtotal;
-  const totalWithUPIDiscount = total - upiDiscount;
+  const total = subtotal; // No discounts
   const [savedAddresses, setSavedAddresses] = useState<DeliveryAddress[]>([]);
   const [showNewAddress, setShowNewAddress] = useState(false);
   const [isCheckingPinCode, setIsCheckingPinCode] = useState(false);
@@ -345,10 +343,9 @@ export default function MobileCheckout() {
       name: 'UPI Payment',
       logos: [],
       showUPIApps: true, // Show PhonePe, GPay, Paytm tiles
-      description: `₹${totalWithUPIDiscount} (Save ₹${upiDiscount})`,
-      payNow: totalWithUPIDiscount,
-      isPopular: true,
-      discount: upiDiscount
+      description: `₹${total}`,
+      payNow: total,
+      isPopular: true
     },
     {
       id: 'card',
@@ -934,30 +931,11 @@ export default function MobileCheckout() {
                                   </button>
                                 </div>
                                 
-                                {/* UPI Discount Banner - Shown when UPI is selected */}
-                                {paymentInfo.paymentMethod === 'upi' && (
-                                  <div className="mt-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3">
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-2xl">🎉</span>
-                                        <div>
-                                          <p className="font-semibold text-green-800">You're Saving ₹100!</p>
-                                          <p className="text-xs text-green-600">Instant discount applied</p>
-                                        </div>
-                                      </div>
-                                      <div className="text-right">
-                                        <p className="text-lg font-bold text-green-700">₹{totalWithUPIDiscount}</p>
-                                        <p className="text-xs line-through text-gray-400">₹{total}</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                                
                                 {/* Cashfree UPI Payment Gateway - Right next to UPI tiles */}
                                 {paymentInfo.paymentMethod === 'upi' && (
                                   <div className="mt-3">
                                     <UPIFlowManager
-                                      amount={totalWithUPIDiscount}
+                                      amount={total}
                                       orderDetails={{
                                         orderId: `ORDER_${Date.now()}`,
                                         customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
