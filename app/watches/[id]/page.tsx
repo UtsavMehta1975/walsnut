@@ -550,6 +550,20 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                       </button>
                     ))}
                   </div>
+                  
+                  {/* Selected Color Display */}
+                  {product.images && product.images.some((img: ProductImage) => img.colorName) && (
+                    <div className="mt-4 pt-3 border-t border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium text-gray-700">
+                          Selected Color:
+                        </p>
+                        <p className="text-sm font-semibold text-black">
+                          {product.images[selectedImageIndex]?.colorName || 'Default'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -611,111 +625,6 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               )}
             </div>
 
-            {/* Color Variants - Show only if products have color names */}
-            {product.images && product.images.some((img: ProductImage) => img.colorName) && (
-              <div className="mb-6">
-                <h3 className="text-sm font-medium text-black mb-3 uppercase tracking-wide">
-                  Select Color
-                  {selectedVariant && <span className="ml-2 text-gray-600 normal-case">- {selectedVariant.colorName}</span>}
-                </h3>
-                <div className="flex flex-wrap gap-3">
-                  {product.images
-                    ?.filter((img: ProductImage) => img.colorName && img.isSelectable !== false)
-                    .map((image: ProductImage, index: number) => {
-                      const actualIndex = product.images?.findIndex((img: ProductImage) => img.id === image.id) ?? 0
-                      const isSelected = selectedImageIndex === actualIndex
-                      const variantSku = image.variantSku || `${product.sku}-${image.colorCode || index + 1}`
-                      const colorName = image.colorName || `Variant ${index + 1}`
-                      
-                      return (
-                        <button
-                          key={image.id}
-                          onClick={() => {
-                            setSelectedImageIndex(actualIndex)
-                            setSelectedVariant({
-                              id: image.id,
-                              sku: variantSku,
-                              colorName: colorName,
-                              colorCode: image.colorCode || `VAR${index + 1}`,
-                              imageUrl: image.imageUrl,
-                              isAvailable: true
-                            })
-                            setSelectedColor(colorName)
-                            setIsImageLoading(true)
-                          }}
-                          className={`
-                            group relative w-16 h-16 rounded-lg border-2 transition-all duration-200 overflow-hidden bg-white
-                            ${isSelected 
-                              ? 'border-yellow-500 ring-2 ring-yellow-200 scale-110' 
-                              : 'border-gray-300 hover:border-gray-400 hover:scale-105'
-                            }
-                          `}
-                          title={colorName}
-                        >
-                          <div className="relative w-full h-full">
-                            <Image
-                              src={getOptimizedImageUrl(image.imageUrl)}
-                              alt={`${product.name} - ${colorName}`}
-                              fill
-                              className="object-cover"
-                              sizes="64px"
-                              unoptimized
-                              onError={(e) => {
-                                console.error('Color swatch failed to load:', image.imageUrl)
-                                const img = e.target as HTMLImageElement
-                                img.src = '/web-banner.png'
-                              }}
-                            />
-                          </div>
-                          
-                            {/* Selected Indicator */}
-                          {isSelected && (
-                            <div className="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center">
-                              <div className="bg-yellow-500 rounded-full p-1 shadow-lg">
-                                <Check className="w-4 h-4 text-white" />
-                              </div>
-                            </div>
-                          )}
-                          
-                          {/* Color Name Label */}
-                          <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent py-1 px-1 
-                            ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
-                            <p className="text-xs text-white font-medium text-center truncate">
-                              {colorName}
-                            </p>
-                          </div>
-                        </button>
-                      )
-                    })
-                  }
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  Click to see product in different colors
-                </p>
-              </div>
-            )}
-
-            {/* Fallback Color Options - Clean buttons */}
-            {(!product.images || product.images.length <= 1) && product.colors.length > 0 && (
-              <div>
-                <h3 className="text-sm font-medium text-black mb-3 uppercase tracking-wide">Color</h3>
-                <div className="flex flex-wrap gap-2">
-                  {product.colors.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setSelectedColor(color)}
-                      className={`px-4 py-2 text-sm font-medium transition-all rounded-none ${
-                        selectedColor === color
-                          ? 'bg-black text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {color}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Quantity - Minimal selector */}
             <div>
