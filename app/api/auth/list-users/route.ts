@@ -17,24 +17,43 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Check admin authorization
-    const authHeader = request.headers.get('authorization')
-    if (authHeader) {
-      const userEmail = authHeader.replace('Bearer ', '')
-      const adminUser = await db.user.findUnique({
-        where: { email: userEmail },
-        select: { role: true }
-      })
-
-      if (!adminUser || adminUser.role !== 'ADMIN') {
-        console.error('🔴 [LIST USERS API] Not authorized:', userEmail)
-        return NextResponse.json(
-          { error: 'Admin access required' },
-          { status: 403 }
-        )
-      }
-      console.log('✅ [LIST USERS API] Admin verified:', userEmail)
+    // Check admin authorization using server-side session
+    const session = await getServerSession(authOptions)
+    
+    let adminEmail: string | null = null
+    let isAdmin = false
+    
+    if (session?.user?.email) {
+      adminEmail = session.user.email
+      isAdmin = session.user.role === 'ADMIN'
+      console.log('✅ [LIST USERS API] NextAuth session:', adminEmail, 'Role:', session.user.role)
     }
+    
+    // Fallback: Check Authorization header  
+    if (!adminEmail) {
+      const authHeader = request.headers.get('authorization')
+      if (authHeader) {
+        const userEmail = authHeader.replace('Bearer ', '')
+        const user = await db.user.findUnique({
+          where: { email: userEmail },
+          select: { role: true }
+        })
+        if (user) {
+          adminEmail = userEmail
+          isAdmin = user.role === 'ADMIN'
+        }
+      }
+    }
+
+    if (!adminEmail || !isAdmin) {
+      console.error('🔴 [LIST USERS API] Not authorized')
+      return NextResponse.json(
+        { error: 'Admin access required. Please sign in as admin.' },
+        { status: 403 }
+      )
+    }
+    
+    console.log('✅ [LIST USERS API] Admin verified:', adminEmail)
     
     console.log('📊 [LIST USERS API] Fetching users with order statistics...')
     

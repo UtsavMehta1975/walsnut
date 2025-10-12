@@ -173,23 +173,31 @@ export async function GET(request: NextRequest) {
 
     // For admin panel, return all products without pagination
     if (searchParams.get('admin') === 'true') {
-      const authHeader = request.headers.get('authorization')
-      if (!authHeader) {
-        return NextResponse.json(
-          { error: 'Authorization header required' },
-          { status: 401 }
-        )
+      // Check admin using server-side session
+      const session = await getServerSession(authOptions)
+      
+      let isAdmin = false
+      
+      if (session?.user?.role === 'ADMIN') {
+        isAdmin = true
+      } else {
+        // Fallback: Check Authorization header
+        const authHeader = request.headers.get('authorization')
+        if (authHeader) {
+          const userEmail = authHeader.replace('Bearer ', '')
+          const user = await db.user.findUnique({
+            where: { email: userEmail },
+            select: { role: true }
+          })
+          if (user && user.role === 'ADMIN') {
+            isAdmin = true
+          }
+        }
       }
 
-      const userEmail = authHeader.replace('Bearer ', '')
-      const user = await db.user.findUnique({
-        where: { email: userEmail },
-        select: { role: true }
-      })
-
-      if (!user || user.role !== 'ADMIN') {
+      if (!isAdmin) {
         return NextResponse.json(
-          { error: 'Admin access required' },
+          { error: 'Admin access required. Please sign in as admin.' },
           { status: 403 }
         )
       }

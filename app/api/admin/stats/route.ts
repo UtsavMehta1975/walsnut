@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
@@ -16,25 +18,38 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Check admin authorization
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader) {
-      return NextResponse.json(
-        { error: 'Authorization required' },
-        { status: 401 }
-      )
+    // Check admin authorization using server-side session
+    const session = await getServerSession(authOptions)
+    
+    let adminEmail: string | null = null
+    let isAdmin = false
+    
+    if (session?.user?.email) {
+      adminEmail = session.user.email
+      isAdmin = session.user.role === 'ADMIN'
+      console.log('✅ [ADMIN STATS API] NextAuth session:', adminEmail, 'Role:', session.user.role)
+    }
+    
+    // Fallback: Check Authorization header
+    if (!adminEmail) {
+      const authHeader = request.headers.get('authorization')
+      if (authHeader) {
+        const userEmail = authHeader.replace('Bearer ', '')
+        const user = await db.user.findUnique({
+          where: { email: userEmail },
+          select: { role: true }
+        })
+        if (user) {
+          adminEmail = userEmail
+          isAdmin = user.role === 'ADMIN'
+        }
+      }
     }
 
-    const userEmail = authHeader.replace('Bearer ', '')
-    const adminUser = await db.user.findUnique({
-      where: { email: userEmail },
-      select: { role: true }
-    })
-
-    if (!adminUser || adminUser.role !== 'ADMIN') {
-      console.error('🔴 [ADMIN STATS API] Not authorized:', userEmail)
+    if (!adminEmail || !isAdmin) {
+      console.error('🔴 [ADMIN STATS API] Not authorized')
       return NextResponse.json(
-        { error: 'Admin access required' },
+        { error: 'Admin access required. Please sign in as admin.' },
         { status: 403 }
       )
     }
