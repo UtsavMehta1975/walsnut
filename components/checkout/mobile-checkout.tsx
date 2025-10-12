@@ -217,7 +217,7 @@ export default function MobileCheckout() {
             price: item.price
           })),
           shippingAddress: fullAddress,
-          totalAmount: finalOrderTotal, // Save the correct discounted total
+          totalAmount: finalOrderTotal, // Save the correct total
           paymentMethod: paymentInfo.paymentMethod,
           isCOD: paymentInfo.paymentMethod === 'cod',
           codAdvance: paymentInfo.paymentMethod === 'cod' ? 200 : 0
