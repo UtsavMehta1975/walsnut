@@ -585,25 +585,6 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 </p>
               </div>
             )}
-                        
-                        {/* Color Name Overlay */}
-                        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white text-xs p-1 text-center">
-                          {colorName}
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-                
-                {/* Selected Variant Info */}
-                {selectedVariant && (
-                  <div className="mt-3 text-sm text-gray-600">
-                    <span className="font-medium">Selected:</span> {selectedVariant.colorName} 
-                    <span className="ml-2 text-xs text-gray-500">SKU: {selectedVariant.sku}</span>
-                  </div>
-                )}
-              </div>
-            )}
 
             {/* Fallback Color Options - Clean buttons */}
             {(!product.images || product.images.length <= 1) && product.colors.length > 0 && (
