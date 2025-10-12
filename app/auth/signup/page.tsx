@@ -254,20 +254,14 @@ export default function SignUpPage() {
             </p>
           </div>
 
-          {/* Test Credentials */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg text-sm">
-            <p className="font-medium text-blue-800 mb-2">Already have an account?</p>
-            <div className="space-y-1 text-blue-700">
-              <p><strong>Admin:</strong> admin@walnut.com / admin123</p>
-              <p><strong>User:</strong> user@walnut.com / user123</p>
-            </div>
-            <div className="mt-3">
-              <Link href="/auth/signin">
-                <Button variant="outline" size="sm">
-                  Sign In Instead
-                </Button>
+          {/* Already have account link */}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Already have an account?{' '}
+              <Link href="/auth/signin" className="font-medium text-walnut-600 hover:text-walnut-500">
+                Sign in here
               </Link>
-            </div>
+            </p>
           </div>
         </div>
       </div>

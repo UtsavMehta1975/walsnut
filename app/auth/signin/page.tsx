@@ -15,8 +15,8 @@ import { signIn } from 'next-auth/react'
 export default function SignInPage() {
   const router = useRouter()
   const { login, user, isAuthenticated } = useAuth()
-  const [email, setEmail] = useState('admin@walnut.com')
-  const [password, setPassword] = useState('admin123')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
   // Get redirect URL from query params
@@ -216,23 +216,6 @@ export default function SignInPage() {
             </p>
           </div>
 
-          {/* Test Credentials */}
-          <div className="mt-4 p-4 bg-blue-50 rounded-lg text-sm">
-            <p className="font-medium text-blue-800 mb-2">Test Credentials:</p>
-            <div className="space-y-1 text-blue-700">
-              <p><strong>Admin:</strong> admin@walnut.com / admin123</p>
-              <p><strong>User:</strong> user@walnut.com / user123</p>
-            </div>
-          </div>
-
-          {/* Debug info */}
-          <div className="mt-4 p-4 bg-gray-100 rounded-lg text-xs text-gray-600">
-            <p><strong>Debug Info:</strong></p>
-            <p>Is Authenticated: {isAuthenticated ? 'Yes' : 'No'}</p>
-            <p>User Role: {user?.role || 'None'}</p>
-            <p>User ID: {user?.id || 'None'}</p>
-            <p>Session Status: {isAuthenticated ? 'Active' : 'Inactive'}</p>
-          </div>
         </div>
       </div>
       
