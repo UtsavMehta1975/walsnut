@@ -389,8 +389,15 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 className="object-contain cursor-pointer hover:opacity-95 transition-opacity p-4"
                 onClick={() => setShowImageModal(true)}
                 onLoad={handleImageLoad}
-                onError={handleImageError}
+                onError={(e) => {
+                  console.error('Main image failed to load:', product.images?.[selectedImageIndex]?.imageUrl)
+                  handleImageError()
+                  // Try fallback image
+                  const img = e.target as HTMLImageElement
+                  img.src = product.image || '/web-banner.png'
+                }}
                 priority
+                unoptimized
               />
               
               {/* Selected Variant Badge */}
@@ -437,6 +444,12 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                           fill
                           className="object-cover"
                           sizes="80px"
+                          unoptimized
+                          onError={(e) => {
+                            console.error('Thumbnail failed to load:', image.imageUrl)
+                            const img = e.target as HTMLImageElement
+                            img.src = '/web-banner.png'
+                          }}
                         />
                         {/* Check mark for selected */}
                         {selectedImageIndex === index && (
@@ -557,6 +570,12 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                             fill
                             className="object-cover"
                             sizes="64px"
+                            unoptimized
+                            onError={(e) => {
+                              console.error('Color swatch failed to load:', image.imageUrl)
+                              const img = e.target as HTMLImageElement
+                              img.src = '/web-banner.png'
+                            }}
                           />
                           
                             {/* Selected Indicator */}
