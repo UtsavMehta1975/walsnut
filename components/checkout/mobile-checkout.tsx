@@ -197,9 +197,7 @@ export default function MobileCheckout() {
       // - UPI: Full cart total MINUS ₹100 discount
       // - Card: Full cart total (no discount)
       // - COD: Full cart total saved, but only ₹200 charged as advance
-      const finalOrderTotal = paymentInfo.paymentMethod === 'upi' 
-        ? totalWithUPIDiscount  // Apply ₹100 discount for UPI
-        : total;                // No discount for Card/COD
+      const finalOrderTotal = total; // Same for all payment methods
       
       const paymentAmount = paymentInfo.paymentMethod === 'cod' 
         ? 200                   // COD: Pay ₹200 advance now
@@ -1148,24 +1146,9 @@ export default function MobileCheckout() {
                     <span className="text-gray-600">Product Total</span>
                     <span className="font-medium">₹{subtotal}</span>
                   </div>
-                  {paymentInfo.paymentMethod === 'upi' && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-green-600 font-medium">UPI Discount</span>
-                      <span className="font-semibold text-green-600">- ₹{upiDiscount}</span>
-                    </div>
-                  )}
                   <div className="flex justify-between font-bold text-lg border-t pt-2">
                     <span>Total Amount</span>
-                    <span>
-                      {paymentInfo.paymentMethod === 'upi' ? (
-                        <>
-                          <span className="line-through text-gray-400 text-sm mr-2">₹{total}</span>
-                          <span className="text-green-600">₹{totalWithUPIDiscount}</span>
-                        </>
-                      ) : (
-                        `₹${total}`
-                      )}
-                    </span>
+                    <span>₹{total}</span>
                   </div>
                   {paymentInfo.paymentMethod === 'cod' && (
                     <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-2">
@@ -1198,8 +1181,6 @@ export default function MobileCheckout() {
                     <>
                       {paymentInfo.paymentMethod === 'cod' 
                         ? `Pay ₹200 Now & Confirm Order` 
-                        : paymentInfo.paymentMethod === 'upi'
-                          ? `Pay ₹${totalWithUPIDiscount} & Place Order (Save ₹100)`
                           : `Pay ₹${total} & Place Order`}
                     </>
                   )}
