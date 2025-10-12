@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -31,6 +31,15 @@ const statusConfig = {
   DELIVERED: { label: 'Delivered', color: 'bg-green-100 text-green-800', icon: CheckCircle },
   CANCELLED: { label: 'Cancelled', color: 'bg-red-100 text-red-800', icon: AlertCircle },
   REFUNDED: { label: 'Refunded', color: 'bg-gray-100 text-gray-800', icon: AlertCircle }
+}
+
+const paymentStatusConfig = {
+  PENDING: { label: 'Payment Pending', color: 'bg-yellow-100 text-yellow-800', icon: Clock, description: 'Awaiting payment' },
+  PROCESSING: { label: 'Processing Payment', color: 'bg-blue-100 text-blue-800', icon: CreditCard, description: 'Payment being processed' },
+  COMPLETED: { label: 'Paid', color: 'bg-green-100 text-green-800', icon: CheckCircle, description: 'Payment successful' },
+  FAILED: { label: 'Payment Failed', color: 'bg-red-100 text-red-800', icon: AlertCircle, description: 'Payment unsuccessful' },
+  REFUNDED: { label: 'Refunded', color: 'bg-gray-100 text-gray-800', icon: AlertCircle, description: 'Payment refunded' },
+  CANCELLED: { label: 'Cancelled', color: 'bg-gray-100 text-gray-800', icon: AlertCircle, description: 'Payment cancelled' }
 }
 
 export default function OrdersPage() {
@@ -92,6 +101,11 @@ export default function OrdersPage() {
 
   const getStatusIcon = (status: keyof typeof statusConfig) => {
     const IconComponent = statusConfig[status].icon
+    return <IconComponent className="h-4 w-4" />
+  }
+  
+  const getPaymentStatusIcon = (paymentStatus: keyof typeof paymentStatusConfig) => {
+    const IconComponent = paymentStatusConfig[paymentStatus].icon
     return <IconComponent className="h-4 w-4" />
   }
 
@@ -236,8 +250,8 @@ export default function OrdersPage() {
                                      <Card key={order.id} className="card-highlight">
                     <CardHeader>
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-                        <div>
-                          <div className="flex items-center space-x-2 mb-2">
+                        <div className="flex-1">
+                          <div className="flex flex-wrap items-center gap-2 mb-3">
                             <h3 className="text-lg font-semibold text-gray-900">
                               Order #{order.id.slice(-8).toUpperCase()}
                             </h3>
@@ -248,15 +262,41 @@ export default function OrdersPage() {
                               </div>
                             </Badge>
                           </div>
-                          <div className="flex items-center space-x-4 text-sm text-gray-600">
+                          
+                          {/* Payment Status - Prominent Display */}
+                          <div className="mb-3">
+                            {order.paymentStatus && paymentStatusConfig[order.paymentStatus as keyof typeof paymentStatusConfig] && (
+                              <div className="inline-flex items-center space-x-2">
+                                <Badge className={`${paymentStatusConfig[order.paymentStatus as keyof typeof paymentStatusConfig].color} text-sm px-3 py-1`}>
+                                  <div className="flex items-center space-x-1.5">
+                                    {getPaymentStatusIcon(order.paymentStatus as keyof typeof paymentStatusConfig)}
+                                    <span className="font-medium">{paymentStatusConfig[order.paymentStatus as keyof typeof paymentStatusConfig].label}</span>
+                                  </div>
+                                </Badge>
+                                {order.paymentStatus === 'PENDING' && (
+                                  <span className="text-xs text-amber-600 font-medium">⚠️ Complete payment to confirm order</span>
+                                )}
+                                {order.paymentStatus === 'FAILED' && (
+                                  <span className="text-xs text-red-600 font-medium">❌ Please retry payment</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600">
                             <div className="flex items-center space-x-1">
                               <Calendar className="h-4 w-4" />
                               <span>{formatDate(order.createdAt)}</span>
                             </div>
                             <div className="flex items-center space-x-1">
                               <CreditCard className="h-4 w-4" />
-                                                             <span>{formatPrice(Number(order.totalAmount))}</span>
+                              <span className="font-medium">{formatPrice(Number(order.totalAmount))}</span>
                             </div>
+                            {order.paymentMethod && (
+                              <div className="flex items-center space-x-1">
+                                <span className="text-xs text-gray-500">via {order.paymentMethod}</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>

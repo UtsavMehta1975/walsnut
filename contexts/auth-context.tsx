@@ -47,45 +47,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!mounted) return
     
-    // Check localStorage first for user data
-    const savedUser = getUserSession()
-    if (savedUser) {
-      setUser(savedUser)
-      setIsLoading(false)
-      console.log('✅ User loaded from session persistence:', savedUser.email)
-      return
-    }
-    
-    // Check both NextAuth session and custom session API
+    // Check both session sources
     const checkSessions = async () => {
       try {
-        // First check NextAuth session (for Google OAuth)
+        // First check NextAuth session (for Google OAuth users)
+        console.log('🔍 [AUTH CONTEXT] Checking NextAuth session...')
         const nextAuthRes = await fetch('/api/auth/session')
         if (nextAuthRes.ok) {
           const nextAuthData = await nextAuthRes.json()
           if (nextAuthData?.user?.email) {
-            console.log('✅ User loaded from NextAuth session:', nextAuthData.user.email)
-            setUser(nextAuthData.user)
-            saveUserSession(nextAuthData.user)
+            console.log('✅ [AUTH CONTEXT] User loaded from NextAuth:', nextAuthData.user.email)
+            const userData = {
+              id: nextAuthData.user.id,
+              email: nextAuthData.user.email,
+              name: nextAuthData.user.name || '',
+              phone: nextAuthData.user.phone || null,
+              address: nextAuthData.user.address || null,
+              role: nextAuthData.user.role as 'CUSTOMER' | 'ADMIN'
+            }
+            setUser(userData)
+            saveUserSession(userData)
             setIsLoading(false)
             return
           }
         }
         
-        // If no NextAuth session, check custom session API
+        // If no NextAuth session, check localStorage (for credentials users)
+        console.log('🔍 [AUTH CONTEXT] Checking localStorage session...')
+        const savedUser = getUserSession()
+        if (savedUser) {
+          console.log('✅ [AUTH CONTEXT] User loaded from localStorage:', savedUser.email)
+          setUser(savedUser)
+          setIsLoading(false)
+          return
+        }
+        
+        // Finally check custom session API (for credentials users)
+        console.log('🔍 [AUTH CONTEXT] Checking custom session API...')
         const customRes = await fetch('/api/session')
         if (customRes.ok) {
           const customData = await customRes.json()
           if (customData?.user) {
-            console.log('✅ User loaded from custom session:', customData.user.email)
+            console.log('✅ [AUTH CONTEXT] User loaded from custom session:', customData.user.email)
             setUser(customData.user)
             saveUserSession(customData.user)
+            setIsLoading(false)
+            return
           }
         }
         
+        console.log('ℹ️ [AUTH CONTEXT] No active session found')
         setIsLoading(false)
       } catch (error) {
-        console.error('Session check error:', error)
+        console.error('🔴 [AUTH CONTEXT] Session check error:', error)
         setIsLoading(false)
       }
     }
@@ -167,25 +181,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = async () => {
-    console.log('🚪 Auth context - Logging out user')
+    console.log('🚪 [AUTH CONTEXT] Logging out user')
     try {
       // Clear local state immediately for better UX
       setUser(null)
       setIsLoading(false)
       
-      // Clear session data
+      // Clear session data from localStorage
       clearUserSession()
+      console.log('✅ [AUTH CONTEXT] Cleared localStorage session')
       
-      // Also sign out from NextAuth (for Google OAuth sessions)
+      // Sign out from NextAuth (for Google OAuth and all sessions)
       try {
         const { signOut } = await import('next-auth/react')
+        console.log('🚪 [AUTH CONTEXT] Calling NextAuth signOut...')
         await signOut({ redirect: false })
-        console.log('✅ NextAuth signOut successful')
+        console.log('✅ [AUTH CONTEXT] NextAuth signOut successful')
       } catch (nextAuthError) {
-        console.warn('NextAuth signOut skipped:', nextAuthError)
+        console.warn('⚠️ [AUTH CONTEXT] NextAuth signOut error:', nextAuthError)
       }
       
-      console.log('✅ Auth context - Logout successful')
+      console.log('✅ [AUTH CONTEXT] Logout complete')
       
       // Show success message
       if (typeof window !== 'undefined') {
@@ -194,25 +210,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         })
       }
       
-      // Instant redirect for account switching
+      // Redirect to home
       if (typeof window !== 'undefined') {
-        window.location.href = '/'
+        setTimeout(() => {
+          window.location.href = '/'
+        }, 500)
       }
       
     } catch (error) {
-      console.error('❌ Auth context - Logout error:', error)
+      console.error('🔴 [AUTH CONTEXT] Logout error:', error)
       // Even if logout fails, clear local state and redirect
       setUser(null)
       setIsLoading(false)
+      clearUserSession()
       
       // Show error message but still redirect
       if (typeof window !== 'undefined') {
         import('react-hot-toast').then(({ default: toast }) => {
-          toast.error('Logout completed with issues, but you have been signed out')
+          toast.error('Logged out with errors, but session cleared')
         })
         
-        // Instant redirect even on error
-        window.location.href = '/'
+        // Redirect anyway
+        setTimeout(() => {
+          window.location.href = '/'
+        }, 500)
       }
     }
   }

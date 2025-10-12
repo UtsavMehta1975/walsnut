@@ -217,14 +217,24 @@ export default function SignUpPage() {
               onClick={async () => {
                 try {
                   setIsLoading(true)
-                  console.log('🔵 Google Sign-up clicked')
-                  await signIn('google', { 
+                  console.log('🔵 [GOOGLE] Sign-up button clicked')
+                  toast.loading('Redirecting to Google...', { id: 'google-signup' })
+                  
+                  // Google OAuth handles both signup and signin seamlessly
+                  const result = await signIn('google', { 
                     callbackUrl: '/dashboard',
                     redirect: true 
                   })
+                  
+                  // This may not execute if redirect happens immediately
+                  if (result?.error) {
+                    console.error('🔴 [GOOGLE] Sign-up error:', result.error)
+                    toast.error('Google sign-up failed. Please try again.', { id: 'google-signup' })
+                    setIsLoading(false)
+                  }
                 } catch (error) {
-                  console.error('Google sign-up error:', error)
-                  toast.error('Google sign-up failed. Please try again.')
+                  console.error('🔴 [GOOGLE] Unexpected error:', error)
+                  toast.error('An unexpected error occurred. Please try again.', { id: 'google-signup' })
                   setIsLoading(false)
                 }
               }}
@@ -240,7 +250,7 @@ export default function SignUpPage() {
               <span className="font-medium">Sign up with Google</span>
             </Button>
             <p className="text-xs text-center text-gray-500 mt-2">
-              Quick sign-up • No password needed • One click
+              Quick • Secure • No password needed
             </p>
           </div>
 

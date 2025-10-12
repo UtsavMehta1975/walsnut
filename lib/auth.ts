@@ -1,10 +1,14 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
+import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import bcrypt from "bcryptjs"
 import { db } from "@/lib/db"
 
 export const authOptions: NextAuthOptions = {
+  // Use Prisma Adapter for proper OAuth flow
+  adapter: PrismaAdapter(db),
+  
   providers: [
     // Google OAuth - only if credentials are set
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? [
@@ -17,7 +21,9 @@ export const authOptions: NextAuthOptions = {
             access_type: "offline",
             response_type: "code"
           }
-        }
+        },
+        // Allow account linking by email
+        allowDangerousEmailAccountLinking: true,
       })
     ] : []),
     CredentialsProvider({
@@ -88,42 +94,22 @@ export const authOptions: NextAuthOptions = {
       console.log('🟢 [SIGNIN CALLBACK] User:', { email: user?.email, name: user?.name, id: user?.id })
       console.log('🟢 [SIGNIN CALLBACK] Account:', { provider: account?.provider, type: account?.type })
       
-      // For Google OAuth - create/update user in database
+      // PrismaAdapter handles user creation automatically for OAuth
+      // We just need to ensure role is set correctly for new Google users
       if (account?.provider === "google") {
         console.log('🟢 [SIGNIN CALLBACK] Google provider detected')
         try {
-          console.log('🟢 [SIGNIN CALLBACK] Checking if user exists in database...')
+          // Check if this is a new user and set default role
           const existingUser = await db.user.findUnique({
             where: { email: user.email! }
           })
           
           if (existingUser) {
-            console.log('🟢 [SIGNIN CALLBACK] User found:', existingUser.id)
-            console.log('🟢 [SIGNIN CALLBACK] Updating user with Google data...')
-            await db.user.update({
-              where: { email: user.email! },
-              data: {
-                name: user.name || existingUser.name,
-                image: user.image,
-                emailVerified: new Date()
-              }
-            })
-            console.log('🟢 [SIGNIN CALLBACK] User updated successfully')
+            console.log('🟢 [SIGNIN CALLBACK] Existing user, allowing sign in:', existingUser.id)
           } else {
-            console.log('🟢 [SIGNIN CALLBACK] User not found, creating new user...')
-            const newUser = await db.user.create({
-              data: {
-                email: user.email!,
-                name: user.name,
-                image: user.image,
-                emailVerified: new Date(),
-                role: 'CUSTOMER'
-              }
-            })
-            console.log('🟢 [SIGNIN CALLBACK] New user created:', newUser.id)
+            console.log('🟢 [SIGNIN CALLBACK] New Google user will be created by PrismaAdapter')
           }
           
-          console.log('🟢 [SIGNIN CALLBACK] Returning true (sign in allowed)')
           return true
         } catch (error) {
           console.error('🔴 [SIGNIN CALLBACK] Error:', error)
@@ -135,48 +121,60 @@ export const authOptions: NextAuthOptions = {
       return true
     },
     
-    async jwt({ token, user, account, profile }) {
-      console.log('🟡 [JWT CALLBACK] Started')
-      console.log('🟡 [JWT CALLBACK] Has user?', !!user)
-      console.log('🟡 [JWT CALLBACK] Has account?', !!account)
+    async jwt({ token, user, account, profile, trigger }) {
+      console.log('🟡 [JWT CALLBACK] Started', { trigger, hasUser: !!user, hasAccount: !!account })
       
-      // On initial sign in, add user data to token
+      // On initial sign in or when user data is present
       if (user) {
         console.log('🟡 [JWT CALLBACK] Initial sign in detected')
         try {
-          if (account?.provider === "google") {
-            console.log('🟡 [JWT CALLBACK] Google provider - fetching user from database...')
-            const dbUser = await db.user.findUnique({
-              where: { email: user.email! }
-            })
-            
-            if (dbUser) {
-              console.log('🟡 [JWT CALLBACK] Database user found:', dbUser.id)
-              token.role = dbUser.role
-              token.id = dbUser.id
-              token.image = dbUser.image
-              console.log('🟡 [JWT CALLBACK] Token populated with DB data')
-            } else {
-              console.log('🟡 [JWT CALLBACK] Database user not found, using defaults')
-              token.role = 'CUSTOMER'
-              token.id = user.id || user.email
-              token.image = user.image || null
-            }
+          // Fetch fresh user data from database to get role and image
+          const dbUser = await db.user.findUnique({
+            where: { email: user.email! }
+          })
+          
+          if (dbUser) {
+            console.log('🟡 [JWT CALLBACK] Database user found:', dbUser.id)
+            token.role = dbUser.role
+            token.id = dbUser.id
+            token.email = dbUser.email
+            token.name = dbUser.name
+            token.image = dbUser.image
+            console.log('🟡 [JWT CALLBACK] Token populated with DB data:', { role: token.role, id: token.id })
           } else {
-            console.log('🟡 [JWT CALLBACK] Credentials provider - using user object data')
+            // Fallback for new users (shouldn't happen with PrismaAdapter)
+            console.log('🟡 [JWT CALLBACK] Database user not found, using defaults')
             token.role = user.role || 'CUSTOMER'
             token.id = user.id || user.email
+            token.email = user.email
+            token.name = user.name
             token.image = user.image || null
           }
-          console.log('🟡 [JWT CALLBACK] Final token:', { role: token.role, id: token.id, hasImage: !!token.image })
         } catch (error) {
           console.error('🔴 [JWT CALLBACK] Error:', error)
-          token.role = 'CUSTOMER'
-          token.id = user.email
-          token.image = null
+          token.role = user.role || 'CUSTOMER'
+          token.id = user.id || user.email
+          token.email = user.email
+          token.name = user.name
+          token.image = user.image || null
         }
-      } else {
-        console.log('🟡 [JWT CALLBACK] No user - token refresh')
+      }
+      
+      // Refresh user data on token update
+      if (trigger === "update" && token.email) {
+        try {
+          const dbUser = await db.user.findUnique({
+            where: { email: token.email as string }
+          })
+          if (dbUser) {
+            token.role = dbUser.role
+            token.image = dbUser.image
+            token.name = dbUser.name
+            console.log('🟡 [JWT CALLBACK] Token refreshed with latest DB data')
+          }
+        } catch (error) {
+          console.error('🔴 [JWT CALLBACK] Error refreshing token:', error)
+        }
       }
       
       console.log('🟡 [JWT CALLBACK] Returning token')
@@ -209,14 +207,40 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/auth/signin',
-    error: '/auth/error', // Custom error page
+    error: '/auth/error',
   },
   session: {
-    strategy: "jwt",
-    maxAge: 24 * 60 * 60, // 1 day
-    updateAge: 60 * 60, // 1 hour
+    strategy: "jwt", // Using JWT for both OAuth and credentials
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
   },
   secret: process.env.NEXTAUTH_SECRET || 'a6l15TQlu9p8qpFB+wLMj35R583D1df6Wu71+fyw+PU=',
-  debug: process.env.NODE_ENV === 'development', // Enable debug only in development
+  debug: process.env.NODE_ENV === 'development',
+  // Events for debugging
+  events: {
+    async signIn({ user, account, profile, isNewUser }) {
+      console.log('✅ [EVENT] User signed in:', { 
+        email: user.email, 
+        provider: account?.provider,
+        isNewUser 
+      })
+      
+      // Set default role for new Google users
+      if (isNewUser && account?.provider === "google") {
+        try {
+          await db.user.update({
+            where: { email: user.email! },
+            data: { role: 'CUSTOMER' }
+          })
+          console.log('✅ [EVENT] Set default CUSTOMER role for new Google user')
+        } catch (error) {
+          console.error('🔴 [EVENT] Failed to set role:', error)
+        }
+      }
+    },
+    async signOut({ token }) {
+      console.log('✅ [EVENT] User signed out:', token?.email)
+    },
+  },
 }
 

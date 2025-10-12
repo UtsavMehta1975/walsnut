@@ -71,18 +71,34 @@ export default function SignInPage() {
   }
 
   const handleGoogleSignIn = async () => {
-    console.log('🔵 GOOGLE BUTTON CLICKED!')
+    console.log('🔵 [GOOGLE] Sign-in button clicked')
     try {
       setIsLoading(true)
-      console.log('🔵 Calling signIn with google provider...')
+      toast.loading('Redirecting to Google...', { id: 'google-signin' })
+      
+      console.log('🔵 [GOOGLE] Initiating Google OAuth flow...')
+      console.log('🔵 [GOOGLE] Callback URL:', redirectUrl || '/')
+      
+      // Trigger Google OAuth flow - NextAuth handles everything
       const result = await signIn('google', { 
         callbackUrl: redirectUrl || '/',
-        redirect: true 
+        redirect: true, // Always redirect
       })
-      console.log('🔵 SignIn result:', result)
+      
+      console.log('🔵 [GOOGLE] SignIn result:', result)
+      
+      // This code may not execute if redirect happens immediately
+      if (result?.error) {
+        console.error('🔴 [GOOGLE] Sign-in error:', result.error)
+        toast.error(result.error === 'OAuthAccountNotLinked' 
+          ? 'An account with this email already exists. Please sign in with your password.'
+          : 'Google sign-in failed. Please try again.', 
+          { id: 'google-signin' })
+        setIsLoading(false)
+      }
     } catch (error) {
-      console.error('🔴 Google sign-in error:', error)
-      toast.error('Google sign-in failed. Please try again.')
+      console.error('🔴 [GOOGLE] Unexpected error:', error)
+      toast.error('An unexpected error occurred. Please try again.', { id: 'google-signin' })
       setIsLoading(false)
     }
   }
