@@ -106,9 +106,31 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           return
         }
         const p = await res.json()
-        const primary = p.images?.find((img: any) => img.isPrimary) || p.images?.[0]
-        const imageUrl = primary?.imageUrl ? getOptimizedImageUrl(primary.imageUrl) : '/web-banner.png'
-        const allImages = p.images?.map((img: any) => getOptimizedImageUrl(img.imageUrl)) || [imageUrl]
+        console.log('📦 [PRODUCT] Raw product data:', p)
+        console.log('📸 [PRODUCT] Raw images:', p.images)
+        
+        // Ensure images exist and have URLs
+        const validImages = (p.images || []).filter((img: any) => img && img.imageUrl)
+        console.log('📸 [PRODUCT] Valid images found:', validImages.length)
+        
+        const primary = validImages.find((img: any) => img.isPrimary) || validImages[0]
+        const imageUrl = primary?.imageUrl || '/web-banner.png'
+        
+        // Map images properly with all fields
+        const mappedImages = validImages.map((img: any) => ({
+          id: img.id,
+          imageUrl: img.imageUrl,
+          altText: img.altText || `${p.brand} ${p.model}`,
+          isPrimary: img.isPrimary || false,
+          sortOrder: img.sortOrder || 0,
+          colorName: img.colorName || null,
+          colorCode: img.colorCode || null,
+          variantSku: img.variantSku || null,
+          isSelectable: img.isSelectable !== false
+        }))
+        
+        console.log('📸 [PRODUCT] Mapped images:', mappedImages)
+        
         const mapped: Product = {
           id: p.id,
           name: `${p.brand} ${p.model}`,
@@ -120,7 +142,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           colors: [],
           category: p.category?.name || 'luxury',
           image: imageUrl,
-          images: allImages,
+          images: mappedImages.length > 0 ? mappedImages : undefined,
           description: p.description || 'No description available for this product.',
           sku: p.sku || 'N/A',
           brand: p.brand || 'N/A',
@@ -132,6 +154,9 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           specifications: p.specifications,
           authenticity: p.authenticity
         }
+        
+        console.log('✅ [PRODUCT] Product mapped successfully')
+        console.log('📸 [PRODUCT] Final images in product:', mapped.images)
         setProduct(mapped)
         setIsImageLoading(true) // Reset image loading state when product changes
         
