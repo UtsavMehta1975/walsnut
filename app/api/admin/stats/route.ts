@@ -71,9 +71,11 @@ export async function GET(request: NextRequest) {
     
     // Calculate order statistics
     const pendingOrders = orders.filter(o => o.status === 'PENDING').length
-    const processingOrders = orders.filter(o => o.status === 'CONFIRMED' || o.status === 'PROCESSING').length
+    const confirmedOrders = orders.filter(o => o.status === 'CONFIRMED').length
     const shippedOrders = orders.filter(o => o.status === 'SHIPPED').length
     const deliveredOrders = orders.filter(o => o.status === 'DELIVERED').length
+    const cancelledOrders = orders.filter(o => o.status === 'CANCELLED').length
+    const refundedOrders = orders.filter(o => o.status === 'REFUNDED').length
     
     // Calculate payment statistics
     const pendingPayments = orders.filter(o => o.paymentStatus === 'PENDING').length
@@ -97,9 +99,11 @@ export async function GET(request: NextRequest) {
       
       ordersByStatus: {
         pending: pendingOrders,
-        processing: processingOrders,
+        confirmed: confirmedOrders,
         shipped: shippedOrders,
-        delivered: deliveredOrders
+        delivered: deliveredOrders,
+        cancelled: cancelledOrders,
+        refunded: refundedOrders
       },
       
       paymentStats: {
