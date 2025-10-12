@@ -1,30 +1,47 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
-export async function GET(request: NextRequest) {
+export const dynamic = 'force-dynamic'
+
+export async function GET() {
   try {
-    const envCheck = {
-      database: {
-        configured: !!process.env.MYSQL_URL,
-        hasCorrectPassword: process.env.MYSQL_URL?.includes('YourStrongPassword') === false
-      },
-      cashfree: {
-        appId: !!process.env.CASHFREE_APP_ID,
-        secretKey: !!process.env.CASHFREE_SECRET_KEY,
-        environment: !!process.env.CASHFREE_ENVIRONMENT,
-        webhookSecret: !!process.env.CASHFREE_WEBHOOK_SECRET
-      },
-      nextauth: {
-        secret: !!process.env.NEXTAUTH_SECRET,
-        url: !!process.env.NEXTAUTH_URL
-      }
-    }
-
+    const googleClientId = process.env.GOOGLE_CLIENT_ID || ''
+    const googleSecret = process.env.GOOGLE_CLIENT_SECRET || ''
+    const nextAuthUrl = process.env.NEXTAUTH_URL || ''
+    
+    // Check if values are placeholder/invalid
+    const isGoogleClientIdValid = googleClientId && 
+      !googleClientId.includes('your-google-client-id') && 
+      googleClientId.includes('.apps.googleusercontent.com')
+    
+    const isGoogleSecretValid = googleSecret && 
+      !googleSecret.includes('your-google-client-secret') && 
+      (googleSecret.startsWith('GOCSPX-') || googleSecret.length > 20)
+    
     return NextResponse.json({
-      status: 'Environment Check',
-      ...envCheck,
-      message: envCheck.database.configured && envCheck.database.hasCorrectPassword 
-        ? 'Environment variables look good!' 
-        : 'Please update environment variables in Vercel'
+      hasGoogleClientId: !!googleClientId,
+      googleClientIdValid: isGoogleClientIdValid,
+      googleClientIdPreview: googleClientId ? 
+        (isGoogleClientIdValid ? 
+          `${googleClientId.substring(0, 20)}...` : 
+          'Placeholder value detected') : 
+        'Not set',
+      
+      hasGoogleSecret: !!googleSecret,
+      googleSecretValid: isGoogleSecretValid,
+      
+      hasNextAuthUrl: !!nextAuthUrl,
+      nextAuthUrl: nextAuthUrl || 'Not set',
+      
+      hasNextAuthSecret: !!process.env.NEXTAUTH_SECRET,
+      
+      hasDatabase: !!process.env.MYSQL_URL,
+      
+      overallStatus: isGoogleClientIdValid && isGoogleSecretValid ? 
+        'ready' : 'needs_configuration',
+      
+      message: isGoogleClientIdValid && isGoogleSecretValid ?
+        '✅ Google OAuth is configured correctly!' :
+        '⚠️ Google OAuth credentials need to be configured. Visit /debug-oauth for instructions.'
     })
   } catch (error) {
     console.error('Environment check error:', error)
