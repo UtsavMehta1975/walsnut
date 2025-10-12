@@ -502,19 +502,39 @@ export default function AdminPage() {
   }
 
   const handleDeleteProduct = async (productId: string) => {
+    // Find the product to show in confirmation
+    const product = products.find(p => p.id === productId)
+    const productName = product ? `${product.brand} ${product.model}` : 'this product'
+    
+    // Confirmation dialog
+    if (!confirm(`Are you sure you want to delete ${productName}?\n\nThis action cannot be undone.`)) {
+      return
+    }
+
+    console.log('🗑️ [ADMIN] Deleting product:', productId)
+    const loadingToast = toast.loading('Deleting product...')
+    
     try {
       const response = await fetch(`/api/products/${productId}`, {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${user?.email}`,
+        },
       })
 
       if (response.ok) {
         setProducts(Array.isArray(products) ? products.filter(p => p.id !== productId) : [])
-        toast.success('Product deleted successfully!')
+        toast.success('Product deleted successfully!', { id: loadingToast })
+        console.log('✅ [ADMIN] Product deleted:', productId)
       } else {
-        toast.error('Failed to delete product')
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage = errorData.error || errorData.message || 'Failed to delete product'
+        toast.error(errorMessage, { id: loadingToast })
+        console.error('🔴 [ADMIN] Delete failed:', errorMessage)
       }
     } catch (error) {
-      toast.error('Failed to delete product')
+      console.error('🔴 [ADMIN] Delete error:', error)
+      toast.error('Network error. Please check your connection and try again.', { id: loadingToast })
     }
   }
 

@@ -154,37 +154,104 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    console.log('🗑️ [DELETE PRODUCT API] Request received for productId:', params.id)
+    
     const authHeader = request.headers.get('authorization')
     if (!authHeader) {
+      console.error('🔴 [DELETE PRODUCT API] No authorization header')
       return NextResponse.json(
-        { error: 'Authorization header required' },
+        { error: 'Authorization required. Please sign in as admin.' },
         { status: 401 }
       )
     }
 
     const userEmail = authHeader.replace('Bearer ', '')
+    console.log('🔍 [DELETE PRODUCT API] Checking admin access for:', userEmail)
+    
     const user = await db.user.findUnique({
       where: { email: userEmail },
-      select: { role: true }
+      select: { role: true, email: true }
     })
 
-    if (!user || user.role !== 'ADMIN') {
+    if (!user) {
+      console.error('🔴 [DELETE PRODUCT API] User not found:', userEmail)
       return NextResponse.json(
-        { error: 'Admin access required' },
+        { error: 'User not found. Please sign in again.' },
         { status: 403 }
       )
     }
 
-    // Delete product (images will cascade delete)
+    if (user.role !== 'ADMIN') {
+      console.error('🔴 [DELETE PRODUCT API] User is not admin:', userEmail, 'Role:', user.role)
+      return NextResponse.json(
+        { error: 'Admin access required. Your role: ' + user.role },
+        { status: 403 }
+      )
+    }
+
+    console.log('✅ [DELETE PRODUCT API] Admin verified, checking if product exists...')
+    
+    // Check if product exists
+    const product = await db.product.findUnique({
+      where: { id: params.id },
+      include: {
+        images: true,
+        orderItems: true,
+        wishlistItems: true,
+        reviews: true
+      }
+    })
+
+    if (!product) {
+      console.error('🔴 [DELETE PRODUCT API] Product not found:', params.id)
+      return NextResponse.json(
+        { error: 'Product not found. It may have already been deleted.' },
+        { status: 404 }
+      )
+    }
+
+    console.log('📦 [DELETE PRODUCT API] Product found:', product.brand, product.model)
+    console.log('📊 [DELETE PRODUCT API] Related data:', {
+      images: product.images.length,
+      orderItems: product.orderItems.length,
+      wishlistItems: product.wishlistItems.length,
+      reviews: product.reviews.length
+    })
+
+    // Delete product (related data will cascade delete due to onDelete: Cascade in schema)
     await db.product.delete({
       where: { id: params.id }
     })
 
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Delete product error:', error)
+    console.log('✅ [DELETE PRODUCT API] Product deleted successfully:', params.id)
+    return NextResponse.json({ 
+      success: true,
+      message: 'Product deleted successfully',
+      deletedProduct: {
+        brand: product.brand,
+        model: product.model
+      }
+    })
+  } catch (error: any) {
+    console.error('🔴 [DELETE PRODUCT API] Error:', error)
+    
+    // Check for specific database errors
+    if (error.code === 'P2003') {
+      return NextResponse.json(
+        { error: 'Cannot delete product. It has related orders or references that must be removed first.' },
+        { status: 400 }
+      )
+    }
+    
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        { error: 'Product not found or already deleted.' },
+        { status: 404 }
+      )
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to delete product' },
+      { error: 'Failed to delete product: ' + (error.message || 'Unknown error') },
       { status: 500 }
     )
   }
