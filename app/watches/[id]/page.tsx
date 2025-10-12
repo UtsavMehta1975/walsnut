@@ -519,9 +519,9 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 </h3>
                 <div className="flex flex-wrap gap-3">
                   {product.images
-                    .filter((img: ProductImage) => img.colorName && img.isSelectable !== false)
+                    ?.filter((img: ProductImage) => img.colorName && img.isSelectable !== false)
                     .map((image: ProductImage, index: number) => {
-                      const actualIndex = product.images.findIndex((img: ProductImage) => img.id === image.id)
+                      const actualIndex = product.images?.findIndex((img: ProductImage) => img.id === image.id) ?? 0
                       const isSelected = selectedImageIndex === actualIndex
                       const variantSku = image.variantSku || `${product.sku}-${image.colorCode || index + 1}`
                       const colorName = image.colorName || `Variant ${index + 1}`
