@@ -249,18 +249,27 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
   const handleAddToCart = () => {
     if (product) {
-      const variantSku = selectedVariant?.sku || product.sku
-      const variantName = selectedVariant 
-        ? `${product.name} - ${selectedVariant.colorName}`
+      // Use currently viewed image variant
+      const currentImage = product.images?.[selectedImageIndex]
+      const variantSku = selectedVariant?.sku || currentImage?.variantSku || product.sku
+      const colorName = selectedVariant?.colorName || currentImage?.colorName || null
+      const variantName = colorName 
+        ? `${product.name} - ${colorName}`
         : product.name
+      
+      console.log('🛒 [ADD TO CART] Adding product with variant')
+      console.log('🛒 [ADD TO CART] Variant SKU:', variantSku)
+      console.log('🛒 [ADD TO CART] Color Name:', colorName)
+      console.log('🛒 [ADD TO CART] Variant Name:', variantName)
+      console.log('🛒 [ADD TO CART] Image:', currentImage?.imageUrl || product.image)
       
       addToCart({
         id: product.id,
         name: variantName,
         price: product.price,
-        image: product.image,
+        image: currentImage?.imageUrl || product.image,
         variantSku: variantSku,
-        selectedColor: selectedVariant?.colorName || selectedColor
+        selectedColor: colorName || ''
       })
       
       // Show success toast with cart icon
@@ -277,18 +286,25 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
   const handleBuyNow = () => {
     if (product) {
-      const variantSku = selectedVariant?.sku || product.sku
-      const variantName = selectedVariant 
-        ? `${product.name} - ${selectedVariant.colorName}`
+      // Use currently viewed image variant
+      const currentImage = product.images?.[selectedImageIndex]
+      const variantSku = selectedVariant?.sku || currentImage?.variantSku || product.sku
+      const colorName = selectedVariant?.colorName || currentImage?.colorName || null
+      const variantName = colorName 
+        ? `${product.name} - ${colorName}`
         : product.name
+      
+      console.log('⚡ [BUY NOW] Buying product with variant')
+      console.log('⚡ [BUY NOW] Variant:', variantName)
+      console.log('⚡ [BUY NOW] Color:', colorName)
       
       addToCart({
         id: product.id,
         name: variantName,
         price: product.price,
-        image: product.image,
+        image: currentImage?.imageUrl || product.image,
         variantSku: variantSku,
-        selectedColor: selectedVariant?.colorName || selectedColor
+        selectedColor: colorName || ''
       })
       window.location.href = '/checkout'
     }
@@ -468,8 +484,28 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                       <button
                         key={image.id}
                         onClick={() => {
+                          console.log('👆 [CLICK] Thumbnail clicked:', index, image)
                           setSelectedImageIndex(index)
                           setIsImageLoading(true)
+                          
+                          // Set variant info when clicking thumbnail
+                          if (image.colorName || image.variantSku) {
+                            const variant = {
+                              id: image.id,
+                              sku: image.variantSku || `${product.sku}-${image.colorCode || index + 1}`,
+                              colorName: image.colorName || `View ${index + 1}`,
+                              colorCode: image.colorCode || `V${index + 1}`,
+                              imageUrl: image.imageUrl,
+                              isAvailable: true
+                            }
+                            setSelectedVariant(variant)
+                            setSelectedColor(image.colorName || '')
+                            console.log('✅ [VARIANT] Selected variant:', variant)
+                          } else {
+                            // Clear variant if no color info
+                            setSelectedVariant(null)
+                            console.log('ℹ️ [VARIANT] No color info, variant cleared')
+                          }
                         }}
                         className={`
                           relative flex-shrink-0 w-20 h-20 overflow-hidden cursor-pointer transition-all border-2 rounded-lg bg-white
@@ -497,9 +533,18 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                         {/* Check mark for selected */}
                         {selectedImageIndex === index && (
                           <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                            <div className="bg-black rounded-full p-1">
+                            <div className="bg-yellow-500 rounded-full p-1 shadow-lg">
                               <Check className="w-4 h-4 text-white" />
                             </div>
+                          </div>
+                        )}
+                        
+                        {/* Color name label on thumbnail if exists */}
+                        {image.colorName && (
+                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent py-1 px-1">
+                            <p className="text-xs text-white font-medium text-center truncate">
+                              {image.colorName}
+                            </p>
                           </div>
                         )}
                       </button>
