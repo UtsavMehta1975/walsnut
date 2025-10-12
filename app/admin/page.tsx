@@ -96,6 +96,63 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
 
+  // Dashboard statistics state
+  const [dashboardStats, setDashboardStats] = useState({
+    totalRevenue: 0,
+    totalOrders: 0,
+    totalCustomers: 0,
+    totalProducts: 0,
+    averageOrderValue: 0,
+    recentActivity: {
+      ordersLast7Days: 0,
+      revenueLast7Days: 0
+    }
+  })
+  const [isLoadingStats, setIsLoadingStats] = useState(true)
+
+  const [newProduct, setNewProduct] = useState({
+    brand: '',
+    model: '',
+    referenceNumber: '',
+    price: '',
+    previousPrice: '',
+    condition: 'NEW',
+    year: new Date().getFullYear().toString(),
+    gender: 'MENS',
+    description: '',
+    stockQuantity: '1',
+    categories: [] as string[],
+    specifications: {
+      movement: '',
+      case: '',
+      dial: '',
+      
+      bracelet: '',
+      waterResistance: '',
+      powerReserve: '',
+      diameter: '',
+      thickness: ''
+    },
+    authenticity: {
+      guaranteed: true,
+      certificate: true,
+      serviceHistory: true
+    }
+  })
+
+  // Use real-time calculated stats
+  const totalRevenue = dashboardStats.totalRevenue
+  const totalOrders = dashboardStats.totalOrders
+  const totalCustomers = dashboardStats.totalCustomers
+  const totalProducts = dashboardStats.totalProducts
+
+  const tabItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+    { id: 'products', label: 'Products', icon: Package },
+    { id: 'orders', label: 'Orders', icon: ShoppingCart },
+    { id: 'customers', label: 'Customers', icon: Users }
+  ]
+
   // Filter products based on search query
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -274,36 +331,6 @@ export default function AdminPage() {
       setIsLoadingCustomers(false)
     }
   }
-
-  const [newProduct, setNewProduct] = useState({
-    brand: '',
-    model: '',
-    referenceNumber: '',
-    price: '',
-    previousPrice: '',
-    condition: 'NEW',
-    year: new Date().getFullYear().toString(),
-    gender: 'MENS',
-    description: '',
-    stockQuantity: '1',
-    categories: [] as string[],
-    specifications: {
-      movement: '',
-      case: '',
-      dial: '',
-      
-      bracelet: '',
-      waterResistance: '',
-      powerReserve: '',
-      diameter: '',
-      thickness: ''
-    },
-    authenticity: {
-      guaranteed: true,
-      certificate: true,
-      serviceHistory: true
-    }
-  })
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -575,33 +602,6 @@ export default function AdminPage() {
         ) : [])
     toast.success('Order status updated!')
   }
-
-  // Dashboard statistics state
-  const [dashboardStats, setDashboardStats] = useState({
-    totalRevenue: 0,
-    totalOrders: 0,
-    totalCustomers: 0,
-    totalProducts: 0,
-    averageOrderValue: 0,
-    recentActivity: {
-      ordersLast7Days: 0,
-      revenueLast7Days: 0
-    }
-  })
-  const [isLoadingStats, setIsLoadingStats] = useState(true)
-
-  // Use real-time calculated stats
-  const totalRevenue = dashboardStats.totalRevenue
-  const totalOrders = dashboardStats.totalOrders
-  const totalCustomers = dashboardStats.totalCustomers
-  const totalProducts = dashboardStats.totalProducts
-
-  const tabItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-    { id: 'products', label: 'Products', icon: Package },
-    { id: 'orders', label: 'Orders', icon: ShoppingCart },
-    { id: 'customers', label: 'Customers', icon: Users }
-  ]
 
   // Show loading state while checking authentication
   if (isLoading) {
