@@ -396,7 +396,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           {/* Product Images - NEW LAYOUT: Main on Top, Thumbnails Below */}
           <div className="space-y-4">
             {/* Main Image - Full Size on Top */}
-            <div className="w-full relative bg-gray-50 border border-gray-200 rounded-lg overflow-hidden" style={{ aspectRatio: '1/1' }}>
+            <div className="w-full relative bg-gray-50 border border-gray-200 rounded-lg overflow-hidden" style={{ paddingBottom: '100%' }}>
               {/* Image Loader */}
               {isImageLoading && (
                 <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
@@ -407,23 +407,25 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 </div>
               )}
               
-              <Image
-                src={product.images?.[selectedImageIndex]?.imageUrl || product.image}
-                alt={selectedVariant ? `${product.name} - ${selectedVariant.colorName}` : product.name}
-                fill
-                className="object-contain cursor-pointer hover:opacity-95 transition-opacity p-4"
-                onClick={() => setShowImageModal(true)}
-                onLoad={handleImageLoad}
-                onError={(e) => {
-                  console.error('Main image failed to load:', product.images?.[selectedImageIndex]?.imageUrl)
-                  handleImageError()
-                  // Try fallback image
-                  const img = e.target as HTMLImageElement
-                  img.src = product.image || '/web-banner.png'
-                }}
-                priority
-                unoptimized
-              />
+              <div className="absolute inset-0 p-4">
+                <Image
+                  src={product.images?.[selectedImageIndex]?.imageUrl || product.image}
+                  alt={selectedVariant ? `${product.name} - ${selectedVariant.colorName}` : product.name}
+                  fill
+                  className="object-contain cursor-pointer hover:opacity-95 transition-opacity"
+                  onClick={() => setShowImageModal(true)}
+                  onLoad={handleImageLoad}
+                  onError={(e) => {
+                    console.error('Main image failed to load:', product.images?.[selectedImageIndex]?.imageUrl)
+                    handleImageError()
+                    // Try fallback image
+                    const img = e.target as HTMLImageElement
+                    img.src = product.image || '/web-banner.png'
+                  }}
+                  priority
+                  unoptimized
+                />
+              </div>
               
               {/* Selected Variant Badge */}
               {selectedVariant && (
@@ -456,26 +458,28 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                           setIsImageLoading(true)
                         }}
                         className={`
-                          relative flex-shrink-0 w-20 h-20 overflow-hidden cursor-pointer transition-all border-2 rounded-lg
+                          relative flex-shrink-0 w-20 h-20 overflow-hidden cursor-pointer transition-all border-2 rounded-lg bg-white
                           ${selectedImageIndex === index 
                             ? 'border-black shadow-lg scale-105' 
                             : 'border-gray-300 hover:border-gray-400 hover:scale-105'
                           }
                         `}
                       >
-                        <Image
-                          src={image.imageUrl}
-                          alt={image.altText || `View ${index + 1}`}
-                          fill
-                          className="object-cover"
-                          sizes="80px"
-                          unoptimized
-                          onError={(e) => {
-                            console.error('Thumbnail failed to load:', image.imageUrl)
-                            const img = e.target as HTMLImageElement
-                            img.src = '/web-banner.png'
-                          }}
-                        />
+                        <div className="relative w-full h-full">
+                          <Image
+                            src={image.imageUrl}
+                            alt={image.altText || `View ${index + 1}`}
+                            fill
+                            className="object-cover"
+                            sizes="80px"
+                            unoptimized
+                            onError={(e) => {
+                              console.error('Thumbnail failed to load:', image.imageUrl)
+                              const img = e.target as HTMLImageElement
+                              img.src = '/web-banner.png'
+                            }}
+                          />
+                        </div>
                         {/* Check mark for selected */}
                         {selectedImageIndex === index && (
                           <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
@@ -581,7 +585,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                             setIsImageLoading(true)
                           }}
                           className={`
-                            group relative w-16 h-16 rounded-lg border-2 transition-all duration-200 overflow-hidden
+                            group relative w-16 h-16 rounded-lg border-2 transition-all duration-200 overflow-hidden bg-white
                             ${isSelected 
                               ? 'border-yellow-500 ring-2 ring-yellow-200 scale-110' 
                               : 'border-gray-300 hover:border-gray-400 hover:scale-105'
@@ -589,19 +593,21 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                           `}
                           title={colorName}
                         >
-                          <Image
-                            src={getOptimizedImageUrl(image.imageUrl)}
-                            alt={`${product.name} - ${colorName}`}
-                            fill
-                            className="object-cover"
-                            sizes="64px"
-                            unoptimized
-                            onError={(e) => {
-                              console.error('Color swatch failed to load:', image.imageUrl)
-                              const img = e.target as HTMLImageElement
-                              img.src = '/web-banner.png'
-                            }}
-                          />
+                          <div className="relative w-full h-full">
+                            <Image
+                              src={getOptimizedImageUrl(image.imageUrl)}
+                              alt={`${product.name} - ${colorName}`}
+                              fill
+                              className="object-cover"
+                              sizes="64px"
+                              unoptimized
+                              onError={(e) => {
+                                console.error('Color swatch failed to load:', image.imageUrl)
+                                const img = e.target as HTMLImageElement
+                                img.src = '/web-banner.png'
+                              }}
+                            />
+                          </div>
                           
                             {/* Selected Indicator */}
                           {isSelected && (
