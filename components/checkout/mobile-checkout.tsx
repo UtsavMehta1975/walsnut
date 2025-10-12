@@ -842,7 +842,7 @@ export default function MobileCheckout() {
                                   {method.name}
                                   {method.isPopular && (
                                     <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-semibold">
-                                      ⚡ POPULAR - Save ₹{method.discount}
+                                      ⚡ POPULAR
                                     </span>
                                   )}
                                 </div>
