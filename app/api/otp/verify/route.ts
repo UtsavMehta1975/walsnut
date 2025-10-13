@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { verifyOTP, isOTPExpired, formatPhoneNumber } from '@/lib/otp'
 
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic'
+
 // Handle OPTIONS for CORS
 export async function OPTIONS(request: NextRequest) {
   return NextResponse.json(

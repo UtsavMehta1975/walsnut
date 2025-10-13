@@ -4,6 +4,9 @@ import { generateOTP, hashOTP, getOTPExpiry, isValidEmail, isValidIndianPhone, f
 import { sendOTPViaEmail } from '@/lib/email'
 import { sendOTPViaSMS } from '@/lib/sms'
 
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic'
+
 // Handle OPTIONS for CORS
 export async function OPTIONS(request: NextRequest) {
   return NextResponse.json(
