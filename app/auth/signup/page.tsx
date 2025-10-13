@@ -181,6 +181,9 @@ export default function SignUpPage() {
                 <p className="text-sm text-gray-600">
                   Quick • Secure • No password needed
                 </p>
+                <p className="text-xs text-gray-500 mt-2">
+                  ✨ New to Walnut Store? Your account will be created automatically!
+                </p>
               </div>
               
               <Button

@@ -216,7 +216,7 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET || 'a6l15TQlu9p8qpFB+wLMj35R583D1df6Wu71+fyw+PU=',
   debug: process.env.NODE_ENV === 'development',
-  // Events for debugging
+  // Events for debugging and user management
   events: {
     async signIn({ user, account, profile, isNewUser }) {
       console.log('✅ [EVENT] User signed in:', { 
@@ -225,21 +225,38 @@ export const authOptions: NextAuthOptions = {
         isNewUser 
       })
       
-      // Set default role for new Google users
+      // Handle new Google users - auto-registration
       if (isNewUser && account?.provider === "google") {
         try {
+          console.log('🆕 [EVENT] NEW USER detected! Auto-registering:', user.email)
+          
+          // Update user with default role and additional info
           await db.user.update({
             where: { email: user.email! },
-            data: { role: 'CUSTOMER' }
+            data: { 
+              role: 'CUSTOMER',
+              emailVerified: new Date(), // Google-verified email
+            }
           })
-          console.log('✅ [EVENT] Set default CUSTOMER role for new Google user')
+          
+          console.log('✅ [EVENT] New user registered successfully!')
+          console.log('✅ [EVENT] - Email:', user.email)
+          console.log('✅ [EVENT] - Name:', user.name)
+          console.log('✅ [EVENT] - Role: CUSTOMER')
+          console.log('✅ [EVENT] - Email verified: YES')
+          console.log('✅ [EVENT] User can now browse the website!')
         } catch (error) {
           console.error('🔴 [EVENT] Failed to set role:', error)
         }
+      } else if (account?.provider === "google") {
+        console.log('👋 [EVENT] Welcome back, existing user:', user.email)
       }
     },
     async signOut({ token }) {
       console.log('✅ [EVENT] User signed out:', token?.email)
+    },
+    async createUser({ user }) {
+      console.log('🆕 [EVENT] New user account created in database:', user.email)
     },
   },
 }

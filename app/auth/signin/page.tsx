@@ -257,6 +257,9 @@ export default function SignInPage() {
             <p className="text-xs text-center text-gray-500 mt-2">
               One-click login • Secure • Fast
             </p>
+            <p className="text-xs text-center text-gray-400 mt-1">
+              ✨ New user? Your account will be created automatically
+            </p>
           </div>
 
         </div>
