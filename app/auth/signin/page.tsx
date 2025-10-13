@@ -11,6 +11,7 @@ import { Footer } from '@/components/layout/footer'
 import { getSmartRedirectUrl } from '@/lib/navigation'
 import toast from 'react-hot-toast'
 import { signIn } from 'next-auth/react'
+import { Phone } from 'lucide-react'
 
 export default function SignInPage() {
   const router = useRouter()
@@ -259,6 +260,23 @@ export default function SignInPage() {
             </p>
             <p className="text-xs text-center text-gray-400 mt-1">
               ✨ New user? Your account will be created automatically
+            </p>
+          </div>
+
+          {/* OTP Login Option */}
+          <div className="mt-6">
+            <Link href="/auth/signin-otp">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 border-2 border-blue-200 hover:border-blue-300 transition-all duration-200 flex items-center justify-center gap-3 py-3"
+              >
+                <Phone className="h-5 w-5 text-blue-600" />
+                <span className="font-medium text-gray-700">Sign in with Phone OTP</span>
+              </Button>
+            </Link>
+            <p className="text-xs text-center text-gray-500 mt-2">
+              No password needed • Quick & Secure
             </p>
           </div>
 
