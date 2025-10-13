@@ -189,22 +189,50 @@ export default function SignUpPage() {
                   try {
                     setIsLoading(true)
                     console.log('🔵 [GOOGLE] Sign-up button clicked')
-                    toast.loading('Redirecting to Google...', { id: 'google-signup' })
+                    toast.loading('Opening Google Sign-Up...', { id: 'google-signup' })
                     
-                    // Google OAuth handles both signup and signin seamlessly
+                    // Use redirect=false to handle errors properly
                     const result = await signIn('google', { 
-                      callbackUrl: '/dashboard',
-                      redirect: true 
+                      callbackUrl: '/',
+                      redirect: false
                     })
+                    
+                    console.log('🔵 [GOOGLE] Sign-up response:', result)
                     
                     if (result?.error) {
                       console.error('🔴 [GOOGLE] Sign-up error:', result.error)
-                      toast.error('Google sign-up failed. Please try again.', { id: 'google-signup' })
+                      console.error('🔴 [GOOGLE] Error details:', JSON.stringify(result, null, 2))
+                      
+                      let errorMessage = 'Google sign-up failed. Please try again.'
+                      
+                      if (result.error === 'OAuthCallback') {
+                        errorMessage = 'OAuth configuration error. Please check your Google Cloud Console settings.'
+                      } else if (result.error === 'Configuration') {
+                        errorMessage = 'Authentication is not properly configured. Please contact support.'
+                      }
+                      
+                      toast.error(errorMessage, { id: 'google-signup' })
+                      setIsLoading(false)
+                    } else if (result?.ok) {
+                      console.log('✅ [GOOGLE] Sign-up successful!')
+                      toast.success('Account created successfully!', { id: 'google-signup' })
+                      
+                      // Redirect to home
+                      const finalUrl = result.url || '/'
+                      console.log('🔵 [GOOGLE] Redirecting to:', finalUrl)
+                      window.location.href = finalUrl
+                    } else if (result?.url) {
+                      console.log('🔵 [GOOGLE] Redirecting to:', result.url)
+                      window.location.href = result.url
+                    } else {
+                      console.error('🔴 [GOOGLE] Unexpected response:', result)
+                      toast.error('An unexpected error occurred. Please try again.', { id: 'google-signup' })
                       setIsLoading(false)
                     }
-                  } catch (error) {
+                  } catch (error: any) {
                     console.error('🔴 [GOOGLE] Unexpected error:', error)
-                    toast.error('An unexpected error occurred. Please try again.', { id: 'google-signup' })
+                    console.error('🔴 [GOOGLE] Error stack:', error?.stack)
+                    toast.error('Network error. Please check your connection and try again.', { id: 'google-signup' })
                     setIsLoading(false)
                   }
                 }}

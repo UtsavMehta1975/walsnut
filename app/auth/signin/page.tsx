@@ -72,33 +72,60 @@ export default function SignInPage() {
 
   const handleGoogleSignIn = async () => {
     console.log('🔵 [GOOGLE] Sign-in button clicked')
+    
     try {
       setIsLoading(true)
-      toast.loading('Redirecting to Google...', { id: 'google-signin' })
+      toast.loading('Opening Google Sign-In...', { id: 'google-signin' })
       
       console.log('🔵 [GOOGLE] Initiating Google OAuth flow...')
       console.log('🔵 [GOOGLE] Callback URL:', redirectUrl || '/')
+      console.log('🔵 [GOOGLE] Current URL:', typeof window !== 'undefined' ? window.location.href : 'N/A')
       
-      // Trigger Google OAuth flow - NextAuth handles everything
+      // Use signIn with redirect=false to handle errors properly
       const result = await signIn('google', { 
         callbackUrl: redirectUrl || '/',
-        redirect: true, // Always redirect
+        redirect: false, // Changed to false to handle response
       })
       
-      console.log('🔵 [GOOGLE] SignIn result:', result)
+      console.log('🔵 [GOOGLE] SignIn response:', result)
       
-      // This code may not execute if redirect happens immediately
       if (result?.error) {
         console.error('🔴 [GOOGLE] Sign-in error:', result.error)
-        toast.error(result.error === 'OAuthAccountNotLinked' 
-          ? 'An account with this email already exists. Please sign in with your password.'
-          : 'Google sign-in failed. Please try again.', 
-          { id: 'google-signin' })
+        console.error('🔴 [GOOGLE] Error details:', JSON.stringify(result, null, 2))
+        
+        let errorMessage = 'Google sign-in failed. Please try again.'
+        
+        if (result.error === 'OAuthAccountNotLinked') {
+          errorMessage = 'An account with this email already exists. Please sign in with your password.'
+        } else if (result.error === 'OAuthCallback') {
+          errorMessage = 'OAuth configuration error. Please check your Google Cloud Console settings.'
+        } else if (result.error === 'Configuration') {
+          errorMessage = 'Authentication is not properly configured. Please contact support.'
+        }
+        
+        toast.error(errorMessage, { id: 'google-signin' })
+        setIsLoading(false)
+      } else if (result?.ok) {
+        console.log('✅ [GOOGLE] Sign-in successful!')
+        toast.success('Signed in successfully!', { id: 'google-signin' })
+        
+        // Redirect to callback URL or home
+        const finalUrl = result.url || redirectUrl || '/'
+        console.log('🔵 [GOOGLE] Redirecting to:', finalUrl)
+        window.location.href = finalUrl
+      } else if (result?.url) {
+        // If we got a URL but no explicit ok, redirect anyway
+        console.log('🔵 [GOOGLE] Redirecting to:', result.url)
+        window.location.href = result.url
+      } else {
+        console.error('🔴 [GOOGLE] Unexpected response:', result)
+        toast.error('An unexpected error occurred. Please try again.', { id: 'google-signin' })
         setIsLoading(false)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('🔴 [GOOGLE] Unexpected error:', error)
-      toast.error('An unexpected error occurred. Please try again.', { id: 'google-signin' })
+      console.error('🔴 [GOOGLE] Error stack:', error?.stack)
+      toast.error('Network error. Please check your connection and try again.', { id: 'google-signin' })
       setIsLoading(false)
     }
   }
