@@ -81,10 +81,26 @@ export default function SignInPage() {
       console.log('🔵 [GOOGLE] Callback URL:', redirectUrl || '/')
       console.log('🔵 [GOOGLE] Current URL:', typeof window !== 'undefined' ? window.location.href : 'N/A')
       
-      // Use signIn with redirect=false to handle errors properly
+      // Detect mobile device - mobile needs full redirect, not popup
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768
+      console.log('🔵 [GOOGLE] Device type:', isMobile ? 'Mobile (using redirect)' : 'Desktop (using popup)')
+      
+      if (isMobile) {
+        // Mobile: Use full-page redirect (works better on mobile browsers)
+        console.log('📱 [GOOGLE] Mobile detected - using full page redirect')
+        await signIn('google', { 
+          callbackUrl: redirectUrl || '/',
+          redirect: true, // Full page redirect for mobile
+        })
+        // Code after this won't execute as page will redirect
+        return
+      }
+      
+      // Desktop: Use popup/current page (redirect=false to handle errors)
+      console.log('💻 [GOOGLE] Desktop detected - using popup flow')
       const result = await signIn('google', { 
         callbackUrl: redirectUrl || '/',
-        redirect: false, // Changed to false to handle response
+        redirect: false, // Popup for desktop
       })
       
       console.log('🔵 [GOOGLE] SignIn response:', result)

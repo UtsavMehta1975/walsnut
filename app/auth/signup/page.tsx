@@ -191,7 +191,23 @@ export default function SignUpPage() {
                     console.log('🔵 [GOOGLE] Sign-up button clicked')
                     toast.loading('Opening Google Sign-Up...', { id: 'google-signup' })
                     
-                    // Use redirect=false to handle errors properly
+                    // Detect mobile device - mobile needs full redirect, not popup
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768
+                    console.log('🔵 [GOOGLE] Device type:', isMobile ? 'Mobile (using redirect)' : 'Desktop (using popup)')
+                    
+                    if (isMobile) {
+                      // Mobile: Use full-page redirect (works better on mobile browsers)
+                      console.log('📱 [GOOGLE] Mobile detected - using full page redirect')
+                      await signIn('google', { 
+                        callbackUrl: '/',
+                        redirect: true, // Full page redirect for mobile
+                      })
+                      // Code after this won't execute as page will redirect
+                      return
+                    }
+                    
+                    // Desktop: Use popup/current page (redirect=false to handle errors)
+                    console.log('💻 [GOOGLE] Desktop detected - using popup flow')
                     const result = await signIn('google', { 
                       callbackUrl: '/',
                       redirect: false
