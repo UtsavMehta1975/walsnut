@@ -17,6 +17,10 @@ const createOrderSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     console.log('🔍 [ORDERS API] GET request received')
+    console.log('🔍 [ORDERS API] Headers:', {
+      cookie: request.headers.get('cookie')?.substring(0, 100),
+      auth: request.headers.get('authorization')
+    })
     
     // Check if database is configured
     if (!process.env.MYSQL_URL) {
@@ -29,20 +33,48 @@ export async function GET(request: NextRequest) {
 
     // Get authenticated user from NextAuth session or custom session
     let userId: string | null = null
+    let userEmail: string | null = null
     
     // Try NextAuth session first (for OAuth users)
     try {
+      console.log('🔍 [ORDERS API] Checking NextAuth session...')
       const session = await getServerSession(authOptions)
-      if (session?.user?.id) {
+      console.log('🔍 [ORDERS API] NextAuth session:', session ? 'Found' : 'Not found')
+      if (session?.user) {
+        console.log('🔍 [ORDERS API] Session user:', {
+          email: session.user.email,
+          id: session.user.id,
+          name: session.user.name
+        })
+        
         userId = session.user.id
-        console.log('✅ [ORDERS API] User authenticated via NextAuth:', session.user.email)
+        userEmail = session.user.email
+        
+        // If ID is missing, try to find user by email
+        if (!userId && userEmail) {
+          console.log('🔍 [ORDERS API] No ID in session, finding by email...')
+          const dbUser = await db.user.findUnique({
+            where: { email: userEmail }
+          })
+          if (dbUser) {
+            userId = dbUser.id
+            console.log('✅ [ORDERS API] Found user in DB:', userId)
+          }
+        }
+        
+        if (userId) {
+          console.log('✅ [ORDERS API] User authenticated via NextAuth:', userEmail, 'ID:', userId)
+        }
+      } else {
+        console.log('⚠️ [ORDERS API] NextAuth session is null or no user')
       }
     } catch (error) {
-      console.warn('⚠️ [ORDERS API] NextAuth session check failed:', error)
+      console.error('⚠️ [ORDERS API] NextAuth session check failed:', error)
     }
     
     // If no NextAuth session, check custom session from cookie (for credentials users)
     if (!userId) {
+      console.log('🔍 [ORDERS API] Checking custom cookie session...')
       const cookies = request.headers.get('cookie')
       if (cookies && cookies.includes('user=')) {
         try {
@@ -50,27 +82,27 @@ export async function GET(request: NextRequest) {
           if (userCookie) {
             const userData = JSON.parse(decodeURIComponent(userCookie))
             userId = userData.id
-            console.log('✅ [ORDERS API] User authenticated via cookie:', userData.email)
+            userEmail = userData.email
+            console.log('✅ [ORDERS API] User authenticated via cookie:', userEmail)
           }
         } catch (error) {
           console.warn('⚠️ [ORDERS API] Cookie parsing failed:', error)
         }
       }
     }
-
-    // If still no user, check Authorization header
-    if (!userId) {
-      const authHeader = request.headers.get('authorization')
-      if (authHeader?.startsWith('Bearer ')) {
-        // Handle custom token if implemented
-        console.log('ℹ️ [ORDERS API] Authorization header found but not implemented yet')
-      }
-    }
     
     if (!userId) {
       console.log('🔴 [ORDERS API] No authenticated user found')
+      console.log('🔴 [ORDERS API] Checked NextAuth session: No user ID')
+      console.log('🔴 [ORDERS API] Checked cookie: No user ID')
       return NextResponse.json(
-        { error: 'Authentication required. Please sign in to view orders.' },
+        { 
+          error: 'Authentication required. Please sign in to view orders.',
+          debug: {
+            hasSession: !!userEmail,
+            hasUserId: !!userId
+          }
+        },
         { status: 401 }
       )
     }
@@ -169,9 +201,12 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Get orders error:', error)
+    console.error('🔴 [ORDERS API] Get orders error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }
