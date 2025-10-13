@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import crypto from 'crypto'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 // Verify webhook signature
 function verifyWebhookSignature(body: string, signature: string): boolean {
   const expectedSignature = crypto

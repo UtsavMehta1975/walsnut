@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 /**
  * UPI Collect API - Creates a UPI payment request through Cashfree
  * This uses Cashfree's merchant VPA, not personal UPI ID

@@ -4,6 +4,9 @@ import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 // Cashfree SDK will be imported dynamically to avoid build issues
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     // Check if database is configured
@@ -24,34 +27,42 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Temporarily disable authentication for development
-    // TODO: Re-implement proper authentication
-    // Use the first user from the database for testing
-    const firstUser = await db.user.findFirst()
-    if (!firstUser) {
-      return NextResponse.json(
-        { error: 'No users found in database' },
-        { status: 500 }
-      )
-    }
-    const userId = firstUser.id
-
     const { orderId, paymentMethod, amount, isCOD } = await request.json()
     
-    console.log('💳 Payment request:', { orderId, paymentMethod, amount, isCOD, userId })
+    console.log('💳 [PAYMENT] Payment request received:', { orderId, paymentMethod, amount, isCOD })
     
-    // Get order details - don't filter by userId for now to find the order
+    // Get order details first (order contains userId)
     const order = await db.order.findUnique({
       where: { id: orderId },
-      include: { orderItems: true }
+      include: { 
+        orderItems: true,
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            phone: true
+          }
+        }
+      }
     })
 
     if (!order) {
-      console.error('❌ Order not found:', orderId)
+      console.error('❌ [PAYMENT] Order not found:', orderId)
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
     
-    console.log('✅ Order found:', { orderId: order.id, userId: order.userId, totalAmount: order.totalAmount })
+    if (!order.user) {
+      console.error('❌ [PAYMENT] Order has no associated user:', orderId)
+      return NextResponse.json({ error: 'Invalid order - no user found' }, { status: 404 })
+    }
+    
+    console.log('✅ [PAYMENT] Order found:', { 
+      orderId: order.id, 
+      userId: order.userId, 
+      userEmail: order.user.email,
+      totalAmount: order.totalAmount 
+    })
 
     // Generate unique order ID for Cashfree
     const cashfreeOrderId = `order_${order.id}_${Date.now()}`
@@ -59,12 +70,13 @@ export async function POST(request: NextRequest) {
     // Use custom amount for COD (₹200 advance) or full amount for other methods
     const paymentAmount = amount || Number(order.totalAmount)
     
-    console.log('💳 Payment details:', {
+    console.log('💳 [PAYMENT] Payment details:', {
       orderId,
       isCOD,
       totalOrderAmount: Number(order.totalAmount),
       paymentAmount,
-      method: paymentMethod
+      method: paymentMethod,
+      customerEmail: order.user.email
     })
     
     // Create payment session using Cashfree API directly
@@ -73,10 +85,10 @@ export async function POST(request: NextRequest) {
       order_amount: paymentAmount,
       order_currency: 'INR',
       customer_details: {
-        customer_id: userId,
-        customer_email: firstUser.email,
-        customer_phone: firstUser.phone || '9999999999',
-        customer_name: firstUser.name || 'Customer'
+        customer_id: order.user.id,
+        customer_email: order.user.email!,
+        customer_phone: order.user.phone || '9999999999',
+        customer_name: order.user.name || 'Customer'
       },
       order_meta: {
         return_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/success?order_id={order_id}`,
