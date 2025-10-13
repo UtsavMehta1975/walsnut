@@ -215,7 +215,14 @@ export default function MobileCheckout() {
           totalAmount: finalOrderTotal, // Save the correct total
           paymentMethod: paymentInfo.paymentMethod,
           isCOD: paymentInfo.paymentMethod === 'cod',
-          codAdvance: paymentInfo.paymentMethod === 'cod' ? 200 : 0
+          codAdvance: paymentInfo.paymentMethod === 'cod' ? 200 : 0,
+          // Include customer info for guest checkout
+          customerInfo: {
+            firstName: shippingInfo.firstName,
+            lastName: shippingInfo.lastName,
+            email: shippingInfo.email,
+            phone: shippingInfo.phone
+          }
         })
       });
 
@@ -225,6 +232,19 @@ export default function MobileCheckout() {
       }
 
       const orderResult = await orderResponse.json();
+      
+      // Show account creation message if applicable
+      if (orderResult.accountCreated) {
+        toast.success('🎉 Account created! You can now sign in with Google or reset your password.', {
+          duration: 6000,
+          icon: '✅'
+        });
+      } else if (orderResult.isGuestCheckout) {
+        toast.success('Order linked to your existing account!', {
+          duration: 4000,
+          icon: '✅'
+        });
+      }
       
       // Step 2: Initialize payment with the created order ID (using paymentAmount from line 112)
       const paymentResponse = await fetch('/api/payments', {

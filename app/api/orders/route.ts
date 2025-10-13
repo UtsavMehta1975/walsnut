@@ -225,8 +225,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get authenticated user - REQUIRED for creating orders
+    const body = await request.json()
+    const { items, shippingAddress, totalAmount, customerInfo } = body
+    
+    console.log('📝 [ORDERS API] Request data:', { 
+      hasItems: !!items, 
+      hasAddress: !!shippingAddress, 
+      hasCustomerInfo: !!customerInfo 
+    })
+
+    // Get authenticated user OR use guest checkout
     let userId: string | null = null
+    let isGuestCheckout = false
+    let newUser: any = null
     
     // Try NextAuth session first
     try {
@@ -256,21 +267,62 @@ export async function POST(request: NextRequest) {
       }
     }
     
+    // GUEST CHECKOUT: If no authenticated user but customerInfo provided
+    if (!userId && customerInfo && customerInfo.email) {
+      console.log('🛍️ [ORDERS API] Guest checkout detected for:', customerInfo.email)
+      isGuestCheckout = true
+      
+      // Check if user already exists with this email
+      const existingUser = await db.user.findUnique({
+        where: { email: customerInfo.email.toLowerCase() }
+      })
+      
+      if (existingUser) {
+        // User exists - use their account for the order
+        userId = existingUser.id
+        console.log('✅ [ORDERS API] Existing user found, linking order to account:', userId)
+      } else {
+        // Create new user account during checkout
+        console.log('🆕 [ORDERS API] Creating new user account for:', customerInfo.email)
+        
+        const bcrypt = require('bcryptjs')
+        // Generate a random password (user can reset it later or use Google login)
+        const randomPassword = Math.random().toString(36).slice(-12) + Math.random().toString(36).slice(-12)
+        const hashedPassword = await bcrypt.hash(randomPassword, 10)
+        
+        newUser = await db.user.create({
+          data: {
+            email: customerInfo.email.toLowerCase(),
+            name: `${customerInfo.firstName} ${customerInfo.lastName}`.trim(),
+            phone: customerInfo.phone || null,
+            hashedPassword: hashedPassword,
+            role: 'CUSTOMER',
+            emailVerified: null, // Not verified yet, they can verify later
+            phoneVerified: null
+          }
+        })
+        
+        userId = newUser.id
+        console.log('✅ [ORDERS API] New user account created:', userId)
+      }
+    }
+    
+    // Final check: userId is required
     if (!userId) {
-      console.log('🔴 [ORDERS API] No authenticated user found')
+      console.log('🔴 [ORDERS API] No user ID - neither authenticated nor guest info provided')
       return NextResponse.json(
-        { error: 'Authentication required. Please sign in to create an order.' },
+        { error: 'Authentication required or customer information missing. Please provide your details.' },
         { status: 401 }
       )
     }
     
-    console.log('✅ [ORDERS API] Creating order for userId:', userId)
+    console.log('✅ [ORDERS API] Creating order for userId:', userId, isGuestCheckout ? '(guest checkout)' : '(authenticated)')
 
-    const body = await request.json()
-    const { items, shippingAddress, totalAmount } = createOrderSchema.parse(body)
+    // Validate order data
+    const { items: validatedItems, shippingAddress: validatedAddress, totalAmount: validatedTotal } = createOrderSchema.parse({ items, shippingAddress, totalAmount })
 
     // Validate stock availability
-    for (const item of items) {
+    for (const item of validatedItems) {
       const product = await db.product.findUnique({
         where: { id: item.productId }
       })
@@ -295,15 +347,15 @@ export async function POST(request: NextRequest) {
       // Create order
       const newOrder = await tx.order.create({
         data: {
-          userId: userId,
-          totalAmount,
-          shippingAddress,
+          userId: userId!,
+          totalAmount: validatedTotal,
+          shippingAddress: validatedAddress,
           status: 'PENDING'
         }
       })
 
       // Create order items and update stock
-      for (const item of items) {
+      for (const item of validatedItems) {
         await tx.orderItem.create({
           data: {
             orderId: newOrder.id,
@@ -327,10 +379,31 @@ export async function POST(request: NextRequest) {
       return newOrder
     })
 
-    return NextResponse.json({
+    // Prepare response
+    const response: any = {
       message: 'Order created successfully',
-      order
-    }, { status: 201 })
+      order,
+      isGuestCheckout
+    }
+
+    // If this was a guest checkout with new account, provide session info for auto-login
+    if (isGuestCheckout && newUser) {
+      console.log('✅ [ORDERS API] Guest checkout - new account created, providing session data')
+      response.accountCreated = true
+      response.user = {
+        id: newUser.id,
+        email: newUser.email,
+        name: newUser.name,
+        role: newUser.role
+      }
+      response.message = 'Order created successfully! Your account has been created - you can now sign in with Google or reset your password.'
+    } else if (isGuestCheckout) {
+      console.log('✅ [ORDERS API] Guest checkout - order linked to existing account')
+      response.accountCreated = false
+      response.message = 'Order created successfully! This order has been added to your existing account.'
+    }
+
+    return NextResponse.json(response, { status: 201 })
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

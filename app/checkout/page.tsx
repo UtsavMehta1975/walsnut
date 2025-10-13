@@ -203,7 +203,7 @@ function CheckoutContent() {
         totalAmount: total
       }
 
-      // Create order
+      // Create order (with customer info for guest checkout)
       const response = await fetch('/api/orders', {
         method: 'POST',
         headers: {
@@ -215,7 +215,14 @@ function CheckoutContent() {
           totalAmount: orderData.totalAmount,
           paymentMethod: paymentMethod,
           isCOD: paymentMethod === 'cod',
-          codAdvance: paymentMethod === 'cod' ? 200 : 0
+          codAdvance: paymentMethod === 'cod' ? 200 : 0,
+          // Include customer info for guest checkout
+          customerInfo: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phone: formData.phone
+          }
         })
       })
 
@@ -225,6 +232,19 @@ function CheckoutContent() {
       }
 
       const result = await response.json()
+      
+      // Show account creation message if applicable
+      if (result.accountCreated) {
+        toast.success('🎉 Account created! You can now sign in with Google or reset your password.', {
+          duration: 6000,
+          icon: '✅'
+        })
+      } else if (result.isGuestCheckout) {
+        toast.success('Order linked to your existing account!', {
+          duration: 4000,
+          icon: '✅'
+        })
+      }
       
       // Initialize payment with Cashfree
       const paymentAmount = paymentMethod === 'cod' 
