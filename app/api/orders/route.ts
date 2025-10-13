@@ -375,6 +375,39 @@ export async function POST(request: NextRequest) {
           }
         })
       }
+      
+      // Update user's address and phone if provided (for easy reuse in future orders)
+      if (customerInfo || isGuestCheckout) {
+        const updateData: any = {}
+        
+        // Save shipping address to user profile
+        if (validatedAddress) {
+          updateData.address = validatedAddress
+          console.log('💾 [ORDERS API] Saving address to user profile')
+        }
+        
+        // Update phone if provided and not already set
+        if (customerInfo?.phone) {
+          const currentUser = await tx.user.findUnique({
+            where: { id: userId! },
+            select: { phone: true }
+          })
+          
+          if (!currentUser?.phone) {
+            updateData.phone = customerInfo.phone
+            console.log('💾 [ORDERS API] Saving phone to user profile')
+          }
+        }
+        
+        // Perform update if we have data to update
+        if (Object.keys(updateData).length > 0) {
+          await tx.user.update({
+            where: { id: userId! },
+            data: updateData
+          })
+          console.log('✅ [ORDERS API] User profile updated with address/phone')
+        }
+      }
 
       return newOrder
     })

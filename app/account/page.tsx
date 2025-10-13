@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { User, Mail, Phone, MapPin, Edit, Save, X } from 'lucide-react'
+import { User, Mail, Phone, MapPin, Edit, Save, X, Home, ShoppingBag, MessageCircle, Gift } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import toast from 'react-hot-toast'
 import { Navbar } from '@/components/layout/navbar'
@@ -38,6 +38,25 @@ export default function AccountPage() {
     address: user?.address || ''
   })
 
+  // Fetch fresh user data from API
+  const fetchUserProfile = async () => {
+    try {
+      const response = await fetch('/api/auth/me')
+      if (response.ok) {
+        const userData = await response.json()
+        console.log('✅ [ACCOUNT] Fetched fresh user data:', userData)
+        setProfileData({
+          name: userData.name || '',
+          email: userData.email || '',
+          phone: userData.phone || '',
+          address: userData.address || ''
+        })
+      }
+    } catch (error) {
+      console.error('❌ [ACCOUNT] Error fetching user profile:', error)
+    }
+  }
+
   // Update profileData when user changes
   useEffect(() => {
     if (user) {
@@ -47,6 +66,8 @@ export default function AccountPage() {
         phone: user.phone || '',
         address: user.address || ''
       })
+      // Fetch fresh data from API to get any updates (like saved address from checkout)
+      fetchUserProfile()
     }
   }, [user])
 
@@ -456,6 +477,59 @@ export default function AccountPage() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </div>
+        
+        {/* Bottom Navigation Buttons - Mobile & Desktop */}
+        <div className="mt-12 mb-8">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {/* Browse Products */}
+              <Button
+                variant="outline"
+                className="h-20 flex flex-col items-center justify-center gap-2 hover:bg-yellow-50 hover:border-yellow-400 transition-all"
+                onClick={() => window.location.href = '/watches'}
+              >
+                <ShoppingBag className="h-6 w-6 text-yellow-600" />
+                <span className="text-sm font-medium">Browse</span>
+              </Button>
+
+              {/* WhatsApp */}
+              <Button
+                variant="outline"
+                className="h-20 flex flex-col items-center justify-center gap-2 hover:bg-green-50 hover:border-green-400 transition-all"
+                onClick={() => window.open('https://wa.me/919876543210?text=Hi, I need help with my order', '_blank')}
+              >
+                <MessageCircle className="h-6 w-6 text-green-600" />
+                <span className="text-sm font-medium">WhatsApp</span>
+              </Button>
+
+              {/* Refer & Earn */}
+              <Button
+                variant="outline"
+                className="h-20 flex flex-col items-center justify-center gap-2 hover:bg-purple-50 hover:border-purple-400 transition-all"
+                onClick={() => {
+                  toast.success('Refer & Earn coming soon! 🎁', { duration: 3000 })
+                }}
+              >
+                <Gift className="h-6 w-6 text-purple-600" />
+                <span className="text-sm font-medium">Refer & Earn</span>
+              </Button>
+
+              {/* Home */}
+              <Button
+                variant="outline"
+                className="h-20 flex flex-col items-center justify-center gap-2 hover:bg-blue-50 hover:border-blue-400 transition-all"
+                onClick={() => window.location.href = '/'}
+              >
+                <Home className="h-6 w-6 text-blue-600" />
+                <span className="text-sm font-medium">Home</span>
+              </Button>
+            </div>
+            
+            <p className="text-center text-sm text-gray-500 mt-4">
+              Need help? Contact us via WhatsApp for instant support!
+            </p>
           </div>
         </div>
       </div>
