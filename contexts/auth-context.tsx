@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { getUserSession, saveUserSession, clearUserSession, initializeSessionPersistence } from '@/lib/session-persistence'
+import { useSession } from 'next-auth/react'
 
 interface User {
   id: string
@@ -27,6 +28,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
+  
+  // Use NextAuth session hook to automatically detect Google OAuth sessions
+  const { data: nextAuthSession, status: nextAuthStatus } = useSession()
 
   // Handle client-side mounting
   useEffect(() => {
@@ -42,37 +46,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('✅ User restored from session persistence:', savedUser.email)
     }
   }, [])
-
-  // Load user session on mount
+  
+  // React to NextAuth session changes (Google OAuth, etc.)
   useEffect(() => {
     if (!mounted) return
     
-    // Check both session sources
-    const checkSessions = async () => {
+    if (nextAuthStatus === 'loading') {
+      console.log('⏳ [AUTH CONTEXT] NextAuth session loading...')
+      return
+    }
+    
+    if (nextAuthStatus === 'authenticated' && nextAuthSession?.user) {
+      console.log('✅ [AUTH CONTEXT] NextAuth session detected:', nextAuthSession.user.email)
+      const userData = {
+        id: nextAuthSession.user.id || nextAuthSession.user.email || '',
+        email: nextAuthSession.user.email || '',
+        name: nextAuthSession.user.name || '',
+        phone: (nextAuthSession.user as any).phone || null,
+        address: (nextAuthSession.user as any).address || null,
+        role: ((nextAuthSession.user as any).role as 'CUSTOMER' | 'ADMIN') || 'CUSTOMER'
+      }
+      
+      // Only update if different from current user
+      if (!user || user.email !== userData.email) {
+        console.log('🔄 [AUTH CONTEXT] Updating user from NextAuth session')
+        setUser(userData)
+        saveUserSession(userData)
+      }
+      
+      setIsLoading(false)
+    } else if (nextAuthStatus === 'unauthenticated') {
+      console.log('ℹ️ [AUTH CONTEXT] NextAuth session: unauthenticated')
+      // Only clear if we don't have a custom session
+      if (!getUserSession()) {
+        setIsLoading(false)
+      }
+    }
+  }, [nextAuthSession, nextAuthStatus, mounted, user])
+
+  // Load custom session (for credentials users) - only if no NextAuth session
+  useEffect(() => {
+    if (!mounted) return
+    
+    // Only check custom sessions if NextAuth is unauthenticated or loading
+    if (nextAuthStatus === 'authenticated') {
+      // NextAuth session will be handled by the hook above
+      return
+    }
+    
+    // Check custom session sources for credentials users
+    const checkCustomSessions = async () => {
       try {
-        // First check NextAuth session (for Google OAuth users)
-        console.log('🔍 [AUTH CONTEXT] Checking NextAuth session...')
-        const nextAuthRes = await fetch('/api/auth/session')
-        if (nextAuthRes.ok) {
-          const nextAuthData = await nextAuthRes.json()
-          if (nextAuthData?.user?.email) {
-            console.log('✅ [AUTH CONTEXT] User loaded from NextAuth:', nextAuthData.user.email)
-            const userData = {
-              id: nextAuthData.user.id,
-              email: nextAuthData.user.email,
-              name: nextAuthData.user.name || '',
-              phone: nextAuthData.user.phone || null,
-              address: nextAuthData.user.address || null,
-              role: nextAuthData.user.role as 'CUSTOMER' | 'ADMIN'
-            }
-            setUser(userData)
-            saveUserSession(userData)
-            setIsLoading(false)
-            return
-          }
-        }
-        
-        // If no NextAuth session, check localStorage (for credentials users)
+        // Check localStorage first (fastest)
         console.log('🔍 [AUTH CONTEXT] Checking localStorage session...')
         const savedUser = getUserSession()
         if (savedUser) {
@@ -82,7 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return
         }
         
-        // Finally check custom session API (for credentials users)
+        // Check custom session API (for credentials users with cookie)
         console.log('🔍 [AUTH CONTEXT] Checking custom session API...')
         const customRes = await fetch('/api/session')
         if (customRes.ok) {
@@ -96,16 +121,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
         
-        console.log('ℹ️ [AUTH CONTEXT] No active session found')
-        setIsLoading(false)
+        // No session found
+        if (nextAuthStatus === 'unauthenticated') {
+          console.log('ℹ️ [AUTH CONTEXT] No active session found')
+          setIsLoading(false)
+        }
       } catch (error) {
         console.error('🔴 [AUTH CONTEXT] Session check error:', error)
         setIsLoading(false)
       }
     }
     
-    checkSessions()
-  }, [mounted])
+    // Only run check if NextAuth finished loading
+    if (nextAuthStatus !== 'loading') {
+      checkCustomSessions()
+    }
+  }, [mounted, nextAuthStatus])
 
   const login = async (email: string, password: string): Promise<{ success: boolean; user?: User }> => {
     try {
