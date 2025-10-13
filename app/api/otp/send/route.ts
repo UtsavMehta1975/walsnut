@@ -4,6 +4,46 @@ import { generateOTP, hashOTP, getOTPExpiry, isValidEmail, isValidIndianPhone, f
 import { sendOTPViaEmail } from '@/lib/email'
 import { sendOTPViaSMS } from '@/lib/sms'
 
+// Handle OPTIONS for CORS
+export async function OPTIONS(request: NextRequest) {
+  return NextResponse.json(
+    {},
+    {
+      status: 200,
+      headers: {
+        'Allow': 'POST, OPTIONS',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+    }
+  )
+}
+
+// Handle GET requests with helpful error
+export async function GET(request: NextRequest) {
+  return NextResponse.json(
+    { 
+      error: 'Method not allowed. This endpoint only accepts POST requests.',
+      usage: {
+        method: 'POST',
+        endpoint: '/api/otp/send',
+        body: {
+          email: 'user@example.com (for EMAIL type)',
+          phone: '9876543210 (for PHONE type)',
+          type: 'EMAIL or PHONE',
+          purpose: 'SIGNUP, LOGIN, RESET_PASSWORD, etc.'
+        }
+      }
+    },
+    { 
+      status: 405,
+      headers: {
+        'Allow': 'POST, OPTIONS'
+      }
+    }
+  )
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
