@@ -108,12 +108,13 @@ function CheckoutContent() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Redirect to login if not authenticated (but allow guest checkout for now)
+  // Redirect to login if not authenticated - REQUIRED FOR CHECKOUT
   useEffect(() => {
-    // Temporarily disable authentication check for development
-    // if (!isAuthenticated && !isLoading) {
-    //   router.push('/auth/signin?redirect=/checkout')
-    // }
+    if (!isAuthenticated && !isLoading) {
+      console.log('⚠️ [CHECKOUT] User not authenticated, redirecting to signin')
+      toast.error('Please sign in to continue with checkout')
+      router.push('/auth/signin?redirect=/checkout')
+    }
   }, [isAuthenticated, isLoading, router])
 
   // Track Initiate Checkout event
@@ -328,22 +329,35 @@ function CheckoutContent() {
     )
   }
 
-  // Allow guest checkout - no authentication required
-  // if (!isAuthenticated) {
-  //   return (
-  //     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-  //       <div className="text-center">
-  //         <h2 className="text-2xl font-bold text-gray-900 mb-4">Please Sign In</h2>
-  //         <p className="text-gray-600 mb-6">You need to be signed in to complete your purchase</p>
-  //         <Link href="/auth/signin?redirect=/checkout">
-  //           <Button className="bg-yellow-400 text-black hover:bg-yellow-500">
-  //             Sign In
-  //           </Button>
-  //         </Link>
-  //       </div>
-  //     </div>
-  //   )
-  // }
+  // Require authentication for checkout
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center px-4">
+          <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <ShoppingCart className="h-10 w-10 text-yellow-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Please Sign In to Checkout</h2>
+          <p className="text-gray-600 mb-6">You need to be signed in to complete your purchase securely</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
+            <Link href="/auth/signin?redirect=/checkout">
+              <Button className="bg-yellow-400 text-black hover:bg-yellow-500 w-full sm:w-auto">
+                Sign In
+              </Button>
+            </Link>
+            <Link href="/auth/signup?redirect=/checkout">
+              <Button variant="outline" className="w-full sm:w-auto">
+                Create Account
+              </Button>
+            </Link>
+          </div>
+          <p className="text-sm text-gray-500 mt-4">
+            Quick sign in with Google • No password needed
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   // Use mobile checkout for mobile devices
   if (isMobile) {

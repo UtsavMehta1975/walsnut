@@ -59,7 +59,7 @@ interface PaymentInfo {
 
 export default function MobileCheckout() {
   const { items, getTotal, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const subtotal = getTotal();
   const total = subtotal; // No discounts
   const [savedAddresses, setSavedAddresses] = useState<DeliveryAddress[]>([]);
@@ -385,6 +385,60 @@ export default function MobileCheckout() {
   const updatePaymentInfo = (field: keyof PaymentInfo, value: string) => {
     setPaymentInfo(prev => ({ ...prev, [field]: value }));
   };
+
+  // Redirect to login if not authenticated - REQUIRED FOR CHECKOUT
+  React.useEffect(() => {
+    if (!isAuthenticated && !isLoading) {
+      console.log('⚠️ [MOBILE CHECKOUT] User not authenticated, redirecting to signin')
+      toast.error('Please sign in to continue with checkout')
+      window.location.href = '/auth/signin?redirect=/checkout'
+    }
+  }, [isAuthenticated, isLoading]);
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Require authentication for checkout
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CreditCard className="h-10 w-10 text-yellow-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Please Sign In to Checkout</h2>
+          <p className="text-gray-600 mb-6">You need to be signed in to complete your purchase securely</p>
+          <div className="flex flex-col gap-3 max-w-xs mx-auto">
+            <Button 
+              className="bg-yellow-400 text-black hover:bg-yellow-500 w-full"
+              onClick={() => window.location.href = '/auth/signin?redirect=/checkout'}
+            >
+              Sign In
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => window.location.href = '/auth/signup?redirect=/checkout'}
+            >
+              Create Account
+            </Button>
+          </div>
+          <p className="text-xs text-gray-500 mt-4">
+            Quick sign in with Google • No password needed
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 pb-24">

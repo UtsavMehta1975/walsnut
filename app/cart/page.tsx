@@ -11,9 +11,10 @@ import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { MobileBottomNav } from '@/components/ui/mobile-top-nav'
 import { formatPrice } from '@/lib/utils'
+import toast from 'react-hot-toast'
 
 export default function CartPage() {
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const { items, removeFromCart, updateQuantity, clearCart, getTotal } = useCart()
 
   const handleQuantityChange = (id: string, newQuantity: number, variantSku?: string) => {
@@ -25,8 +26,14 @@ export default function CartPage() {
   }
 
   const handleCheckout = () => {
-    // Allow both authenticated and guest checkout
-    // Redirect directly to checkout page
+    // Require authentication before checkout
+    if (!isAuthenticated) {
+      toast.error('Please sign in to continue with checkout')
+      window.location.href = '/auth/signin?redirect=/checkout'
+      return
+    }
+    
+    // Authenticated user - proceed to checkout
     window.location.href = '/checkout'
   }
 
