@@ -4,8 +4,8 @@ import { useEffect } from 'react'
 import Script from 'next/script'
 import Image from 'next/image'
 
-// Meta Pixel ID - Replace with your actual pixel ID
-const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '1318811556370834'
+// Meta Pixel ID - Your actual pixel ID
+const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '1141682421438933'
 
 declare global {
   interface Window {
