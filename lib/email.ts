@@ -246,3 +246,183 @@ export async function sendOTPViaEmail(email: string, otp: string, purpose: strin
   return sendEmail(email, subject, html)
 }
 
+/**
+ * Generate Admin Notification Email for UPI Payment
+ */
+function generateUPIPaymentNotificationHTML(data: {
+  orderId: string
+  utrNumber: string
+  amount: number
+  customerEmail?: string
+  customerName?: string
+  customerPhone?: string
+}): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .content {
+      padding: 30px;
+    }
+    .info-box {
+      background: #FEF3C7;
+      border-left: 4px solid #F59E0B;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .label {
+      font-weight: 600;
+      color: #666;
+    }
+    .value {
+      color: #333;
+      font-weight: 500;
+    }
+    .utr {
+      font-size: 20px;
+      font-weight: bold;
+      color: #F59E0B;
+      background: #FEF3C7;
+      padding: 15px;
+      border-radius: 5px;
+      text-align: center;
+      margin: 20px 0;
+      letter-spacing: 2px;
+    }
+    .action-btn {
+      display: inline-block;
+      background: #F59E0B;
+      color: white;
+      padding: 12px 30px;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+    .footer {
+      background: #f9f9f9;
+      padding: 20px;
+      text-align: center;
+      color: #999;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔔 New UPI Payment Received</h1>
+    </div>
+    <div class="content">
+      <h2>Payment Verification Required</h2>
+      <p>A customer has submitted a UPI payment confirmation that needs manual verification.</p>
+      
+      <div class="info-box">
+        <h3 style="margin-top: 0;">Payment Details</h3>
+        <div class="info-row">
+          <span class="label">Order ID:</span>
+          <span class="value">${data.orderId}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Amount:</span>
+          <span class="value">₹${data.amount}</span>
+        </div>
+        ${data.customerName ? `
+        <div class="info-row">
+          <span class="label">Customer:</span>
+          <span class="value">${data.customerName}</span>
+        </div>
+        ` : ''}
+        ${data.customerEmail ? `
+        <div class="info-row">
+          <span class="label">Email:</span>
+          <span class="value">${data.customerEmail}</span>
+        </div>
+        ` : ''}
+        ${data.customerPhone ? `
+        <div class="info-row">
+          <span class="label">Phone:</span>
+          <span class="value">${data.customerPhone}</span>
+        </div>
+        ` : ''}
+      </div>
+
+      <h3>UTR Number:</h3>
+      <div class="utr">${data.utrNumber}</div>
+
+      <p><strong>Next Steps:</strong></p>
+      <ol>
+        <li>Verify the UTR number in your bank account</li>
+        <li>Confirm the amount matches: ₹${data.amount}</li>
+        <li>Update order status in admin panel</li>
+      </ol>
+
+      <center>
+        <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/admin" class="action-btn">
+          Go to Admin Panel
+        </a>
+      </center>
+    </div>
+    <div class="footer">
+      <p>© 2024 Walnut Watches - Admin Notification</p>
+      <p>This is an automated notification. Please verify the payment manually.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `
+}
+
+/**
+ * Send UPI Payment Notification to Admin
+ */
+export async function sendUPIPaymentNotification(data: {
+  orderId: string
+  utrNumber: string
+  amount: number
+  customerEmail?: string
+  customerName?: string
+  customerPhone?: string
+}): Promise<boolean> {
+  const adminEmail = process.env.ADMIN_EMAIL || 'thewalnutstore01@gmail.com'
+  const subject = `🔔 New UPI Payment - Order ${data.orderId} - ₹${data.amount}`
+  const html = generateUPIPaymentNotificationHTML(data)
+  
+  console.log(`📧 Sending admin notification to ${adminEmail}`)
+  return sendEmail(adminEmail, subject, html)
+}
+

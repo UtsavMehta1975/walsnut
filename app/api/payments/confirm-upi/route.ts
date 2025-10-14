@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { sendUPIPaymentNotification } from '@/lib/email'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Update order with payment details
+    // Update order with payment details and fetch customer info
     const order = await db.order.update({
       where: { id: orderId },
       data: {
@@ -32,6 +33,9 @@ export async function POST(request: NextRequest) {
         paymentTransactionId: utrNumber,
         paymentGateway: 'upi_direct',
         status: 'PENDING', // Order pending verification
+      },
+      include: {
+        user: true
       }
     })
 
@@ -40,8 +44,21 @@ export async function POST(request: NextRequest) {
     console.log(`💰 Amount: ₹${amount}`)
     console.log(`🔍 Status: Pending manual verification`)
 
-    // TODO: Send notification to admin/WhatsApp for verification
-    // You can add email or WhatsApp notification here
+    // Send notification to admin for verification
+    try {
+      await sendUPIPaymentNotification({
+        orderId: order.id,
+        utrNumber: utrNumber,
+        amount: amount,
+        customerEmail: order.user?.email || undefined,
+        customerName: order.user?.name || undefined,
+        customerPhone: order.user?.phone || undefined
+      })
+      console.log('✅ Admin notification sent successfully')
+    } catch (emailError) {
+      console.error('⚠️ Failed to send admin notification (non-blocking):', emailError)
+      // Don't fail the payment confirmation if email fails
+    }
 
     return NextResponse.json({
       success: true,
