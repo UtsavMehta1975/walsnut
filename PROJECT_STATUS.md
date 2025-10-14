@@ -90,30 +90,35 @@
 
 ### **High Priority**
 
-#### **1. OTP System Production Deployment** ⏳
+#### **1. Guest Checkout Testing** ⏳ **DEPLOYED - READY TO TEST**
+- [x] Guest checkout enabled (no login required)
+- [x] Auto-account creation during checkout
+- [x] Info banners added (desktop & mobile)
+- [x] Removed login requirement from cart
+- [x] Code deployed to production
+- [ ] Test complete flow: Guest checkout → Order → Login → View order
+- [ ] Verify email/phone matching works
+- [ ] Test address persistence
+
+**Status:** ✅ Code deployed, ready for production testing  
+**Next Step:** Test guest checkout on https://www.thewalnutstore.com  
+**ETA:** 15 minutes testing
+
+---
+
+#### **2. OTP System Production Deployment** ⏳
+- [x] FREE mode configured (console provider)
+- [x] OTP login page created
+- [x] Environment variables set
 - [ ] Test OTP signup in production
 - [ ] Test OTP login in production
 - [ ] Verify console mode works on Vercel
 - [ ] Document how to check Vercel logs for OTP codes
 - [ ] (Optional) Upgrade to paid SMS provider when traffic increases
 
-**Status:** FREE mode configured, needs production testing  
+**Status:** ✅ Infrastructure complete, needs production testing  
 **Next Step:** Test signup/login with OTP on production site  
 **ETA:** 15 minutes
-
----
-
-#### **2. Guest Checkout Flow Testing** ⏳
-- [x] Guest checkout enabled (no login required)
-- [x] Auto-account creation during checkout
-- [x] Info banners added
-- [ ] Test complete flow: Guest checkout → Order → Login → View order
-- [ ] Verify email/phone matching works
-- [ ] Test address persistence
-
-**Status:** Code deployed, needs end-to-end testing  
-**Next Step:** Test guest checkout on production  
-**ETA:** 20 minutes
 
 ---
 
@@ -207,7 +212,7 @@
 
 ---
 
-## 🔧 **RECENT FIXES (Last Session)**
+## 🔧 **RECENT FIXES (Last Session - Oct 14, 2025)**
 
 1. ✅ Google login mobile optimization (full redirect)
 2. ✅ Session persistence with useSession hook
@@ -218,7 +223,11 @@
 7. ✅ Meta Pixel ID updated (1141682421438933)
 8. ✅ OTP login page created (/auth/signin-otp)
 9. ✅ All API routes marked force-dynamic
-10. ✅ Removed login requirement from checkout (guest mode)
+10. ✅ **Removed login requirement from checkout** (guest mode enabled)
+11. ✅ **Guest checkout info banners** (desktop & mobile)
+12. ✅ **Cart allows checkout without login**
+13. ✅ **Project tracking files created** (PROJECT_STATUS.md)
+14. ✅ **OTP fix guide created** (troubleshooting)
 
 ---
 
