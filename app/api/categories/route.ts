@@ -1,27 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
+// GET - Fetch all categories
 export async function GET(request: NextRequest) {
   try {
-    // Check if database is available
-    if (!process.env.MYSQL_URL) {
-      // Return mock data if database is not configured
-      return NextResponse.json({
-        data: [
-          { id: 'premium-watches', name: 'Premium Watches', productCount: 0 },
-          { id: 'signature-eyewear', name: 'Signature Eyewear', productCount: 0 },
-          { id: 'elite-speakers', name: 'Elite Speakers', productCount: 0 },
-          { id: 'true-wireless-earbuds', name: 'True Wireless Earbuds', productCount: 0 }
-        ]
-      })
-    }
-
-    // Get all categories from the database
     const categories = await db.category.findMany({
       include: {
-        _count: {
+        products: {
           select: {
-            products: true
+            productId: true
           }
         }
       },
@@ -30,112 +20,83 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Also add the virtual categories that are handled in the products API
-    const virtualCategories = [
-      {
-        id: 'sale',
-        name: 'Sale',
-        slug: 'sale',
-        type: 'SALE',
-        productCount: await db.product.count({
-          where: {
-            previousPrice: { not: null }
-          }
-        })
-      },
-      {
-        id: 'sale-1499',
-        name: 'Under ₹1,499',
-        slug: 'sale-1499',
-        type: 'SALE_1499',
-        productCount: await db.product.count({
-          where: {
-            previousPrice: { not: null },
-            price: { lte: 1499 }
-          }
-        })
-      },
-      {
-        id: 'sale-1999',
-        name: 'Under ₹1,999',
-        slug: 'sale-1999',
-        type: 'SALE_1999',
-        productCount: await db.product.count({
-          where: {
-            previousPrice: { not: null },
-            price: { lte: 1999 }
-          }
-        })
-      },
-      {
-        id: 'new-arrivals',
-        name: 'New Arrivals',
-        slug: 'new-arrivals',
-        type: 'GENERAL',
-        productCount: await db.product.count({
-          where: {
-            createdAt: {
-              gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // Last 30 days
-            }
-          }
-        })
-      }
-    ]
+    // Add product count to each category
+    const categoriesWithCount = categories.map(cat => ({
+      ...cat,
+      productCount: cat.products.length
+    }))
 
-    // Get gender-based category counts
-    const mensCount = await db.product.count({
-      where: { gender: 'MENS' }
-    })
-    
-    const womensCount = await db.product.count({
-      where: { gender: 'WOMENS' }
-    })
-
-    // Add gender-based categories
-    const genderCategories = [
-      {
-        id: 'for-him',
-        name: 'For Him',
-        slug: 'for-him',
-        type: 'FOR_HIM',
-        productCount: mensCount
-      },
-      {
-        id: 'for-her',
-        name: 'For Her',
-        slug: 'for-her',
-        type: 'FOR_HER',
-        productCount: womensCount
-      }
-    ]
-
-    // Combine all categories
-    const allCategories = [
-      ...genderCategories,
-      ...virtualCategories,
-      ...categories.map(cat => ({
-        id: cat.id,
-        name: cat.name,
-        slug: cat.slug,
-        type: cat.type,
-        productCount: cat._count.products
-      }))
-    ]
-
-    // Filter out categories with no products
-    const categoriesWithProducts = allCategories.filter(cat => cat.productCount > 0)
-
-    return NextResponse.json({
-      success: true,
-      data: categoriesWithProducts
-    })
-
+    return NextResponse.json({ categories: categoriesWithCount })
   } catch (error) {
     console.error('Error fetching categories:', error)
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch categories' },
+      { error: 'Failed to fetch categories' },
       { status: 500 }
     )
   }
 }
 
+// POST - Create new category
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { name, description, type } = body
+
+    if (!name) {
+      return NextResponse.json(
+        { error: 'Category name is required' },
+        { status: 400 }
+      )
+    }
+
+    // Generate slug from name
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
+
+    const category = await db.category.create({
+      data: {
+        name,
+        slug,
+        description,
+        type: type || 'GENERAL'
+      }
+    })
+
+    return NextResponse.json({ category })
+  } catch (error) {
+    console.error('Error creating category:', error)
+    return NextResponse.json(
+      { error: 'Failed to create category' },
+      { status: 500 }
+    )
+  }
+}
+
+// DELETE - Delete category
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Category ID is required' },
+        { status: 400 }
+      )
+    }
+
+    await db.category.delete({
+      where: { id }
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting category:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete category' },
+      { status: 500 }
+    )
+  }
+}
