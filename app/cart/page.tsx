@@ -26,14 +26,8 @@ export default function CartPage() {
   }
 
   const handleCheckout = () => {
-    // Require authentication before checkout
-    if (!isAuthenticated) {
-      toast.error('Please sign in to continue with checkout')
-      window.location.href = '/auth/signin?redirect=/checkout'
-      return
-    }
-    
-    // Authenticated user - proceed to checkout
+    // Allow guest checkout - authentication NOT required
+    // User can checkout without login, account created automatically during checkout
     window.location.href = '/checkout'
   }
 

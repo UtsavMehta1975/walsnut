@@ -108,12 +108,11 @@ function CheckoutContent() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Redirect to login if not authenticated - REQUIRED FOR CHECKOUT
+  // Allow guest checkout - authentication NOT required
+  // Users can checkout without login, account created automatically
   useEffect(() => {
     if (!isAuthenticated && !isLoading) {
-      console.log('⚠️ [CHECKOUT] User not authenticated, redirecting to signin')
-      toast.error('Please sign in to continue with checkout')
-      router.push('/auth/signin?redirect=/checkout')
+      console.log('ℹ️ [CHECKOUT] Guest checkout mode - user can checkout without login')
     }
   }, [isAuthenticated, isLoading, router])
 
@@ -329,35 +328,8 @@ function CheckoutContent() {
     )
   }
 
-  // Require authentication for checkout
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center px-4">
-          <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <ShoppingCart className="h-10 w-10 text-yellow-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Please Sign In to Checkout</h2>
-          <p className="text-gray-600 mb-6">You need to be signed in to complete your purchase securely</p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
-            <Link href="/auth/signin?redirect=/checkout">
-              <Button className="bg-yellow-400 text-black hover:bg-yellow-500 w-full sm:w-auto">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/auth/signup?redirect=/checkout">
-              <Button variant="outline" className="w-full sm:w-auto">
-                Create Account
-              </Button>
-            </Link>
-          </div>
-          <p className="text-sm text-gray-500 mt-4">
-            Quick sign in with Google • No password needed
-          </p>
-        </div>
-      </div>
-    )
-  }
+  // Allow guest checkout - show info banner instead of blocking
+  const showGuestBanner = !isAuthenticated && !isLoading
 
   // Use mobile checkout for mobile devices
   if (isMobile) {
@@ -388,6 +360,27 @@ function CheckoutContent() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Guest Checkout Info Banner */}
+        {showGuestBanner && (
+          <div className="mb-6 bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-blue-900 mb-1">
+                  Checking out as guest? Your account will be created automatically!
+                </h3>
+                <p className="text-xs text-blue-700">
+                  💡 After placing your order, you can login with the <strong>same email or phone number</strong> to track your order and view order history.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Checkout Form */}
           <div className="lg:col-span-2 space-y-6">
