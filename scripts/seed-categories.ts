@@ -99,3 +99,4 @@ seedCategories()
     await prisma.$disconnect()
   })
 
+
