@@ -255,7 +255,13 @@ export default function MobileCheckout() {
           orderId: orderResult.order.id,
           paymentMethod: 'upi', // Always use UPI for payment (even for COD advance)
           amount: paymentAmount,
-          isCOD: paymentInfo.paymentMethod === 'cod'
+          isCOD: paymentInfo.paymentMethod === 'cod',
+          customerInfo: {
+            firstName: shippingInfo.firstName,
+            lastName: shippingInfo.lastName,
+            email: shippingInfo.email,
+            phone: shippingInfo.phone
+          }
         })
       });
 

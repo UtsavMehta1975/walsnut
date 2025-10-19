@@ -309,18 +309,24 @@ export async function POST(request: NextRequest) {
     
     // Final check: userId is required; fall back to creating/using account from customerInfo if provided
     if (!userId) {
-      if (customerInfo?.email) {
+      if (customerInfo?.email || customerInfo?.phone) {
         console.log('ℹ️ [ORDERS API] No session; attempting fallback with provided customerInfo')
-        const existing = await db.user.findUnique({ where: { email: customerInfo.email.toLowerCase() } })
+        // Try by email first
+        const existing = customerInfo?.email 
+          ? await db.user.findUnique({ where: { email: customerInfo.email.toLowerCase() } })
+          : null
         if (existing) {
           userId = existing.id
         } else {
           const bcrypt = require('bcryptjs')
           const randomPassword = Math.random().toString(36).slice(-12) + Math.random().toString(36).slice(-12)
           const hashedPassword = await bcrypt.hash(randomPassword, 10)
+          const placeholderEmail = customerInfo?.email 
+            ? customerInfo.email.toLowerCase() 
+            : `${(customerInfo?.phone || 'guest').replace(/\D/g, '')}@thewalnutstore.local`
           const created = await db.user.create({
             data: {
-              email: customerInfo.email.toLowerCase(),
+              email: placeholderEmail,
               name: `${customerInfo.firstName || ''} ${customerInfo.lastName || ''}`.trim() || 'Customer',
               phone: customerInfo.phone || null,
               hashedPassword,
