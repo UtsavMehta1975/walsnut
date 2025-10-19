@@ -444,7 +444,7 @@ export default function MobileCheckout() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="firstName">First Name</Label>
+                      <Label htmlFor="firstName">First Name <span className="text-red-600">*</span></Label>
                       <Input
                         id="firstName"
                         value={shippingInfo.firstName}
@@ -453,7 +453,7 @@ export default function MobileCheckout() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="lastName">Last Name</Label>
+                      <Label htmlFor="lastName">Last Name <span className="text-red-600">*</span></Label>
                       <Input
                         id="lastName"
                         value={shippingInfo.lastName}
@@ -464,7 +464,7 @@ export default function MobileCheckout() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">Email <span className="text-red-600">*</span></Label>
                     <Input
                       id="email"
                       type="email"
@@ -475,7 +475,7 @@ export default function MobileCheckout() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="phone">Phone</Label>
+                    <Label htmlFor="phone">Phone <span className="text-red-600">*</span></Label>
                     <Input
                       id="phone"
                       type="tel"
@@ -616,7 +616,7 @@ export default function MobileCheckout() {
                   {/* Step 1: PIN Code First */}
                   <div>
                     <Label htmlFor="zipCode" className="text-base font-semibold">
-                      📍 Step 1: Enter Your PIN Code
+                      📍 Step 1: Enter Your PIN Code <span className="text-red-600">*</span>
                     </Label>
                     <div className="relative">
                       <Input
@@ -695,7 +695,7 @@ export default function MobileCheckout() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="city" className="text-sm font-medium text-gray-700">
-                        City {shippingInfo.deliveryAddress.city && shippingInfo.deliveryAddress.zipCode.length === 6 && '✅'}
+                        City <span className="text-red-600">*</span> {shippingInfo.deliveryAddress.city && shippingInfo.deliveryAddress.zipCode.length === 6 && '✅'}
                       </Label>
                       <Input
                         id="city"
@@ -713,7 +713,7 @@ export default function MobileCheckout() {
                     </div>
                     <div>
                       <Label htmlFor="state" className="text-sm font-medium text-gray-700">
-                        State {shippingInfo.deliveryAddress.state && shippingInfo.deliveryAddress.zipCode.length === 6 && '✅'}
+                        State <span className="text-red-600">*</span> {shippingInfo.deliveryAddress.state && shippingInfo.deliveryAddress.zipCode.length === 6 && '✅'}
                       </Label>
                       <Input
                         id="state"
@@ -740,7 +740,7 @@ export default function MobileCheckout() {
                     {/* Row 1: House No */}
                     <div>
                       <Label htmlFor="houseNo" className="text-sm font-medium">
-                        House/Flat No. *
+                        House/Flat No. <span className="text-red-600">*</span>
                       </Label>
                       <Input
                         id="houseNo"
@@ -783,7 +783,7 @@ export default function MobileCheckout() {
                     {/* Row 4: Street */}
                     <div>
                       <Label htmlFor="street" className="text-sm font-medium">
-                        Street/Road Name *
+                        Street/Road Name <span className="text-red-600">*</span>
                       </Label>
                       <Input
                         id="street"
@@ -846,9 +846,9 @@ export default function MobileCheckout() {
                 setCurrentStep(2);
                 toast.success('✅ Address saved! Select payment method');
               }}
-              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
             >
-              Next: Payment Method →
+              Secure Checkout →
             </Button>
           </div>
           )}

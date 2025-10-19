@@ -197,18 +197,7 @@ export default function CartPage() {
                   </div>
                 </div>
                 
-                {!user && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                    <p className="text-sm text-blue-800 mb-2">
-                      Sign in to complete your purchase and track your orders
-                    </p>
-                    <Link href="/login">
-                      <Button variant="outline" size="sm" className="w-full">
-                        Sign In
-                      </Button>
-                    </Link>
-                  </div>
-                )}
+                {/* Guest checkout is allowed; removing sign-in prompt to avoid confusion */}
                 
                 <Button
                   className="w-full bg-yellow-400 text-black hover:bg-yellow-500 font-bold py-3"

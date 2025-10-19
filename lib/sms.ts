@@ -1,4 +1,5 @@
 import { formatPhoneNumber } from './otp'
+import { sendOTPViaWhatsApp } from './whatsapp'
 
 /**
  * SMS Service Configuration
@@ -147,6 +148,54 @@ async function sendViaMSG91(phone: string, message: string): Promise<boolean> {
 }
 
 /**
+ * SMSLane Implementation (India)
+ * Sign up: https://www.smslane.com/
+ * Very affordable: ~₹0.10-0.15 per SMS
+ */
+async function sendViaSMSLane(phone: string, message: string): Promise<boolean> {
+  try {
+    const apiKey = process.env.SMSLANE_API_KEY
+    const senderId = process.env.SMSLANE_SENDER_ID || 'WALNUT'
+
+    if (!apiKey) {
+      console.error('❌ SMSLane API key not configured')
+      return false
+    }
+
+    const cleanPhone = formatPhoneNumber(phone).replace(/^\+91/, '') // Remove +91
+
+    const response = await fetch('https://www.smslane.com/api/v2/SendSMS', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        SenderId: senderId,
+        Is_Unicode: false,
+        Is_Flash: false,
+        Message: message,
+        MobileNumbers: cleanPhone,
+        ApiKey: apiKey,
+        ClientId: process.env.SMSLANE_CLIENT_ID || ''
+      }),
+    })
+
+    const data = await response.json()
+
+    if (data.Status === 'Success' || data.ResponseCode === '100') {
+      console.log('✅ SMS sent via SMSLane:', phone)
+      return true
+    } else {
+      console.error('❌ SMSLane failed:', data)
+      return false
+    }
+  } catch (error) {
+    console.error('❌ SMSLane error:', error)
+    return false
+  }
+}
+
+/**
  * Console Log (Development/Testing)
  */
 async function sendViaConsole(phone: string, message: string): Promise<boolean> {
@@ -179,6 +228,10 @@ export async function sendSMS(phone: string, otp: string): Promise<boolean> {
 
   try {
     switch (provider.toLowerCase()) {
+      case 'whatsapp': {
+        const result = await sendOTPViaWhatsApp(formattedPhone, otp)
+        return result.success
+      }
       case 'twilio':
         return await sendViaTwilio(formattedPhone, message)
       
@@ -187,6 +240,9 @@ export async function sendSMS(phone: string, otp: string): Promise<boolean> {
       
       case 'msg91':
         return await sendViaMSG91(formattedPhone, message)
+      
+      case 'smslane':
+        return await sendViaSMSLane(formattedPhone, message)
       
       case 'console':
       default:
