@@ -1,6 +1,7 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import GoogleProvider from "next-auth/providers/google"
+// Google OAuth temporarily disabled unless explicitly enabled
+// import GoogleProvider from "next-auth/providers/google"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import bcrypt from "bcryptjs"
 import { db } from "@/lib/db"
@@ -10,22 +11,21 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db),
   
   providers: [
-    // Google OAuth - only if credentials are set
-    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? [
-      GoogleProvider({
-        clientId: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        authorization: {
-          params: {
-            prompt: "consent",
-            access_type: "offline",
-            response_type: "code"
-          }
-        },
-        // Allow account linking by email
-        allowDangerousEmailAccountLinking: true,
-      })
-    ] : []),
+    // Google provider disabled by default; enable by setting ENABLE_GOOGLE_OAUTH=true
+    // ...(process.env.ENABLE_GOOGLE_OAUTH === 'true' && process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? [
+    //   GoogleProvider({
+    //     clientId: process.env.GOOGLE_CLIENT_ID,
+    //     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    //     authorization: {
+    //       params: {
+    //         prompt: "consent",
+    //         access_type: "offline",
+    //         response_type: "code"
+    //       }
+    //     },
+    //     allowDangerousEmailAccountLinking: true,
+    //   })
+    // ] : []),
     CredentialsProvider({
       name: "credentials",
       credentials: {

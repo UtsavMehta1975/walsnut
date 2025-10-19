@@ -187,7 +187,8 @@ export default function MobileCheckout() {
         })
         .catch(err => console.log('❌ Address save failed (non-blocking):', err));
       } else {
-        console.log('ℹ️ User not logged in, address will not be saved for future use');
+        // Auth required earlier in flow; skip silently
+        console.log('ℹ️ Not logged in; address save skipped');
       }
 
       // Step 1: Create the order with shipping address

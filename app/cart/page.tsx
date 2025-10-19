@@ -26,8 +26,11 @@ export default function CartPage() {
   }
 
   const handleCheckout = () => {
-    // Allow guest checkout - authentication NOT required
-    // User can checkout without login, account created automatically during checkout
+    // Redirect unauthenticated users to signup, then back to checkout
+    if (!isAuthenticated) {
+      window.location.href = '/auth/signup?redirect=' + encodeURIComponent('/checkout')
+      return
+    }
     window.location.href = '/checkout'
   }
 

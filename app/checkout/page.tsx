@@ -108,11 +108,11 @@ function CheckoutContent() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Allow guest checkout - authentication NOT required
-  // Users can checkout without login, account created automatically
+  // Require authentication for checkout
   useEffect(() => {
-    if (!isAuthenticated && !isLoading) {
-      console.log('ℹ️ [CHECKOUT] Guest checkout mode - user can checkout without login')
+    if (!isLoading && !isAuthenticated) {
+      const redirect = encodeURIComponent('/checkout')
+      router.push(`/auth/signup?redirect=${redirect}`)
     }
   }, [isAuthenticated, isLoading, router])
 
