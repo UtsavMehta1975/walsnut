@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import bcrypt from 'bcryptjs'
 import { db } from '@/lib/db'
 
@@ -59,6 +60,18 @@ export async function POST(request: NextRequest) {
       phone: user.phone,
       role: user.role,
     }
+
+    // Create server cookie so server routes recognize session
+    try {
+      const cookieStore = cookies()
+      cookieStore.set('user', JSON.stringify(userData), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 30,
+        path: '/'
+      })
+    } catch {}
 
     return NextResponse.json(userData)
   } catch (error) {

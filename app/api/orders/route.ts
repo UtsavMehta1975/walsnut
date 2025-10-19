@@ -307,13 +307,35 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Final check: userId is required
+    // Final check: userId is required; fall back to creating/using account from customerInfo if provided
     if (!userId) {
-      console.log('🔴 [ORDERS API] No user ID - neither authenticated nor guest info provided')
-      return NextResponse.json(
-        { error: 'Authentication required or customer information missing. Please provide your details.' },
-        { status: 401 }
-      )
+      if (customerInfo?.email) {
+        console.log('ℹ️ [ORDERS API] No session; attempting fallback with provided customerInfo')
+        const existing = await db.user.findUnique({ where: { email: customerInfo.email.toLowerCase() } })
+        if (existing) {
+          userId = existing.id
+        } else {
+          const bcrypt = require('bcryptjs')
+          const randomPassword = Math.random().toString(36).slice(-12) + Math.random().toString(36).slice(-12)
+          const hashedPassword = await bcrypt.hash(randomPassword, 10)
+          const created = await db.user.create({
+            data: {
+              email: customerInfo.email.toLowerCase(),
+              name: `${customerInfo.firstName || ''} ${customerInfo.lastName || ''}`.trim() || 'Customer',
+              phone: customerInfo.phone || null,
+              hashedPassword,
+              role: 'CUSTOMER'
+            }
+          })
+          userId = created.id
+        }
+      } else {
+        console.log('🔴 [ORDERS API] No user ID - neither authenticated nor guest info provided')
+        return NextResponse.json(
+          { error: 'Authentication required or customer information missing. Please provide your details.' },
+          { status: 401 }
+        )
+      }
     }
     
     console.log('✅ [ORDERS API] Creating order for userId:', userId, isGuestCheckout ? '(guest checkout)' : '(authenticated)')

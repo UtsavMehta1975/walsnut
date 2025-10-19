@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { orderId, paymentMethod, amount, isCOD } = await request.json()
+    const { orderId, paymentMethod, amount, isCOD, customerInfo } = await request.json()
     
     console.log('💳 [PAYMENT] Payment request received:', { orderId, paymentMethod, amount, isCOD })
     
@@ -52,17 +52,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
     
-    if (!order.user) {
-      console.error('❌ [PAYMENT] Order has no associated user:', orderId)
-      return NextResponse.json({ error: 'Invalid order - no user found' }, { status: 404 })
+    // Ensure we have customer identity
+    const userForPayment = order.user || {
+      id: 'guest',
+      email: customerInfo?.email,
+      name: `${customerInfo?.firstName || ''} ${customerInfo?.lastName || ''}`.trim() || 'Customer',
+      phone: customerInfo?.phone || '9999999999'
+    }
+    if (!userForPayment.email) {
+      console.error('❌ [PAYMENT] Missing customer email for payment')
+      return NextResponse.json({ error: 'Customer email required for payment' }, { status: 400 })
     }
     
-    console.log('✅ [PAYMENT] Order found:', { 
-      orderId: order.id, 
-      userId: order.userId, 
-      userEmail: order.user.email,
-      totalAmount: order.totalAmount 
-    })
+    console.log('✅ [PAYMENT] Order found:', { orderId: order.id, userId: order.userId, totalAmount: order.totalAmount })
 
     // Generate unique order ID for Cashfree
     const cashfreeOrderId = `order_${order.id}_${Date.now()}`
@@ -85,10 +87,10 @@ export async function POST(request: NextRequest) {
       order_amount: paymentAmount,
       order_currency: 'INR',
       customer_details: {
-        customer_id: order.user.id,
-        customer_email: order.user.email!,
-        customer_phone: order.user.phone || '9999999999',
-        customer_name: order.user.name || 'Customer'
+        customer_id: userForPayment.id,
+        customer_email: userForPayment.email!,
+        customer_phone: userForPayment.phone || '9999999999',
+        customer_name: userForPayment.name || 'Customer'
       },
       order_meta: {
         return_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/success?order_id={order_id}`,
