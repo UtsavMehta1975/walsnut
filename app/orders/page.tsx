@@ -63,7 +63,13 @@ export default function OrdersPage() {
       })
       
       if (selectedStatus) {
-        params.append('status', selectedStatus)
+        const orderStatuses = ['PENDING','CONFIRMED','SHIPPED','DELIVERED','CANCELLED','REFUNDED']
+        if (orderStatuses.includes(selectedStatus)) {
+          params.append('status', selectedStatus)
+        } else {
+          // Treat non-order statuses (e.g., PROCESSING) as payment status filters
+          params.append('paymentStatus', selectedStatus)
+        }
       }
 
       // Send Authorization header with email as a fallback for server auth
