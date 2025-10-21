@@ -144,9 +144,14 @@ export async function GET(request: NextRequest) {
       userId: userId // ⚠️ CRITICAL: Only show orders for authenticated user
     }
     
-    // Filter by order status
+    // Filter by order status (validate against enum)
     if (statusFilter) {
-      where.status = statusFilter
+      const validOrderStatuses = ['PENDING','CONFIRMED','SHIPPED','DELIVERED','CANCELLED','REFUNDED']
+      if (validOrderStatuses.includes(statusFilter)) {
+        where.status = statusFilter as any
+      } else {
+        console.warn('⚠️ [ORDERS API] Ignoring invalid status filter:', statusFilter)
+      }
     }
     
     // Filter by payment status
