@@ -92,6 +92,26 @@ export async function GET(request: NextRequest) {
     }
     
     if (!userId) {
+      // Fallback: Authorization header can carry email for mobile/localStorage sessions
+      const authHeader = request.headers.get('authorization')
+      if (authHeader && authHeader.toLowerCase().startsWith('bearer ')) {
+        const bearerEmail = authHeader.slice(7).trim()
+        if (bearerEmail) {
+          try {
+            const authUser = await db.user.findUnique({ where: { email: bearerEmail.toLowerCase() } })
+            if (authUser) {
+              userId = authUser.id
+              userEmail = authUser.email
+              console.log('✅ [ORDERS API] Auth via Authorization header:', userEmail)
+            }
+          } catch (e) {
+            console.warn('⚠️ [ORDERS API] Authorization header lookup failed')
+          }
+        }
+      }
+    }
+    
+    if (!userId) {
       console.log('🔴 [ORDERS API] No authenticated user found')
       console.log('🔴 [ORDERS API] Checked NextAuth session: No user ID')
       console.log('🔴 [ORDERS API] Checked cookie: No user ID')

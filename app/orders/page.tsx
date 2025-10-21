@@ -65,12 +65,18 @@ export default function OrdersPage() {
         params.append('status', selectedStatus)
       }
 
-      const response = await fetch(`/api/orders?${params}`)
+      // Send Authorization header with email as a fallback for server auth
+      const emailBearer = typeof window !== 'undefined' ? (localStorage.getItem('walnut_user') ? JSON.parse(localStorage.getItem('walnut_user') as string)?.email : undefined) : undefined
+      const response = await fetch(`/api/orders?${params}`, {
+        headers: emailBearer ? { Authorization: `Bearer ${emailBearer}` } : undefined
+      })
       
       if (response.status === 401) {
         // One-time retry after a short delay in case cookie/session was just set
         await new Promise(r => setTimeout(r, 400))
-        const retry = await fetch(`/api/orders?${params}`)
+        const retry = await fetch(`/api/orders?${params}`, {
+          headers: emailBearer ? { Authorization: `Bearer ${emailBearer}` } : undefined
+        })
         if (!retry.ok) throw new Error('Failed to fetch orders')
         const retryData: OrdersResponse = await retry.json()
         setOrders(retryData.orders)
