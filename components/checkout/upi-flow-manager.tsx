@@ -32,16 +32,21 @@ export function UPIFlowManager({ amount, orderDetails }: UPIFlowManagerProps) {
       
       toast('Creating order...', { icon: '⏳', duration: 2000 })
       
-      // Create order first
+      // Create order first (include basic customer info so server can associate user)
       console.log('📝 Creating order...')
       const createOrderResponse = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items: [], // Will be populated from cart in API
+          items: [], // Quick UPI path: no cart line items; saved as zero-line order
           totalAmount: amount,
-          shippingAddress: 'Pending', // Will be updated
-          paymentMethod: 'upi'
+          shippingAddress: 'UPI quick pay order',
+          paymentMethod: 'upi',
+          customerInfo: {
+            firstName: orderDetails.customerName?.split(' ')[0] || 'Customer',
+            lastName: orderDetails.customerName?.split(' ').slice(1).join(' ') || '',
+            email: orderDetails.customerEmail
+          }
         })
       })
       
