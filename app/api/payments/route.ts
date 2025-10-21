@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
@@ -63,6 +64,24 @@ export async function POST(request: NextRequest) {
       console.error('❌ [PAYMENT] Missing customer email for payment')
       return NextResponse.json({ error: 'Customer email required for payment' }, { status: 400 })
     }
+
+    // Ensure cookie is set so subsequent pages (orders) can read session
+    try {
+      const cookieStore = cookies()
+      cookieStore.set('user', JSON.stringify({
+        id: userForPayment.id,
+        email: userForPayment.email,
+        name: userForPayment.name,
+        phone: userForPayment.phone,
+        role: 'CUSTOMER'
+      }), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 30,
+        path: '/'
+      })
+    } catch {}
     
     console.log('✅ [PAYMENT] Order found:', { orderId: order.id, userId: order.userId, totalAmount: order.totalAmount })
 

@@ -56,6 +56,10 @@ export default function PaymentSuccessPage() {
         setOrderDetails(verifyData.order)
         setVerificationMessage('Payment verified successfully!')
         setLoading(false)
+        // Auto-redirect to orders page after a brief success view
+        setTimeout(() => {
+          router.push('/orders')
+        }, 2000)
       } else if (verifyData.status === 'PENDING' && retry < 3) {
         // Payment is still being processed, retry after 2 seconds
         setVerificationMessage('Payment is being processed, please wait...')

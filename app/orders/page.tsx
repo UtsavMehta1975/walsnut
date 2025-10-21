@@ -67,7 +67,16 @@ export default function OrdersPage() {
 
       const response = await fetch(`/api/orders?${params}`)
       
-      if (!response.ok) {
+      if (response.status === 401) {
+        // One-time retry after a short delay in case cookie/session was just set
+        await new Promise(r => setTimeout(r, 400))
+        const retry = await fetch(`/api/orders?${params}`)
+        if (!retry.ok) throw new Error('Failed to fetch orders')
+        const retryData: OrdersResponse = await retry.json()
+        setOrders(retryData.orders)
+        setTotalPages(retryData.pagination.totalPages)
+        return
+      } else if (!response.ok) {
         throw new Error('Failed to fetch orders')
       }
 
