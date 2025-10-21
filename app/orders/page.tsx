@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { getUserSession } from '@/lib/session-persistence'
 import { useAuth } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -66,7 +67,8 @@ export default function OrdersPage() {
       }
 
       // Send Authorization header with email as a fallback for server auth
-      const emailBearer = typeof window !== 'undefined' ? (localStorage.getItem('walnut_user') ? JSON.parse(localStorage.getItem('walnut_user') as string)?.email : undefined) : undefined
+      const sessionUser = typeof window !== 'undefined' ? getUserSession() : null
+      const emailBearer = sessionUser?.email
       const response = await fetch(`/api/orders?${params}`, {
         headers: emailBearer ? { Authorization: `Bearer ${emailBearer}` } : undefined
       })
