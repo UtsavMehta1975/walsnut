@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+export const dynamic = 'force-dynamic'
+
 // Instagram Basic Display API configuration
 const INSTAGRAM_APP_ID = process.env.INSTAGRAM_APP_ID
 const INSTAGRAM_APP_SECRET = process.env.INSTAGRAM_APP_SECRET
 const INSTAGRAM_ACCESS_TOKEN = process.env.INSTAGRAM_ACCESS_TOKEN
 const INSTAGRAM_USER_ID = process.env.INSTAGRAM_USER_ID
+
+// Simple in-memory cache to reduce rate limits and avoid frequent errors
+let cachedPosts: InstagramPost[] | null = null
+let cacheExpiry = 0
+const cacheTtlMs = Math.max(60_000, (Number(process.env.INSTAGRAM_CACHE_TTL || '300') * 1000))
 
 interface InstagramPost {
   id: string
@@ -18,6 +25,12 @@ interface InstagramPost {
 
 export async function GET(request: NextRequest) {
   try {
+    // Serve from cache if valid
+    const now = Date.now()
+    if (cachedPosts && now < cacheExpiry) {
+      return NextResponse.json({ success: true, posts: cachedPosts.slice(0, 6) })
+    }
+
     // Check if Instagram credentials are configured
     if (!INSTAGRAM_ACCESS_TOKEN || !INSTAGRAM_USER_ID) {
       // Return mock data when credentials are not configured
@@ -72,6 +85,8 @@ export async function GET(request: NextRequest) {
         }
       ]
       
+      cachedPosts = mockPosts
+      cacheExpiry = now + cacheTtlMs
       return NextResponse.json({
         success: false,
         message: 'Instagram integration not configured - showing demo content',
@@ -85,7 +100,21 @@ export async function GET(request: NextRequest) {
     )
 
     if (!response.ok) {
-      throw new Error(`Instagram API error: ${response.status}`)
+      // Do not throw; return graceful fallback to avoid surfacing 4xx/5xx
+      console.warn('⚠️ Instagram API non-OK status:', response.status)
+      const mockPosts: InstagramPost[] = [
+        {
+          id: 'mock1',
+          media_type: 'IMAGE',
+          media_url: '/product/rolex-submariner-hulk-1.jpg',
+          permalink: 'https://instagram.com/thewalnutstore.in',
+          caption: 'Discover our latest collection of premium timepieces. This Rolex Submariner Hulk is a true masterpiece of horology.',
+          timestamp: new Date(Date.now() - 86400000).toISOString()
+        }
+      ]
+      cachedPosts = mockPosts
+      cacheExpiry = now + cacheTtlMs
+      return NextResponse.json({ success: false, message: `Instagram API ${response.status}`, posts: mockPosts })
     }
 
     const data = await response.json()
@@ -101,6 +130,8 @@ export async function GET(request: NextRequest) {
       thumbnail_url: post.thumbnail_url
     })) || []
 
+    cachedPosts = posts
+    cacheExpiry = now + cacheTtlMs
     return NextResponse.json({
       success: true,
       posts: posts.slice(0, 6) // Limit to 6 posts for the grid
@@ -161,6 +192,8 @@ export async function GET(request: NextRequest) {
       }
     ]
 
+    cachedPosts = mockPosts
+    cacheExpiry = Date.now() + cacheTtlMs
     return NextResponse.json({
       success: false,
       message: 'Using fallback data',
